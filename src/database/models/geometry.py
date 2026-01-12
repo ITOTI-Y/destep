@@ -8,7 +8,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ._base import Base
 
 if TYPE_CHECKING:
-    from .building import Room
+    from .building import Building, Room
+    from .fenestration import Window
+    from .schedule import ScheduleYear
 
 
 class Geometry(Base):
@@ -59,6 +61,15 @@ class Plane(Base):
         Integer, ForeignKey('point.point_id'), comment='Base line end point'
     )
 
+    # Relationships
+    geometry_ref: Mapped[Geometry | None] = relationship('Geometry')
+    base_line_start: Mapped[Point | None] = relationship(
+        'Point', foreign_keys=[base_line_start_point]
+    )
+    base_line_end: Mapped[Point | None] = relationship(
+        'Point', foreign_keys=[base_line_end_point]
+    )
+
 
 class LoopPoint(Base):
     """Loop point model."""
@@ -75,6 +86,10 @@ class LoopPoint(Base):
     of_geometry: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('geometry.geometry_id'), comment='Geometry reference'
     )
+
+    # Relationships
+    point_ref: Mapped[Point | None] = relationship('Point')
+    geometry_ref: Mapped[Geometry | None] = relationship('Geometry')
 
 
 class Shading(Base):
@@ -100,6 +115,9 @@ class Shading(Base):
     )
 
     # Relationships
+    building: Mapped[Building | None] = relationship('Building')
+    geometry_ref: Mapped[Geometry | None] = relationship('Geometry')
+    schedule_ref: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
     surfaces: Mapped[list[Surface]] = relationship('Surface', back_populates='shading')
 
 
@@ -164,7 +182,10 @@ class SurfaceSunShadeMap(Base):
     __tablename__ = 'surface_sun_shade_map'
 
     surface_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, comment='Surface ID'
+        Integer,
+        ForeignKey('surface.surface_id'),
+        primary_key=True,
+        comment='Surface ID',
     )
     azimuth: Mapped[float | None] = mapped_column(Float, comment='Azimuth angle')
     tilt: Mapped[float | None] = mapped_column(Float, comment='Tilt angle')
@@ -172,3 +193,7 @@ class SurfaceSunShadeMap(Base):
     window_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('window.id'), comment='Window ID'
     )
+
+    # Relationships
+    surface: Mapped[Surface | None] = relationship('Surface')
+    window: Mapped[Window | None] = relationship('Window')

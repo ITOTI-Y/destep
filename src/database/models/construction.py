@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
+
+if TYPE_CHECKING:
+    from .building import Room, Storey
+    from .geometry import Surface
+    from .misc import UserDefDll
 
 
 class SysMaterial(Base):
@@ -15,7 +22,7 @@ class SysMaterial(Base):
         Integer, primary_key=True, comment='Material ID'
     )
     color: Mapped[int | None] = mapped_column(Integer, comment='Color')
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Material name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Material name (Chinese)'
@@ -34,6 +41,26 @@ class SysMaterial(Base):
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
     anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
+    # Relationships
+    outwall_materials: Mapped[list[SysOutwallMaterial]] = relationship(
+        'SysOutwallMaterial', back_populates='material'
+    )
+    inwall_materials: Mapped[list[SysInwallMaterial]] = relationship(
+        'SysInwallMaterial', back_populates='material'
+    )
+    roof_materials: Mapped[list[SysRoofMaterial]] = relationship(
+        'SysRoofMaterial', back_populates='material'
+    )
+    groundfloor_materials: Mapped[list[SysGroundfloorMaterial]] = relationship(
+        'SysGroundfloorMaterial', back_populates='material'
+    )
+    middlefloor_materials: Mapped[list[SysMiddlefloorMaterial]] = relationship(
+        'SysMiddlefloorMaterial', back_populates='material'
+    )
+    airfloor_materials: Mapped[list[SysAirfloorMaterial]] = relationship(
+        'SysAirfloorMaterial', back_populates='material'
+    )
+
 
 class SysOutwall(Base):
     """System exterior wall construction model."""
@@ -43,7 +70,7 @@ class SysOutwall(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Exterior wall name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Exterior wall name (Chinese)'
@@ -85,7 +112,9 @@ class SysOutwallMaterial(Base):
     outwall: Mapped[SysOutwall | None] = relationship(
         'SysOutwall', back_populates='materials'
     )
-    material: Mapped[SysMaterial | None] = relationship('SysMaterial')
+    material: Mapped[SysMaterial | None] = relationship(
+        'SysMaterial', back_populates='outwall_materials'
+    )
 
 
 class SysInwall(Base):
@@ -96,7 +125,7 @@ class SysInwall(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Interior wall name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Interior wall name (Chinese)'
@@ -138,7 +167,9 @@ class SysInwallMaterial(Base):
     inwall: Mapped[SysInwall | None] = relationship(
         'SysInwall', back_populates='materials'
     )
-    material: Mapped[SysMaterial | None] = relationship('SysMaterial')
+    material: Mapped[SysMaterial | None] = relationship(
+        'SysMaterial', back_populates='inwall_materials'
+    )
 
 
 class SysRoof(Base):
@@ -149,7 +180,7 @@ class SysRoof(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Roof name')
     cname: Mapped[str | None] = mapped_column(String(50), comment='Roof name (Chinese)')
     resi: Mapped[float | None] = mapped_column(Float, comment='Resistance')
@@ -187,7 +218,9 @@ class SysRoofMaterial(Base):
 
     # Relationships
     roof: Mapped[SysRoof | None] = relationship('SysRoof', back_populates='materials')
-    material: Mapped[SysMaterial | None] = relationship('SysMaterial')
+    material: Mapped[SysMaterial | None] = relationship(
+        'SysMaterial', back_populates='roof_materials'
+    )
 
 
 class SysGroundfloor(Base):
@@ -198,7 +231,7 @@ class SysGroundfloor(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Ground floor name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Ground floor name (Chinese)'
@@ -240,7 +273,9 @@ class SysGroundfloorMaterial(Base):
     groundfloor: Mapped[SysGroundfloor | None] = relationship(
         'SysGroundfloor', back_populates='materials'
     )
-    material: Mapped[SysMaterial | None] = relationship('SysMaterial')
+    material: Mapped[SysMaterial | None] = relationship(
+        'SysMaterial', back_populates='groundfloor_materials'
+    )
 
 
 class SysMiddlefloor(Base):
@@ -251,7 +286,7 @@ class SysMiddlefloor(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Middle floor name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Middle floor name (Chinese)'
@@ -293,7 +328,9 @@ class SysMiddlefloorMaterial(Base):
     middlefloor: Mapped[SysMiddlefloor | None] = relationship(
         'SysMiddlefloor', back_populates='materials'
     )
-    material: Mapped[SysMaterial | None] = relationship('SysMaterial')
+    material: Mapped[SysMaterial | None] = relationship(
+        'SysMaterial', back_populates='middlefloor_materials'
+    )
 
 
 class SysAirfloor(Base):
@@ -304,7 +341,7 @@ class SysAirfloor(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Air floor name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Air floor name (Chinese)'
@@ -346,7 +383,9 @@ class SysAirfloorMaterial(Base):
     airfloor: Mapped[SysAirfloor | None] = relationship(
         'SysAirfloor', back_populates='materials'
     )
-    material: Mapped[SysMaterial | None] = relationship('SysMaterial')
+    material: Mapped[SysMaterial | None] = relationship(
+        'SysMaterial', back_populates='airfloor_materials'
+    )
 
 
 class SysAppMaterial(Base):
@@ -358,7 +397,7 @@ class SysAppMaterial(Base):
         Integer, primary_key=True, comment='Additional material ID'
     )
     color: Mapped[int | None] = mapped_column(Integer, comment='Color')
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Material name')
     cname: Mapped[str | None] = mapped_column(String(50), comment='Chinese name')
     conductivity: Mapped[float | None] = mapped_column(
@@ -412,6 +451,16 @@ class MainEnclosure(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    surface_side1: Mapped[Surface | None] = relationship(
+        'Surface', foreign_keys=[side1]
+    )
+    surface_side2: Mapped[Surface | None] = relationship(
+        'Surface', foreign_keys=[side2]
+    )
+    user_def_dll_ref: Mapped[UserDefDll | None] = relationship('UserDefDll')
+    storey: Mapped[Storey | None] = relationship('Storey')
+
 
 class LibPhaseChangeMat(Base):
     """Phase change material library model."""
@@ -449,7 +498,9 @@ class PhaseChangeMat(Base):
 
     __tablename__ = 'phase_change_mat'
 
-    room_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Room ID')
+    room_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('room.id'), primary_key=True, comment='Room ID'
+    )
     name: Mapped[str | None] = mapped_column(String(50), comment='Material name')
     lib_phase_change_mat_id: Mapped[int | None] = mapped_column(
         Integer,
@@ -459,6 +510,12 @@ class PhaseChangeMat(Base):
     thickness: Mapped[float | None] = mapped_column(Float, comment='Thickness (mm)')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
+    )
+
+    # Relationships
+    room: Mapped[Room | None] = relationship('Room')
+    lib_phase_change_mat: Mapped[LibPhaseChangeMat | None] = relationship(
+        'LibPhaseChangeMat'
     )
 
 
@@ -483,5 +540,7 @@ class GroundData(Base):
     __tablename__ = 'ground_data'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Ground data ID')
-    hour: Mapped[int | None] = mapped_column(Integer, comment='Hour of year')
+    hour: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Hour of year (0-8759)'
+    )
     t: Mapped[float | None] = mapped_column(Float, comment='Temperature (°C)')

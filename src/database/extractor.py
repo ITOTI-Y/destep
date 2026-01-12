@@ -71,11 +71,11 @@ class DataExtractor:
             try:
                 decoded_row = self._decode_row(row, fk_info)
                 instance = model_class(**decoded_row)
-                session.merge(instance)
+                with session.begin_nested():
+                    session.merge(instance)
                 success_count += 1
             except Exception as e:
                 error_count += 1
-                session.rollback()
                 logger.warning(f"Failed to insert row in '{table_name}': {e}")
                 continue
 

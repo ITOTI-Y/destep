@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from sqlalchemy import Float, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
 
@@ -42,6 +42,11 @@ class Environment(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    city: Mapped[SysCity | None] = relationship(
+        'SysCity', back_populates='environments'
+    )
+
 
 class ClimateData(Base):
     """Climate data model (hourly weather data)."""
@@ -51,7 +56,9 @@ class ClimateData(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Climate data ID'
     )
-    hour: Mapped[int | None] = mapped_column(Integer, comment='Hour of year (1-8760)')
+    hour: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Hour of year (0-8759)'
+    )
     dry_bulb_t: Mapped[float | None] = mapped_column(
         Float, comment='Dry bulb temperature (°C)'
     )
@@ -69,6 +76,7 @@ class ClimateData(Base):
     ws: Mapped[float | None] = mapped_column(Float, comment='Wind speed (m/s)')
     wd: Mapped[float | None] = mapped_column(Float, comment='Wind direction (°)')
     b: Mapped[float | None] = mapped_column(Float, comment='Atmospheric pressure (Pa)')
+
 
 
 class SysCity(Base):
@@ -94,12 +102,18 @@ class SysCity(Base):
     elevation: Mapped[float | None] = mapped_column(Float, comment='Elevation (m)')
     weather_type: Mapped[int | None] = mapped_column(Integer, comment='Weather type')
     climate_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('climate_data.id'), comment='Climate data reference'
+        Integer, comment='Climate data reference'
     )
     ground_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('ground.ground_id'), comment='Ground reference'
     )
     note: Mapped[str | None] = mapped_column(String(255), comment='Note')
+
+    # Relationships
+    ground: Mapped[Ground | None] = relationship('Ground', back_populates='cities')
+    environments: Mapped[list[Environment]] = relationship(
+        'Environment', back_populates='city'
+    )
 
 
 class Outside(Base):
@@ -145,3 +159,6 @@ class Ground(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    cities: Mapped[list[SysCity]] = relationship('SysCity', back_populates='ground')

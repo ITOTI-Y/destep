@@ -8,7 +8,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ._base import Base
 
 if TYPE_CHECKING:
-    from .building import Room, RoomGroup
+    from .building import Building, Room, RoomGroup
+    from .misc import LibCurve, LibProduct
+    from .schedule import ScheduleYear
 
 
 class AcSys(Base):
@@ -138,6 +140,10 @@ class LibChiller(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    cop_curve_obj: Mapped[LibCurve | None] = relationship('LibCurve')
+    product: Mapped[LibProduct | None] = relationship('LibProduct')
+
 
 class Chiller(Base):
     """Chiller model."""
@@ -219,6 +225,10 @@ class LibBoiler(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    cop_curve_obj: Mapped[LibCurve | None] = relationship('LibCurve')
+    product: Mapped[LibProduct | None] = relationship('LibProduct')
+
 
 class Boiler(Base):
     """Boiler model."""
@@ -272,6 +282,7 @@ class HeatingSystem(Base):
     )
 
     # Relationships
+    supply_t_schedule_obj: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
     heating_pipes: Mapped[list[HeatingPipe]] = relationship(
         'HeatingPipe', back_populates='heating_system'
     )
@@ -302,6 +313,7 @@ class HeatingPipe(Base):
     heating_system: Mapped[HeatingSystem | None] = relationship(
         'HeatingSystem', back_populates='heating_pipes'
     )
+    flow_schedule_obj: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
     rooms: Mapped[list[Room]] = relationship('Room', back_populates='heating_pipe')
 
 
@@ -318,6 +330,9 @@ class FanCoil(Base):
     pos_x: Mapped[float | None] = mapped_column(Float, comment='X position')
     pos_y: Mapped[float | None] = mapped_column(Float, comment='Y position')
     pos_z: Mapped[float | None] = mapped_column(Float, comment='Z position')
+
+    # Relationships
+    room: Mapped[Room | None] = relationship('Room')
 
 
 class LibPump(Base):
@@ -355,6 +370,15 @@ class LibPump(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    gp_curve_obj: Mapped[LibCurve | None] = relationship(
+        'LibCurve', foreign_keys=[gp_curve]
+    )
+    geff_curve_obj: Mapped[LibCurve | None] = relationship(
+        'LibCurve', foreign_keys=[geff_curve]
+    )
+    product: Mapped[LibProduct | None] = relationship('LibProduct')
 
 
 class LibCoolingtower(Base):
@@ -398,6 +422,9 @@ class LibCoolingtower(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    product: Mapped[LibProduct | None] = relationship('LibProduct')
+
 
 class CoolingTower(Base):
     """Cooling tower model."""
@@ -411,6 +438,9 @@ class CoolingTower(Base):
         Integer, ForeignKey('cps.cps_id'), comment='Parent CPS'
     )
     product_id: Mapped[int | None] = mapped_column(Integer, comment='Product ID')
+
+    # Relationships
+    cps: Mapped[Cps | None] = relationship('Cps')
 
 
 class Coolingtower(Base):
@@ -433,6 +463,10 @@ class Coolingtower(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    lib_coolingtower: Mapped[LibCoolingtower | None] = relationship('LibCoolingtower')
+    cps: Mapped[Cps | None] = relationship('Cps')
 
 
 class Cps(Base):
@@ -503,6 +537,10 @@ class LibHeatexchanger(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    k_curve_obj: Mapped[LibCurve | None] = relationship('LibCurve')
+    product: Mapped[LibProduct | None] = relationship('LibProduct')
+
 
 class Heatexchanger(Base):
     """Heat exchanger model."""
@@ -526,6 +564,11 @@ class Heatexchanger(Base):
     blank_2: Mapped[int | None] = mapped_column(Integer, comment='Reserved field 2')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
+    )
+
+    # Relationships
+    lib_heatexchanger: Mapped[LibHeatexchanger | None] = relationship(
+        'LibHeatexchanger'
     )
 
 
@@ -628,6 +671,9 @@ class Duct(Base):
     start: Mapped[int | None] = mapped_column(Integer, comment='Start node')
     end: Mapped[int | None] = mapped_column(Integer, comment='End node')
 
+    # Relationships
+    ac_sys: Mapped[AcSys | None] = relationship('AcSys')
+
 
 class DuctJoint(Base):
     """Duct joint model."""
@@ -658,6 +704,9 @@ class DnFcu(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    room: Mapped[Room | None] = relationship('Room')
 
 
 class DnAhu(Base):
@@ -692,6 +741,9 @@ class DnAhu(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    building: Mapped[Building | None] = relationship('Building')
+
 
 class DnDuct(Base):
     """DN duct model."""
@@ -709,6 +761,9 @@ class DnDuct(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    building: Mapped[Building | None] = relationship('Building')
 
 
 # HACNET system models
@@ -728,6 +783,9 @@ class HacnetSubnet(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    net: Mapped[HacnetNet | None] = relationship('HacnetNet')
 
 
 class HacnetNet(Base):
@@ -770,6 +828,9 @@ class HacnetNode(Base):
     b_font_show: Mapped[bool] = mapped_column(
         'bFontShow', Boolean, default=False, comment='Font display'
     )
+
+    # Relationships
+    subnet: Mapped[HacnetSubnet | None] = relationship('HacnetSubnet')
 
 
 class HacnetBranch(Base):
@@ -815,6 +876,15 @@ class HacnetBranch(Base):
         'bFontShow', Boolean, default=False, comment='Font display'
     )
 
+    # Relationships
+    subnet: Mapped[HacnetSubnet | None] = relationship('HacnetSubnet')
+    start_node_ref: Mapped[HacnetNode | None] = relationship(
+        'HacnetNode', foreign_keys=[start_node]
+    )
+    end_node_ref: Mapped[HacnetNode | None] = relationship(
+        'HacnetNode', foreign_keys=[end_node]
+    )
+
 
 class HacnetBranchPoint(Base):
     """HACNET branch point model."""
@@ -830,6 +900,9 @@ class HacnetBranchPoint(Base):
     )
     x: Mapped[float | None] = mapped_column(Float, comment='X coordinate')
     y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
+
+    # Relationships
+    branch: Mapped[HacnetBranch | None] = relationship('HacnetBranch')
 
 
 class HacnetLandafai(Base):
@@ -855,6 +928,9 @@ class HacnetLandafai(Base):
     nprintsx: Mapped[int | None] = mapped_column(
         'nPrintSx', Integer, comment='Print SX'
     )
+
+    # Relationships
+    subnet: Mapped[HacnetSubnet | None] = relationship('HacnetSubnet')
 
 
 class HacnetTerminal(Base):
@@ -891,6 +967,11 @@ class HacnetTerminal(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    branch: Mapped[HacnetBranch | None] = relationship('HacnetBranch')
+    subnet: Mapped[HacnetSubnet | None] = relationship('HacnetSubnet')
+    room: Mapped[Room | None] = relationship('Room')
+
 
 class HacnetPump(Base):
     """HACNET pump model."""
@@ -905,6 +986,9 @@ class HacnetPump(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    subnet: Mapped[HacnetSubnet | None] = relationship('HacnetSubnet')
 
 
 class HacnetValve(Base):
@@ -924,6 +1008,10 @@ class HacnetValve(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    product: Mapped[LibProduct | None] = relationship('LibProduct')
+    branch: Mapped[HacnetBranch | None] = relationship('HacnetBranch')
+
 
 class HacnetWpgnode(Base):
     """HACNET WPG node model."""
@@ -941,6 +1029,9 @@ class HacnetWpgnode(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    subnet: Mapped[HacnetSubnet | None] = relationship('HacnetSubnet')
+
 
 class HacnetText(Base):
     """HACNET text model."""
@@ -955,6 +1046,9 @@ class HacnetText(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    subnet: Mapped[HacnetSubnet | None] = relationship('HacnetSubnet')
 
 
 # PN system models
@@ -1007,6 +1101,9 @@ class PnValve(Base):
         Integer, ForeignKey('pn_pipe.id'), comment='Pipe ID'
     )
 
+    # Relationships
+    pipe: Mapped[PnPipe | None] = relationship('PnPipe')
+
 
 class WaterSys(Base):
     """Water system model."""
@@ -1040,3 +1137,6 @@ class EnergyPumpFan(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    schedule_obj: Mapped[ScheduleYear | None] = relationship('ScheduleYear')

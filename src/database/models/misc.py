@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Float, ForeignKey, Integer, LargeBinary, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
+
+if TYPE_CHECKING:
+    from .schedule import ScheduleYear
 
 
 class RoomTypeData(Base):
@@ -126,6 +131,38 @@ class RoomTypeData(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    occupant_schedule: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[o_schedule]
+    )
+    lighting_schedule: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[l_schedule]
+    )
+    equipment_schedule: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[e_schedule]
+    )
+    ac_schedule: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[ac_schedule_id]
+    )
+    set_t_min_schedule_ref: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[set_t_min_schedule]
+    )
+    set_t_max_schedule_ref: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[set_t_max_schedule]
+    )
+    set_rh_min_schedule_ref: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[set_rh_min_schedule]
+    )
+    set_rh_max_schedule_ref: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[set_rh_max_schedule]
+    )
+    ac_t_min_schedule_ref: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[ac_t_min_schedule]
+    )
+    ac_t_max_schedule_ref: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[ac_t_max_schedule]
+    )
+
 
 class DefaultSetting(Base):
     """Default setting model (field default values)."""
@@ -138,6 +175,7 @@ class DefaultSetting(Base):
     field_name: Mapped[str] = mapped_column(
         String(50), primary_key=True, comment='Field name'
     )
+    kind: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Kind')
     string: Mapped[str | None] = mapped_column(String(255), comment='String value')
     long: Mapped[int | None] = mapped_column(Integer, comment='Long value')
     double: Mapped[float | None] = mapped_column(  # type: ignore
@@ -148,7 +186,6 @@ class DefaultSetting(Base):
     )
     short: Mapped[int | None] = mapped_column(Integer, comment='Short value')
     type: Mapped[int | None] = mapped_column(Integer, comment='Type')
-    kind: Mapped[int | None] = mapped_column(Integer, comment='Kind')
     comment: Mapped[str | None] = mapped_column(String(255), comment='Comment')
 
 
@@ -223,7 +260,7 @@ class ExtProperty(Base):
         Integer, primary_key=True, comment='Extended property ID'
     )
     next_property: Mapped[int | None] = mapped_column(
-        Integer, comment='Next property ID'
+        Integer, ForeignKey('ext_property.property_id'), comment='Next property ID'
     )
     name: Mapped[str | None] = mapped_column(String(50), comment='Property name')
     type: Mapped[int | None] = mapped_column(Integer, comment='Property type')
@@ -232,16 +269,21 @@ class ExtProperty(Base):
     data_string: Mapped[str | None] = mapped_column(String(255), comment='String data')
     data_bin: Mapped[bytes | None] = mapped_column(LargeBinary, comment='Binary data')
 
+    # Relationships (self-referencing)
+    next_property_ref: Mapped[ExtProperty | None] = relationship(
+        'ExtProperty', remote_side=[property_id]
+    )
+
 
 class Option(Base):
     """Option model."""
 
     __tablename__ = 'option'
 
-    option_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, comment='Option ID'
+    keyword: Mapped[str] = mapped_column(
+        String(50), primary_key=True, comment='Keyword'
     )
-    keyword: Mapped[str | None] = mapped_column(String(50), comment='Keyword')
+    option_id: Mapped[int | None] = mapped_column(Integer, comment='Option ID')
     explain: Mapped[str | None] = mapped_column(String(255), comment='Explanation')
     type: Mapped[int | None] = mapped_column(Integer, comment='Type')
     option_string: Mapped[str | None] = mapped_column(
@@ -283,8 +325,8 @@ class SysDuctModal(Base):
     area: Mapped[float] = mapped_column(
         Float, primary_key=True, comment='Cross-section area'
     )
-    width: Mapped[float | None] = mapped_column(Float, comment='Width (mm)')
-    high: Mapped[float | None] = mapped_column(Float, comment='Height (mm)')
+    width: Mapped[float] = mapped_column(Float, primary_key=True, comment='Width (mm)')
+    high: Mapped[float] = mapped_column(Float, primary_key=True, comment='Height (mm)')
     anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
 
@@ -327,6 +369,9 @@ class LibWindRatioModel(Base):
         Integer, comment='Extended property'
     )
 
+    # Relationships
+    type_rel: Mapped[LibWindRatioType | None] = relationship('LibWindRatioType')
+
 
 class LibWindRatioModelV1(Base):
     """Wind pressure ratio model library V1 model."""
@@ -342,6 +387,9 @@ class LibWindRatioModelV1(Base):
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
+
+    # Relationships
+    type_rel: Mapped[LibWindRatioType | None] = relationship('LibWindRatioType')
 
 
 class LibCurve(Base):
@@ -433,3 +481,33 @@ class LibShpDeviceV1(Base):
     b3: Mapped[float | None] = mapped_column(Float, comment='B3')
     p3: Mapped[float | None] = mapped_column(Float, comment='P3')
     remark: Mapped[str | None] = mapped_column(String(255), comment='Remark')
+
+
+class Sky(Base):
+    """Sky model."""
+
+    __tablename__ = 'sky'
+
+    sky_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Sky ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    sky_data_id: Mapped[int | None] = mapped_column(Integer, comment='Sky data ID')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class LibRoofunitDevice(Base):
+    """Roofunit device library model."""
+
+    __tablename__ = 'lib_roofunit_device'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Device ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    flowrate: Mapped[float | None] = mapped_column(Float, comment='Flow rate')
+    cool_cap: Mapped[float | None] = mapped_column(Float, comment='Cooling capacity')
+    heat_cap: Mapped[float | None] = mapped_column(Float, comment='Heating capacity')
+    cool_power: Mapped[float | None] = mapped_column(Float, comment='Cooling power')
+    heat_power: Mapped[float | None] = mapped_column(Float, comment='Heating power')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
