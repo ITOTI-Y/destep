@@ -1,0 +1,1042 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ._base import Base
+
+if TYPE_CHECKING:
+    from .building import Room, RoomGroup
+
+
+class AcSys(Base):
+    """Air conditioning system model."""
+
+    __tablename__ = 'ac_sys'
+
+    ac_sys_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='AC system ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='System name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='System type')
+    air_loop_type: Mapped[int | None] = mapped_column(Integer, comment='Air loop type')
+    water_loop_type: Mapped[int | None] = mapped_column(
+        Integer, comment='Water loop type'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+    # Relationships
+    room_groups: Mapped[list[RoomGroup]] = relationship(
+        'RoomGroup', back_populates='ac_sys'
+    )
+    ahus: Mapped[list[Ahu]] = relationship('Ahu', back_populates='ac_sys')
+
+
+class Ahu(Base):
+    """Air handling unit model."""
+
+    __tablename__ = 'ahu'
+
+    ahu_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='AHU ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Unit name')
+    of_ac_sys: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('ac_sys.ac_sys_id'), comment='Parent AC system'
+    )
+    type: Mapped[int | None] = mapped_column(Integer, comment='Unit type')
+    cooling_coil: Mapped[int | None] = mapped_column(Integer, comment='Cooling coil')
+    coil_type: Mapped[int | None] = mapped_column(Integer, comment='Coil type')
+    coil_num: Mapped[int | None] = mapped_column(Integer, comment='Coil count')
+    sprayer: Mapped[int | None] = mapped_column(Integer, comment='Sprayer')
+    heater: Mapped[int | None] = mapped_column(Integer, comment='Heater')
+    humidifier: Mapped[int | None] = mapped_column(Integer, comment='Humidifier')
+    reheat_type: Mapped[int | None] = mapped_column(Integer, comment='Reheat type')
+    heat_recover: Mapped[int | None] = mapped_column(Integer, comment='Heat recovery')
+    min_t_ex_coef: Mapped[float | None] = mapped_column(
+        Float, comment='Minimum temperature exchange coefficient'
+    )
+    max_t_ex_coef: Mapped[float | None] = mapped_column(
+        Float, comment='Maximum temperature exchange coefficient'
+    )
+    min_d_ex_coef: Mapped[float | None] = mapped_column(
+        Float, comment='Minimum humidity exchange coefficient'
+    )
+    max_d_ex_coef: Mapped[float | None] = mapped_column(
+        Float, comment='Maximum humidity exchange coefficient'
+    )
+    second_air: Mapped[bool | None] = mapped_column(
+        Boolean, default=False, comment='Return air enabled'
+    )
+    min_second_air_ratio: Mapped[float | None] = mapped_column(
+        Float, comment='Minimum return air ratio'
+    )
+    max_second_air_ratio: Mapped[float | None] = mapped_column(
+        Float, comment='Maximum return air ratio'
+    )
+    fan: Mapped[int | None] = mapped_column(Integer, comment='Fan')
+    ahures: Mapped[int | None] = mapped_column(Integer, comment='AHU result')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+    # Relationships
+    ac_sys: Mapped[AcSys | None] = relationship('AcSys', back_populates='ahus')
+
+
+class LibChiller(Base):
+    """Chiller library model."""
+
+    __tablename__ = 'lib_chiller'
+
+    lib_chiller_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Library chiller ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Unit name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Unit type')
+    capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Cooling capacity (kW)'
+    )
+    flowrate_cold: Mapped[float | None] = mapped_column(
+        Float, comment='Chilled water flow rate (m³/h)'
+    )
+    flowrate_cool: Mapped[float | None] = mapped_column(
+        Float, comment='Cooling water flow rate (m³/h)'
+    )
+    pressure_loss_cold: Mapped[float | None] = mapped_column(
+        Float, comment='Chilled water pressure loss (kPa)'
+    )
+    pressure_loss_cool: Mapped[float | None] = mapped_column(
+        Float, comment='Cooling water pressure loss (kPa)'
+    )
+    cop: Mapped[float | None] = mapped_column(Float, comment='COP')
+    cop_curve: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_curve.lib_curve_id'), comment='COP curve ID'
+    )
+    fuel_type: Mapped[int | None] = mapped_column(Integer, comment='Fuel type')
+    fuel_heat_value: Mapped[float | None] = mapped_column(
+        Float, comment='Fuel heat value (kJ/kg)'
+    )
+    consume_fuel: Mapped[float | None] = mapped_column(
+        Float, comment='Fuel consumption'
+    )
+    consume_elec: Mapped[float | None] = mapped_column(
+        Float, comment='Electricity consumption (kW)'
+    )
+    fanpump_num: Mapped[int | None] = mapped_column(Integer, comment='Fan/pump number')
+    fanpump_power: Mapped[float | None] = mapped_column(
+        Float, comment='Fan/pump power (kW)'
+    )
+    product_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_product.product_id'), comment='Product ID'
+    )
+    blank_1: Mapped[float | None] = mapped_column(Float, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Float, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class Chiller(Base):
+    """Chiller model."""
+
+    __tablename__ = 'chiller'
+
+    chiller_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Chiller ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Unit name')
+    lib_chiller_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_chiller.lib_chiller_id'), comment='Library chiller ID'
+    )
+    prime_pump: Mapped[int | None] = mapped_column(Integer, comment='Primary pump')
+    second_pump: Mapped[int | None] = mapped_column(Integer, comment='Secondary pump')
+    coolingtower: Mapped[int | None] = mapped_column(Integer, comment='Cooling tower')
+    priority: Mapped[int | None] = mapped_column(Integer, comment='Priority')
+    blank_1: Mapped[float | None] = mapped_column(Float, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Float, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+    # Relationships
+    lib_chiller: Mapped[LibChiller | None] = relationship('LibChiller')
+
+
+class LibBoiler(Base):
+    """Boiler library model."""
+
+    __tablename__ = 'lib_boiler'
+
+    lib_boiler_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Library boiler ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Boiler name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Boiler type')
+    capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Heating capacity (kW)'
+    )
+    flowrate: Mapped[float | None] = mapped_column(Float, comment='Flow rate (m³/h)')
+    pressure_loss: Mapped[float | None] = mapped_column(
+        Float, comment='Pressure loss (kPa)'
+    )
+    steam_pressure: Mapped[float | None] = mapped_column(
+        Float, comment='Steam pressure (kPa)'
+    )
+    supply_temperature: Mapped[float | None] = mapped_column(
+        Float, comment='Supply temperature (°C)'
+    )
+    return_temperature: Mapped[float | None] = mapped_column(
+        Float, comment='Return temperature (°C)'
+    )
+    efficiency: Mapped[float | None] = mapped_column(Float, comment='Efficiency')
+    cop: Mapped[float | None] = mapped_column(Float, comment='COP')
+    cop_curve: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_curve.lib_curve_id'), comment='COP curve ID'
+    )
+    fuel_type: Mapped[int | None] = mapped_column(Integer, comment='Fuel type')
+    fuel_heat_value: Mapped[float | None] = mapped_column(
+        Float, comment='Fuel heat value (kJ/kg)'
+    )
+    consume_fuel: Mapped[float | None] = mapped_column(
+        Float, comment='Fuel consumption'
+    )
+    consume_elec: Mapped[float | None] = mapped_column(
+        Float, comment='Electricity consumption (kW)'
+    )
+    fanpump_num: Mapped[int | None] = mapped_column(Integer, comment='Fan/pump number')
+    fanpump_power: Mapped[float | None] = mapped_column(
+        Float, comment='Fan/pump power (kW)'
+    )
+    product_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_product.product_id'), comment='Product ID'
+    )
+    blank_1: Mapped[float | None] = mapped_column(Float, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Float, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class Boiler(Base):
+    """Boiler model."""
+
+    __tablename__ = 'boiler'
+
+    boiler_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Boiler ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Boiler name')
+    lib_boiler_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_boiler.lib_boiler_id'), comment='Library boiler ID'
+    )
+    prime_pump: Mapped[int | None] = mapped_column(Integer, comment='Primary pump')
+    second_pump: Mapped[int | None] = mapped_column(Integer, comment='Secondary pump')
+    heatsource_pump: Mapped[int | None] = mapped_column(
+        Integer, comment='Heat source pump'
+    )
+    heatexchanger: Mapped[int | None] = mapped_column(Integer, comment='Heat exchanger')
+    priority: Mapped[int | None] = mapped_column(Integer, comment='Priority')
+    blank_1: Mapped[float | None] = mapped_column(Float, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Float, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+    # Relationships
+    lib_boiler: Mapped[LibBoiler | None] = relationship('LibBoiler')
+
+
+class HeatingSystem(Base):
+    """Heating system model."""
+
+    __tablename__ = 'heating_system'
+
+    heating_system_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Heating system ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='System name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='System type')
+    supply_t_schedule: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey('schedule_year.schedule_id'),
+        comment='Supply temperature schedule',
+    )
+    radiator_area_mode: Mapped[int | None] = mapped_column(
+        Integer, comment='Radiator area mode'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+    # Relationships
+    heating_pipes: Mapped[list[HeatingPipe]] = relationship(
+        'HeatingPipe', back_populates='heating_system'
+    )
+
+
+class HeatingPipe(Base):
+    """Heating pipe model."""
+
+    __tablename__ = 'heating_pipe'
+
+    heating_pipe_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Heating pipe ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Pipe name')
+    of_heating_system: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey('heating_system.heating_system_id'),
+        comment='Parent heating system',
+    )
+    flow_schedule: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('schedule_year.schedule_id'), comment='Flow schedule'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+    # Relationships
+    heating_system: Mapped[HeatingSystem | None] = relationship(
+        'HeatingSystem', back_populates='heating_pipes'
+    )
+    rooms: Mapped[list[Room]] = relationship('Room', back_populates='heating_pipe')
+
+
+class FanCoil(Base):
+    """Fan coil unit model."""
+
+    __tablename__ = 'fan_coil'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    of_room: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('room.id'), comment='Parent room'
+    )
+    pos_x: Mapped[float | None] = mapped_column(Float, comment='X position')
+    pos_y: Mapped[float | None] = mapped_column(Float, comment='Y position')
+    pos_z: Mapped[float | None] = mapped_column(Float, comment='Z position')
+
+
+class LibPump(Base):
+    """Pump library model."""
+
+    __tablename__ = 'lib_pump'
+
+    lib_pump_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Pump library ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Pump name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Pump type')
+    flowrate: Mapped[float | None] = mapped_column(Float, comment='Flow rate (m³/h)')
+    pressure: Mapped[float | None] = mapped_column(Float, comment='Pressure (kPa)')
+    efficiency: Mapped[float | None] = mapped_column(Float, comment='Efficiency')
+    gp_curve: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_curve.lib_curve_id'), comment='G-P curve reference'
+    )
+    geff_curve: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey('lib_curve.lib_curve_id'),
+        comment='G-Efficiency curve reference',
+    )
+    speed_ratio_max: Mapped[float | None] = mapped_column(
+        Float, comment='Maximum speed ratio'
+    )
+    speed_ratio_min: Mapped[float | None] = mapped_column(
+        Float, comment='Minimum speed ratio'
+    )
+    product_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_product.product_id'), comment='Product ID'
+    )
+    blank_1: Mapped[float | None] = mapped_column(Float, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Float, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class LibCoolingtower(Base):
+    """Cooling tower library model."""
+
+    __tablename__ = 'lib_coolingtower'
+
+    lib_coolingtower_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Cooling tower library ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Cooling tower name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Cooling tower type')
+    capacity: Mapped[float | None] = mapped_column(Float, comment='Capacity (kW)')
+    flowrate: Mapped[float | None] = mapped_column(Float, comment='Flow rate (m³/h)')
+    pressure_loss: Mapped[float | None] = mapped_column(
+        Float, comment='Pressure loss (kPa)'
+    )
+    supply_temperature: Mapped[float | None] = mapped_column(
+        Float, comment='Supply temperature (°C)'
+    )
+    return_temperature: Mapped[float | None] = mapped_column(
+        Float, comment='Return temperature (°C)'
+    )
+    air_wetbulb_temperature: Mapped[float | None] = mapped_column(
+        Float, comment='Air wet bulb temperature (°C)'
+    )
+    air_flowrate: Mapped[float | None] = mapped_column(
+        Float, comment='Air flow rate (m³/h)'
+    )
+    fan_power: Mapped[float | None] = mapped_column(Float, comment='Fan power (kW)')
+    refill_flowrate: Mapped[float | None] = mapped_column(
+        Float, comment='Refill flow rate (m³/h)'
+    )
+    betaf: Mapped[float | None] = mapped_column(Float, comment='Beta factor')
+    product_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_product.product_id'), comment='Product ID'
+    )
+    blank_1: Mapped[float | None] = mapped_column(Float, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Float, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class CoolingTower(Base):
+    """Cooling tower model."""
+
+    __tablename__ = 'cooling_tower'
+
+    tower_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Cooling tower ID'
+    )
+    of_cps: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('cps.cps_id'), comment='Parent CPS'
+    )
+    product_id: Mapped[int | None] = mapped_column(Integer, comment='Product ID')
+
+
+class Coolingtower(Base):
+    """Cooling tower model (alias table)."""
+
+    __tablename__ = 'coolingtower'
+
+    coolingtower_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Cooling tower ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Cooling tower name')
+    lib_coolingtower_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey('lib_coolingtower.lib_coolingtower_id'),
+        comment='Cooling tower library ID',
+    )
+    of_cps: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('cps.cps_id'), comment='Parent CPS'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class Cps(Base):
+    """Cooling and heating plant station model."""
+
+    __tablename__ = 'cps'
+
+    cps_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Plant station ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Station name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Station type')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class LibHeatexchanger(Base):
+    """Heat exchanger library model."""
+
+    __tablename__ = 'lib_heatexchanger'
+
+    lib_heatexchanger_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Heat exchanger library ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Type')
+    capacity: Mapped[float | None] = mapped_column(Float, comment='Capacity')
+    ex_area: Mapped[float | None] = mapped_column(Float, comment='Heat exchange area')
+    k: Mapped[float | None] = mapped_column(
+        Float, comment='Rated heat transfer coefficient'
+    )
+    k_curve: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey('lib_curve.lib_curve_id'),
+        comment='Heat transfer coefficient curve',
+    )
+    flowrate1: Mapped[float | None] = mapped_column(
+        Float, comment='Primary side flow rate'
+    )
+    pressure_loss1: Mapped[float | None] = mapped_column(
+        Float, comment='Primary side pressure loss'
+    )
+    tin1: Mapped[float | None] = mapped_column(
+        Float, comment='Primary side inlet temperature'
+    )
+    tout1: Mapped[float | None] = mapped_column(
+        Float, comment='Primary side outlet temperature'
+    )
+    flowrate2: Mapped[float | None] = mapped_column(
+        Float, comment='Secondary side flow rate'
+    )
+    pressure_loss2: Mapped[float | None] = mapped_column(
+        Float, comment='Secondary side pressure loss'
+    )
+    tin2: Mapped[float | None] = mapped_column(
+        Float, comment='Secondary side inlet temperature'
+    )
+    tout2: Mapped[float | None] = mapped_column(
+        Float, comment='Secondary side outlet temperature'
+    )
+    product_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_product.product_id'), comment='Product ID'
+    )
+    blank_1: Mapped[float | None] = mapped_column(Float, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Float, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class Heatexchanger(Base):
+    """Heat exchanger model."""
+
+    __tablename__ = 'heatexchanger'
+
+    heatexchanger_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Heat exchanger ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    lib_heatexchanger_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey('lib_heatexchanger.lib_heatexchanger_id'),
+        comment='Heat exchanger library ID',
+    )
+    prime_pump: Mapped[int | None] = mapped_column(Integer, comment='Primary pump')
+    second_pump: Mapped[int | None] = mapped_column(Integer, comment='Secondary pump')
+    attribute_to: Mapped[int | None] = mapped_column(Integer, comment='Attribute to')
+    priority: Mapped[int | None] = mapped_column(Integer, comment='Priority')
+    blank_1: Mapped[int | None] = mapped_column(Integer, comment='Reserved field 1')
+    blank_2: Mapped[int | None] = mapped_column(Integer, comment='Reserved field 2')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+# VRV system models
+class LibVrvTerminalV1(Base):
+    """VRV terminal library V1 model."""
+
+    __tablename__ = 'lib_vrv_terminal_v1'
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='VRV terminal library ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    cooling_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Cooling capacity (kW)'
+    )
+    heating_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Heating capacity (kW)'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class LibVrvSource(Base):
+    """VRV outdoor unit library model."""
+
+    __tablename__ = 'lib_vrv_source'
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='VRV outdoor unit library ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    cooling_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Cooling capacity (kW)'
+    )
+    heating_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Heating capacity (kW)'
+    )
+    cop_cooling: Mapped[float | None] = mapped_column(Float, comment='Cooling COP')
+    cop_heating: Mapped[float | None] = mapped_column(Float, comment='Heating COP')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class LibVrvSourceV1(Base):
+    """VRV outdoor unit library V1 model."""
+
+    __tablename__ = 'lib_vrv_source_v1'
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='VRV outdoor unit library V1 ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    cooling_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Cooling capacity (kW)'
+    )
+    heating_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Heating capacity (kW)'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class LibVrvTerminal(Base):
+    """VRV terminal library model."""
+
+    __tablename__ = 'lib_vrv_terminal'
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='VRV terminal library ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    cooling_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Cooling capacity (kW)'
+    )
+    heating_capacity: Mapped[float | None] = mapped_column(
+        Float, comment='Heating capacity (kW)'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+# Duct system models
+class Duct(Base):
+    """Duct model."""
+
+    __tablename__ = 'duct'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Duct ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Duct name')
+    of_ac_sys: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('ac_sys.ac_sys_id'), comment='Parent AC system'
+    )
+    width: Mapped[float | None] = mapped_column(Float, comment='Duct width')
+    height: Mapped[float | None] = mapped_column(Float, comment='Duct height')
+    start: Mapped[int | None] = mapped_column(Integer, comment='Start node')
+    end: Mapped[int | None] = mapped_column(Integer, comment='End node')
+
+
+class DuctJoint(Base):
+    """Duct joint model."""
+
+    __tablename__ = 'duct_joint'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Joint ID')
+    type: Mapped[str | None] = mapped_column(String(50), comment='Joint type')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Joint name')
+    pos_x: Mapped[float | None] = mapped_column(Float, comment='X position')
+    pos_y: Mapped[float | None] = mapped_column(Float, comment='Y position')
+    pos_z: Mapped[float | None] = mapped_column(Float, comment='Z position')
+
+
+class DnFcu(Base):
+    """DN fan coil unit model."""
+
+    __tablename__ = 'dn_fcu'
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Fan coil unit ID'
+    )
+    flow_type: Mapped[int | None] = mapped_column(Integer, comment='Flow type')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    of_room: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('room.id'), comment='Parent room'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class DnAhu(Base):
+    """DN air handling unit model."""
+
+    __tablename__ = 'dn_ahu'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='AHU ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    of_building: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('building.building_id'), comment='Parent building'
+    )
+    fresh_duct_h: Mapped[float | None] = mapped_column(
+        'Fresh_Duct_H', Float, comment='Fresh air duct height'
+    )
+    fresh_duct_w: Mapped[float | None] = mapped_column(
+        'Fresh_Duct_W', Float, comment='Fresh air duct width'
+    )
+    fresh_duct_l: Mapped[float | None] = mapped_column(
+        'Fresh_Duct_L', Float, comment='Fresh air duct length'
+    )
+    exhaust_duct_h: Mapped[float | None] = mapped_column(
+        'Exhaust_Duct_H', Float, comment='Exhaust duct height'
+    )
+    exhaust_duct_w: Mapped[float | None] = mapped_column(
+        'Exhaust_Duct_W', Float, comment='Exhaust duct width'
+    )
+    exhaust_duct_l: Mapped[float | None] = mapped_column(
+        'Exhaust_Duct_L', Float, comment='Exhaust duct length'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class DnDuct(Base):
+    """DN duct model."""
+
+    __tablename__ = 'dn_duct'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Duct ID')
+    of_building: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('building.building_id'), comment='Parent building'
+    )
+    start_point_id: Mapped[int | None] = mapped_column(
+        Integer, comment='Start point ID'
+    )
+    end_point_id: Mapped[int | None] = mapped_column(Integer, comment='End point ID')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+# HACNET system models
+class HacnetSubnet(Base):
+    """HACNET subnet model."""
+
+    __tablename__ = 'hacnet_subnet'
+
+    subnet_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Subnet ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Subnet name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Subnet type')
+    of_net: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_net.net_id'), comment='Parent network'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class HacnetNet(Base):
+    """HACNET network model."""
+
+    __tablename__ = 'hacnet_net'
+
+    net_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Network ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Network name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Network type')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class HacnetNode(Base):
+    """HACNET node model."""
+
+    __tablename__ = 'hacnet_node'
+
+    node_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Node ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    x: Mapped[float | None] = mapped_column(Float, comment='X coordinate')
+    y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
+    z: Mapped[float | None] = mapped_column(Float, comment='Z coordinate')
+    lose_flow: Mapped[float | None] = mapped_column(
+        'LOSEFLOW', Float, comment='Loss flow'
+    )
+    pressure: Mapped[float | None] = mapped_column(Float, comment='Pressure')
+    temperature: Mapped[float | None] = mapped_column(
+        'TEMPRATURE', Float, comment='Temperature'
+    )
+    of_subnet: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
+    )
+    big_user: Mapped[int | None] = mapped_column(Integer, comment='Big user')
+    static_point: Mapped[bool] = mapped_column(
+        Boolean, default=False, comment='Static point'
+    )
+    b_font_show: Mapped[bool] = mapped_column(
+        'bFontShow', Boolean, default=False, comment='Font display'
+    )
+
+
+class HacnetBranch(Base):
+    """HACNET branch model."""
+
+    __tablename__ = 'hacnet_branch'
+
+    branch_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Branch ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Branch name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Branch type')
+    of_subnet: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
+    )
+    start_node: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_node.node_id'), comment='Start node'
+    )
+    end_node: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_node.node_id'), comment='End node'
+    )
+    s: Mapped[float | None] = mapped_column(Float, comment='S parameter')
+    length: Mapped[float | None] = mapped_column(Float, comment='Length')
+    diameter: Mapped[int | None] = mapped_column(Integer, comment='Diameter')
+    roughness: Mapped[float | None] = mapped_column(Float, comment='Roughness')
+    flow: Mapped[float | None] = mapped_column(Float, comment='Flow')
+    yczlinputdirect: Mapped[bool | None] = mapped_column(
+        'YCZLINPUTDIRECT', Boolean, default=False, comment='Direct resistance input'
+    )
+    yczlxishu: Mapped[float | None] = mapped_column(
+        'YCZLXISHU', Float, comment='Resistance coefficient'
+    )
+    jzstyle: Mapped[int | None] = mapped_column(
+        'JZSTYLE', Integer, comment='Local resistance style'
+    )
+    jztodynhead: Mapped[float | None] = mapped_column(
+        'JZTODYNHEAD', Float, comment='Local resistance to dynamic head'
+    )
+    jztoyc: Mapped[float | None] = mapped_column(
+        'JZTOYC', Float, comment='Local resistance to remaining'
+    )
+    bfontshow: Mapped[bool | None] = mapped_column(
+        'bFontShow', Boolean, default=False, comment='Font display'
+    )
+
+
+class HacnetBranchPoint(Base):
+    """HACNET branch point model."""
+
+    __tablename__ = 'hacnet_branch_point'
+
+    point_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Point ID')
+    of_branch: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_branch.branch_id'), comment='Parent branch'
+    )
+    of_branchline: Mapped[int | None] = mapped_column(
+        Integer, comment='Parent branch line'
+    )
+    x: Mapped[float | None] = mapped_column(Float, comment='X coordinate')
+    y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
+
+
+class HacnetLandafai(Base):
+    """HACNET Landafai model."""
+
+    __tablename__ = 'hacnet_landafai'
+
+    terminal_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Terminal ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    of_subnet: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
+    )
+    scale: Mapped[float | None] = mapped_column(Float, comment='Scale')
+    backcolor: Mapped[int | None] = mapped_column(Integer, comment='Background color')
+    bkusebmp: Mapped[bool | None] = mapped_column(
+        Boolean, default=False, comment='Use background image'
+    )
+    bmpfile: Mapped[str | None] = mapped_column(
+        String(50), comment='Background image file'
+    )
+    nprintsx: Mapped[int | None] = mapped_column(
+        'nPrintSx', Integer, comment='Print SX'
+    )
+
+
+class HacnetTerminal(Base):
+    """HACNET terminal model."""
+
+    __tablename__ = 'hacnet_terminal'
+
+    terminal_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Terminal ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Branch type')
+    of_branch: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_branch.branch_id'), comment='Parent branch'
+    )
+    of_subnet: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
+    )
+    of_branchline: Mapped[int | None] = mapped_column(
+        Integer, comment='Parent branch line'
+    )
+    ratio_in_branchline: Mapped[float | None] = mapped_column(
+        'RATIOINBRANCHLINE', Float, comment='Ratio in branch line'
+    )
+    s: Mapped[float | None] = mapped_column(Float, comment='S parameter')
+    of_room: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('room.id'), comment='Room ID'
+    )
+    design_flow: Mapped[float | None] = mapped_column(Float, comment='Design flow')
+    design_pressuredrop: Mapped[float | None] = mapped_column(
+        'DESIGN_PRESSUREDROP', Float, comment='Design pressure drop'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class HacnetPump(Base):
+    """HACNET pump model."""
+
+    __tablename__ = 'hacnet_pump'
+
+    pump_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Pump ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    of_subnet: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class HacnetValve(Base):
+    """HACNET valve model."""
+
+    __tablename__ = 'hacnet_valve'
+
+    valve_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Valve ID')
+    product_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('lib_product.product_id'), comment='Product ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    of_branch: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_branch.branch_id'), comment='Parent branch'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class HacnetWpgnode(Base):
+    """HACNET WPG node model."""
+
+    __tablename__ = 'hacnet_wpgnode'
+
+    wpgnode_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='WPG node ID'
+    )
+    wpg_name: Mapped[str | None] = mapped_column(String(50), comment='WPG name')
+    of_subnet: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class HacnetText(Base):
+    """HACNET text model."""
+
+    __tablename__ = 'hacnet_text'
+
+    text_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Text ID')
+    text: Mapped[str | None] = mapped_column(String(255), comment='Text content')
+    of_subnet: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+# PN system models
+class PnPoint(Base):
+    """PN point model."""
+
+    __tablename__ = 'pn_point'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='PN point ID')
+    x: Mapped[float | None] = mapped_column(Float, comment='X coordinate')
+    y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
+    z: Mapped[float | None] = mapped_column(Float, comment='Z coordinate')
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
+
+
+class PnPipe(Base):
+    """PN pipe model."""
+
+    __tablename__ = 'pn_pipe'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='PN pipe ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    pipestyle: Mapped[int | None] = mapped_column(Integer, comment='Pipe style')
+    first_a: Mapped[float | None] = mapped_column(Float, comment='First A')
+    first_b: Mapped[float | None] = mapped_column(Float, comment='First B')
+    first_c: Mapped[float | None] = mapped_column(Float, comment='First C')
+    first_d: Mapped[float | None] = mapped_column(Float, comment='First D')
+    first_w: Mapped[float | None] = mapped_column(Float, comment='First W')
+    second_a: Mapped[float | None] = mapped_column(Float, comment='Second A')
+    second_b: Mapped[float | None] = mapped_column(Float, comment='Second B')
+    second_c: Mapped[float | None] = mapped_column(Float, comment='Second C')
+    second_d: Mapped[float | None] = mapped_column(Float, comment='Second D')
+    second_q: Mapped[float | None] = mapped_column(Float, comment='Second Q')
+
+
+class PnValve(Base):
+    """PN valve model."""
+
+    __tablename__ = 'pn_valve'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='ID')
+    length_fact: Mapped[float | None] = mapped_column(Float, comment='Length factor')
+    open_fact: Mapped[int | None] = mapped_column(Integer, comment='Opening factor')
+    resist_fact: Mapped[float | None] = mapped_column(
+        Float, comment='Resistance factor'
+    )
+    pipe_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('pn_pipe.id'), comment='Pipe ID'
+    )
+
+
+class WaterSys(Base):
+    """Water system model."""
+
+    __tablename__ = 'water_sys'
+
+    water_sys_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Water system ID'
+    )
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    static_node_id: Mapped[int | None] = mapped_column(
+        Integer, comment='Static node ID'
+    )
+    activated_net: Mapped[int | None] = mapped_column(
+        Integer, comment='Activated network'
+    )
+
+
+class EnergyPumpFan(Base):
+    """Energy pump and fan model."""
+
+    __tablename__ = 'energy_pump_fan'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Name')
+    type: Mapped[int | None] = mapped_column(Integer, comment='Type')
+    power: Mapped[float | None] = mapped_column(Float, comment='Power (kW)')
+    schedule: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('schedule_year.schedule_id'), comment='Schedule'
+    )
+    ext_property: Mapped[int | None] = mapped_column(
+        Integer, comment='Extended property'
+    )
