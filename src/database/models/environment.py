@@ -78,7 +78,6 @@ class ClimateData(Base):
     b: Mapped[float | None] = mapped_column(Float, comment='Atmospheric pressure (Pa)')
 
 
-
 class SysCity(Base):
     """System city model."""
 
