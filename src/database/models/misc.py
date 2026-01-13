@@ -543,7 +543,7 @@ class LibRoofunitDevice(Base):
 class DefaultCoef(Base):
     """Default coefficient model."""
 
-    __tablename__ = 'DEFAULT_COEF'
+    __tablename__ = 'default_coef'
 
     default_coef_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Default coefficient ID'
@@ -559,7 +559,7 @@ class DefaultCoef(Base):
 class EquipmentTemp(Base):
     """Temporary equipment model."""
 
-    __tablename__ = 'EQUIPMENT_TEMP'
+    __tablename__ = 'equipment_temp'
 
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Temporary equipment ID'
@@ -574,7 +574,7 @@ class EquipmentTemp(Base):
 class GainRefer(Base):
     """Gain reference model."""
 
-    __tablename__ = 'GAIN_REFER'
+    __tablename__ = 'gain_refer'
 
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Gain reference ID'
@@ -589,7 +589,7 @@ class GainRefer(Base):
 class GroundQ(Base):
     """Ground heat model."""
 
-    __tablename__ = 'GROUND_Q'
+    __tablename__ = 'ground_q'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Ground heat ID')
     qa: Mapped[float | None] = mapped_column(Numeric, comment='QA value')
@@ -602,7 +602,7 @@ class GroundQ(Base):
 class LibWindRatioTypeModel(Base):
     """Wind ratio type model library model."""
 
-    __tablename__ = 'LIB_WIND_RATIO_TYPE_MODEL'
+    __tablename__ = 'lib_wind_ratio_type_model'
 
     type_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Type ID')
     percent: Mapped[int] = mapped_column(
@@ -614,7 +614,7 @@ class LibWindRatioTypeModel(Base):
 class SolarEnergyCollector(Base):
     """Solar energy collector model."""
 
-    __tablename__ = 'SOLAR_ENERGY_COLLECTOR'
+    __tablename__ = 'solar_energy_collector'
 
     room_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Room ID')
     enclosure: Mapped[int] = mapped_column(
@@ -632,7 +632,7 @@ class SolarEnergyCollector(Base):
 class SysOption(Base):
     """System option model."""
 
-    __tablename__ = 'SYS_OPTION'
+    __tablename__ = 'sys_option'
 
     option_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Option ID'
@@ -648,7 +648,7 @@ class SysOption(Base):
 class UserDefDev(Base):
     """User defined device model."""
 
-    __tablename__ = 'USER_DEF_DEV'
+    __tablename__ = 'user_def_dev'
 
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='User defined device ID'

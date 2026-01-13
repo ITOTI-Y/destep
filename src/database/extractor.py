@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from loguru import logger
+from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from .accdb_reader import AccdbConfig, AccdbReader
@@ -17,6 +18,8 @@ class DataExtractor:
     Handles table dependency ordering via topological sort and
     provides robust error handling for individual row failures.
     """
+
+    BATCH_SIZE = 5000
 
     def __init__(
         self,
@@ -40,7 +43,6 @@ class DataExtractor:
             accdb_tables = {t.upper() for t in reader.get_table_names()}
             sorted_tables = self._get_sorted_tables()
 
-            # Pre-load primary key values for FK validation
             self._load_pk_values(reader, accdb_tables)
 
             extracted_count = 0
@@ -57,34 +59,83 @@ class DataExtractor:
         session: Session,
         table_name: str,
     ) -> None:
-        """Extract a single table from Access to SQLite."""
+        """Extract a single table from Access to SQLite using bulk insert."""
         model_class = self._get_model_class(table_name)
         if model_class is None:
             logger.warning(f"No model for table '{table_name}', skipping")
             return
 
         fk_info = self._get_fk_info(table_name)
+        batch: list[dict[str, Any]] = []
         success_count = 0
         error_count = 0
 
         for row in reader.iter_table(table_name):
             try:
                 decoded_row = self._decode_row(row, fk_info)
-                instance = model_class(**decoded_row)
-                with session.begin_nested():
-                    session.merge(instance)
-                success_count += 1
+                batch.append(decoded_row)
+
+                if len(batch) >= self.BATCH_SIZE:
+                    inserted, errors = self._flush_batch(session, model_class, batch)
+                    success_count += inserted
+                    error_count += errors
+                    batch = []
             except Exception as e:
                 error_count += 1
-                logger.warning(f"Failed to insert row in '{table_name}': {e}")
-                continue
+                logger.warning(f"Failed to decode row in '{table_name}': {e}")
 
-        if success_count > 0:
-            session.commit()
+        # 处理剩余数据
+        if batch:
+            inserted, errors = self._flush_batch(session, model_class, batch)
+            success_count += inserted
+            error_count += errors
+
+        session.commit()
+
         log_msg = f"Extracted {success_count} rows from '{table_name}'"
         if error_count > 0:
             log_msg += f' ({error_count} errors)'
         logger.info(log_msg)
+
+    def _flush_batch(
+        self,
+        session: Session,
+        model_class: type[Base],
+        batch: list[dict[str, Any]],
+    ) -> tuple[int, int]:
+        """Flush batch to database. Returns (success_count, error_count)."""
+        try:
+            mapper = inspect(model_class)
+            session.bulk_insert_mappings(mapper, batch)
+            session.flush()
+            return len(batch), 0
+        except Exception as e:
+            session.rollback()
+            logger.warning(f'Batch insert failed, falling back to row-by-row: {e}')
+            return self._insert_rows_individually(session, model_class, batch)
+
+    def _insert_rows_individually(
+        self,
+        session: Session,
+        model_class: type[Base],
+        batch: list[dict[str, Any]],
+    ) -> tuple[int, int]:
+        """Insert rows one by one when batch fails. Returns (success, errors)."""
+        success_count = 0
+        error_count = 0
+
+        for row_data in batch:
+            try:
+                instance = model_class(**row_data)
+                session.merge(instance)
+                session.flush()
+                success_count += 1
+            except Exception as e:
+                session.rollback()
+                error_count += 1
+                logger.debug(f'Row insert failed: {e}')
+
+        return success_count, error_count
 
     def _load_pk_values(self, reader: AccdbReader, accdb_tables: set[str]) -> None:
         """Pre-load primary key values from all tables for FK validation."""
@@ -104,9 +155,6 @@ class DataExtractor:
                 self._pk_values[table_name] = {row[0] for row in cursor.fetchall()}
                 cursor.close()
             else:
-                logger.error(
-                    f'Could not load PK values for {table_name}: No connection'
-                )
                 raise RuntimeError(
                     f'Could not load PK values for {table_name}: No connection'
                 )
@@ -122,7 +170,6 @@ class DataExtractor:
             col_name = key.lower()
             decoded_value = AccdbReader.decode_blob(value)
 
-            # Validate foreign key references
             if col_name in fk_info and decoded_value is not None:
                 parent_table = fk_info[col_name]
                 valid_pks = self._pk_values.get(parent_table, set())
