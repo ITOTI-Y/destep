@@ -53,6 +53,7 @@ class FieldSpec:
     exclusive_maximum: float | None = None
     object_list: list[str] | None = None
     items_spec: FieldSpec | None = None
+    item_class_name: str | None = None
     note: str | None = None
     data_type: str | None = None
     anyof_specs: list[FieldSpec] | None = None

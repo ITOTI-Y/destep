@@ -271,7 +271,7 @@ class SchemaParser:
         """Get the EnergyPlus schema version.
 
         Returns:
-            Schema version string (e.g., "24.2.0").
+            Schema version string (e.g., "25.1.0").
         """
         self._load_schema()
         if self._raw_schema is None:
