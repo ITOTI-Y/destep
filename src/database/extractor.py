@@ -125,13 +125,15 @@ class DataExtractor:
         error_count = 0
 
         for row_data in batch:
+            savepoint = session.begin_nested()
             try:
                 instance = model_class(**row_data)
                 session.merge(instance)
                 session.flush()
+                savepoint.commit()
                 success_count += 1
             except Exception as e:
-                session.rollback()
+                savepoint.rollback()
                 error_count += 1
                 logger.debug(f'Row insert failed: {e}')
 
@@ -149,9 +151,9 @@ class DataExtractor:
                 continue
 
             pk_col = pk_cols[0].upper()
-            if reader._connection is not None:
-                cursor = reader._connection.cursor()
-                cursor.execute(f'SELECT {pk_col} FROM {table_name}')
+            if reader.connection is not None:
+                cursor = reader.connection.cursor()
+                cursor.execute(f'SELECT [{pk_col}] FROM [{table_name}]')
                 self._pk_values[table_name] = {row[0] for row in cursor.fetchall()}
                 cursor.close()
             else:
@@ -164,19 +166,18 @@ class DataExtractor:
     def _decode_row(
         self, row: dict[str, Any], fk_info: dict[str, str]
     ) -> dict[str, Any]:
-        """Decode BLOB fields, normalize column names, and validate FK references."""
+        """Normalize column names, and validate FK references."""
         result = {}
         for key, value in row.items():
             col_name = key.lower()
-            decoded_value = AccdbReader.decode_blob(value)
 
-            if col_name in fk_info and decoded_value is not None:
+            if col_name in fk_info and value is not None:
                 parent_table = fk_info[col_name]
                 valid_pks = self._pk_values.get(parent_table, set())
-                if decoded_value not in valid_pks:
-                    decoded_value = None
+                if value not in valid_pks:
+                    value = None
 
-            result[col_name] = decoded_value
+            result[col_name] = value
         return result
 
     def _get_fk_info(self, table_name: str) -> dict[str, str]:
@@ -184,7 +185,7 @@ class DataExtractor:
         for table in Base.metadata.sorted_tables:
             if table.name.upper() == table_name.upper():
                 return {
-                    fk.parent.name: fk.column.table.name.upper()
+                    fk.parent.name.lower(): fk.column.table.name.upper()
                     for fk in table.foreign_keys
                 }
         return {}
@@ -197,7 +198,7 @@ class DataExtractor:
         for table in Base.metadata.sorted_tables:
             table_name = table.name.upper()
             all_tables.add(table_name)
-            graph[table_name]
+            _ = graph[table_name]  # Initialize empty dependency set
 
             for fk in table.foreign_keys:
                 parent_table = fk.column.table.name.upper()

@@ -17,5 +17,5 @@ class ScheduleYear(Base):
     type: Mapped[int | None] = mapped_column(Integer, comment='Schedule type')
     name: Mapped[str | None] = mapped_column(String(255), comment='Schedule name')
     data: Mapped[list | None] = mapped_column(
-        JsonEncodedList, comment='Schedule data (binary)'
+        JsonEncodedList, comment='Schedule data (JSON list)'
     )
