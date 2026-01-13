@@ -90,7 +90,7 @@ class FieldParser:
             name=name,
             python_name=python_name,
             field_type=field_type,
-            default=field_schema.get('default'),
+            default=field_schema.get('default', _UNSET),
             enum_values=field_schema.get('enum'),
             units=field_schema.get('units'),
             minimum=field_schema.get('minimum'),
@@ -143,7 +143,7 @@ class FieldParser:
             name=name,
             python_name=python_name,
             field_type=primary_type,
-            default=field_schema.get('default'),
+            default=field_schema.get('default', _UNSET),
             units=field_schema.get('units'),
             note=field_schema.get('note'),
             anyof_specs=anyof_specs,
@@ -204,6 +204,8 @@ class FieldParser:
             'x_origin'
             >>> parser._to_python_name('vertex-x-coordinate')
             'vertex_x_coordinate'
+            >>> parser._to_python_name('100% Outdoor Air in Cooling')
+            'n100_outdoor_air_in_cooling'
         """
         result = name.replace(' ', '_').replace('-', '_')
 
@@ -214,6 +216,10 @@ class FieldParser:
         result = re.sub(r'_+', '_', result)
 
         result = result.strip('_')
+
+        # Python identifiers cannot start with a digit - prefix with 'n'
+        if result and result[0].isdigit():
+            result = 'n' + result
 
         return result
 

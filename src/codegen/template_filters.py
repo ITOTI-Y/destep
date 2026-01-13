@@ -1,6 +1,6 @@
 """Jinja2 template filters for IDF model code generation.
 
-This module provides filter functions used by idf_model.py.jinja2 template.
+This module provides filter functions used by idf_model_py.jinja2 template.
 These filters are registered with the Jinja2 environment by ModelGenerator.
 """
 
@@ -156,7 +156,7 @@ def extract_nested_classes(
         List of nested class dicts with "name" and "fields" keys.
         Also modifies items_spec.item_class_name in-place for type generation.
     """
-    nested_classes: list[dict] = []
+    nested_classes: list[dict[str, Any]] = []
     seen_structures: dict[str, str] = {}  # structure hash -> class name
     used_names: set[str] = set()  # track used class names
 
@@ -179,15 +179,9 @@ def extract_nested_classes(
                         ]
                         continue
 
-                # Generate unique class name
-                simple_name = _generate_nested_class_name(field.name)
-
-                # Check for name collision
-                if simple_name in used_names:
-                    # Name collision - use parent class prefix
-                    class_name = _generate_nested_class_name(field.name, obj.class_name)
-                else:
-                    class_name = simple_name
+                # Always use parent class prefix to ensure global uniqueness
+                # This prevents name collisions across different model files
+                class_name = _generate_nested_class_name(field.name, obj.class_name)
 
                 used_names.add(class_name)
                 nested_classes.append({'name': class_name, 'fields': nested_fields})
@@ -212,6 +206,8 @@ def _get_structure_signature(fields: list[FieldSpec]) -> str:
     Returns:
         String signature for comparison.
     """
+    if not fields:
+        return '<empty>'
     parts = []
     for f in sorted(fields, key=lambda x: x.name):
         parts.append(f'{f.name}:{f.field_type}:{f.required}')
@@ -266,7 +262,7 @@ def field_definition_filter(spec: FieldSpec) -> str:
 
     # Default value
     if _has_default(spec):
-        default_repr = _format_default_value(spec.default)
+        default_repr = _format_default_value(spec.default, spec)
         args.append(f'default={default_repr}')
     elif is_optional_filter(spec):
         args.append('default=None')
@@ -306,11 +302,12 @@ def _has_default(spec: FieldSpec) -> bool:
     return spec.default is not _UNSET
 
 
-def _format_default_value(value: Any) -> str:
+def _format_default_value(value: Any, spec: FieldSpec | None = None) -> str:
     """Format default value for Python code.
 
     Args:
         value: Default value to format.
+        spec: Optional field specification for type-aware formatting.
 
     Returns:
         Python repr string suitable for code generation.
@@ -320,6 +317,24 @@ def _format_default_value(value: Any) -> str:
     if isinstance(value, bool):
         return 'True' if value else 'False'
     if isinstance(value, (int, float)):
+        # Handle schema inconsistency: field_type is string but default is number
+        # (e.g., Version.version_identifier has type="string" but default=25.1)
+        if spec and spec.field_type == 'string':
+            return repr(str(value))
+
+        # Handle case where enum has integer values but default is float
+        if spec and isinstance(value, float) and value == int(value):
+            # Check direct enum_values
+            if spec.enum_values:
+                if all(isinstance(v, int) for v in spec.enum_values):
+                    return repr(int(value))
+            # Check anyof_specs for enum values (for union types)
+            elif spec.anyof_specs:
+                for anyof_spec in spec.anyof_specs:
+                    if anyof_spec.enum_values and all(
+                        isinstance(v, int) for v in anyof_spec.enum_values
+                    ):
+                        return repr(int(value))
         return repr(value)
     if value is None:
         return 'None'

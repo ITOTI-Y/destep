@@ -181,12 +181,26 @@ class SchemaParser:
         The schema has a nested structure where fields are under:
         patternProperties -> ".*" (or similar pattern) -> properties
 
+        Additionally, the top-level "name" property (if present) describes the
+        object instance name and should be included as the first field.
+
         Args:
             obj_schema: Object definition dictionary.
 
         Returns:
             List of FieldSpec instances for all fields.
         """
+        fields: list[FieldSpec] = []
+
+        # Extract top-level "name" property if present
+        # This is the object instance name (e.g., "Zone1" for a Zone object)
+        name_schema = obj_schema.get('name')
+        if name_schema and isinstance(name_schema, dict):
+            name_field = self._field_parser.parse_field('name', name_schema)
+            # is_required in schema means the field is required
+            name_field.required = name_schema.get('is_required', False)
+            fields.append(name_field)
+
         # Primary location: patternProperties.*.properties
         pattern_props = obj_schema.get('patternProperties', {})
 
@@ -195,19 +209,26 @@ class SchemaParser:
             if 'properties' in pattern_schema:
                 properties = pattern_schema['properties']
                 required = pattern_schema.get('required', [])
-                return self._field_parser.parse_fields_from_properties(
-                    properties, required
+                fields.extend(
+                    self._field_parser.parse_fields_from_properties(
+                        properties, required
+                    )
                 )
+                return fields
 
         # Fallback: Some objects may have properties directly
         if 'properties' in obj_schema:
             properties = obj_schema['properties']
             required = obj_schema.get('required', [])
-            return self._field_parser.parse_fields_from_properties(properties, required)
+            fields.extend(
+                self._field_parser.parse_fields_from_properties(properties, required)
+            )
+            return fields
 
-        # No fields found
-        logger.debug('No fields found in object schema')
-        return []
+        # Return fields (may only contain name field or be empty)
+        if not fields:
+            logger.debug('No fields found in object schema')
+        return fields
 
     def _to_class_name(self, name: str) -> str:
         """Convert object type name to Python PascalCase class name.
