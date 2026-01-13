@@ -5,6 +5,7 @@ from typer import Option, Typer
 
 from src.config import PathConfig
 from src.database import DataExtractor
+from src.database.schema_checker import SchemaChecker
 from src.utils import setup_logging
 
 setup_logging()
@@ -33,6 +34,31 @@ def extract(
         ucanaccess_path=driver_path,
     )
     extractor.extract_all()
+
+
+@app.command()
+def check_schema(
+    accdb_path: Annotated[
+        Path, Option('--accdb-path', '-a', help='Path to the Access database')
+    ] = Path('examples/LH_Guangzhou_2015.accdb'),
+    output_dir: Annotated[
+        Path, Option('--output-dir', '-o', help='Path to the output directory')
+    ] = Path('output'),
+    driver_path: Annotated[
+        Path, Option('--driver', '-d', help='Path to the driver directory')
+    ] = Path('driver'),
+):
+    """Check database schema against SQLAlchemy models."""
+    path_config = PathConfig()
+    output_dir = output_dir or path_config.output_dir
+    driver_path = driver_path or path_config.ucanaccess_path
+
+    checker = SchemaChecker(
+        accdb_path=accdb_path,
+        ucanaccess_path=driver_path,
+    )
+    diff = checker.check()
+    checker.generate_report(diff, output_dir / 'schema_diff_report.md')
 
 
 @app.command()

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
@@ -22,30 +22,24 @@ class SysMaterial(Base):
         Integer, primary_key=True, comment='Material ID'
     )
     color: Mapped[int | None] = mapped_column(Integer, comment='Color')
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Material name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Material name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Material name (Chinese)'
     )
     conductivity: Mapped[float | None] = mapped_column(
         Float, comment='Conductivity (W/m·K)'
     )
-    density: Mapped[float | None] = mapped_column(
-        Float, comment='Density (kg/m³)')
+    density: Mapped[float | None] = mapped_column(Float, comment='Density (kg/m³)')
     specific_heat: Mapped[float | None] = mapped_column(
         Float, comment='Specific heat (J/kg·K)'
     )
     s: Mapped[float | None] = mapped_column(Float, comment='S value')
-    steam: Mapped[float | None] = mapped_column(
-        Float, comment='Steam coefficient')
-    pattern: Mapped[int | None] = mapped_column(Integer, comment='Pattern')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
+    steam: Mapped[float | None] = mapped_column(Float, comment='Steam coefficient')
+    pattern: Mapped[str | None] = mapped_column(String(50), comment='Pattern')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     outwall_materials: Mapped[list[SysOutwallMaterial]] = relationship(
@@ -76,10 +70,8 @@ class SysOutwall(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Exterior wall name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Exterior wall name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Exterior wall name (Chinese)'
     )
@@ -87,10 +79,8 @@ class SysOutwall(Base):
     d: Mapped[float | None] = mapped_column(Float, comment='D value')
     spflag: Mapped[int | None] = mapped_column(Integer, comment='SP flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     materials: Mapped[list[SysOutwallMaterial]] = relationship(
@@ -115,10 +105,8 @@ class SysOutwallMaterial(Base):
     material_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('sys_material.material_id'), comment='Material ID'
     )
-    length: Mapped[float | None] = mapped_column(
-        Float, comment='Length/Thickness (mm)')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    length: Mapped[float | None] = mapped_column(Float, comment='Length/Thickness (mm)')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     outwall: Mapped[SysOutwall | None] = relationship(
@@ -137,10 +125,8 @@ class SysInwall(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Interior wall name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Interior wall name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Interior wall name (Chinese)'
     )
@@ -148,10 +134,8 @@ class SysInwall(Base):
     d: Mapped[float | None] = mapped_column(Float, comment='D value')
     spflag: Mapped[int | None] = mapped_column(Integer, comment='SP flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     materials: Mapped[list[SysInwallMaterial]] = relationship(
@@ -176,10 +160,8 @@ class SysInwallMaterial(Base):
     material_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('sys_material.material_id'), comment='Material ID'
     )
-    length: Mapped[float | None] = mapped_column(
-        Float, comment='Length/Thickness (mm)')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    length: Mapped[float | None] = mapped_column(Float, comment='Length/Thickness (mm)')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     inwall: Mapped[SysInwall | None] = relationship(
@@ -198,19 +180,15 @@ class SysRoof(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Roof name')
-    cname: Mapped[str | None] = mapped_column(
-        String(50), comment='Roof name (Chinese)')
+    cname: Mapped[str | None] = mapped_column(String(50), comment='Roof name (Chinese)')
     resi: Mapped[float | None] = mapped_column(Float, comment='Resistance')
     d: Mapped[float | None] = mapped_column(Float, comment='D value')
     spflag: Mapped[int | None] = mapped_column(Integer, comment='SP flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     materials: Mapped[list[SysRoofMaterial]] = relationship(
@@ -235,14 +213,11 @@ class SysRoofMaterial(Base):
     material_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('sys_material.material_id'), comment='Material ID'
     )
-    length: Mapped[float | None] = mapped_column(
-        Float, comment='Length/Thickness (mm)')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    length: Mapped[float | None] = mapped_column(Float, comment='Length/Thickness (mm)')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
-    roof: Mapped[SysRoof | None] = relationship(
-        'SysRoof', back_populates='materials')
+    roof: Mapped[SysRoof | None] = relationship('SysRoof', back_populates='materials')
     material: Mapped[SysMaterial | None] = relationship(
         'SysMaterial', back_populates='roof_materials'
     )
@@ -256,10 +231,8 @@ class SysGroundfloor(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Ground floor name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Ground floor name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Ground floor name (Chinese)'
     )
@@ -267,10 +240,8 @@ class SysGroundfloor(Base):
     d: Mapped[float | None] = mapped_column(Float, comment='D value')
     spflag: Mapped[int | None] = mapped_column(Integer, comment='SP flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     materials: Mapped[list[SysGroundfloorMaterial]] = relationship(
@@ -295,10 +266,8 @@ class SysGroundfloorMaterial(Base):
     material_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('sys_material.material_id'), comment='Material ID'
     )
-    length: Mapped[float | None] = mapped_column(
-        Float, comment='Length/Thickness (mm)')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    length: Mapped[float | None] = mapped_column(Float, comment='Length/Thickness (mm)')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     groundfloor: Mapped[SysGroundfloor | None] = relationship(
@@ -317,10 +286,8 @@ class SysMiddlefloor(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Middle floor name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Middle floor name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Middle floor name (Chinese)'
     )
@@ -328,10 +295,8 @@ class SysMiddlefloor(Base):
     d: Mapped[float | None] = mapped_column(Float, comment='D value')
     spflag: Mapped[int | None] = mapped_column(Integer, comment='SP flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     materials: Mapped[list[SysMiddlefloorMaterial]] = relationship(
@@ -356,10 +321,8 @@ class SysMiddlefloorMaterial(Base):
     material_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('sys_material.material_id'), comment='Material ID'
     )
-    length: Mapped[float | None] = mapped_column(
-        Float, comment='Length/Thickness (mm)')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    length: Mapped[float | None] = mapped_column(Float, comment='Length/Thickness (mm)')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     middlefloor: Mapped[SysMiddlefloor | None] = relationship(
@@ -378,10 +341,8 @@ class SysAirfloor(Base):
     struct_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Structure ID'
     )
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Air floor name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Air floor name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Air floor name (Chinese)'
     )
@@ -389,10 +350,8 @@ class SysAirfloor(Base):
     d: Mapped[float | None] = mapped_column(Float, comment='D value')
     spflag: Mapped[int | None] = mapped_column(Integer, comment='SP flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     materials: Mapped[list[SysAirfloorMaterial]] = relationship(
@@ -417,10 +376,8 @@ class SysAirfloorMaterial(Base):
     material_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('sys_material.material_id'), comment='Material ID'
     )
-    length: Mapped[float | None] = mapped_column(
-        Float, comment='Length/Thickness (mm)')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    length: Mapped[float | None] = mapped_column(Float, comment='Length/Thickness (mm)')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
     # Relationships
     airfloor: Mapped[SysAirfloor | None] = relationship(
@@ -440,38 +397,28 @@ class SysAppMaterial(Base):
         Integer, primary_key=True, comment='Additional material ID'
     )
     color: Mapped[int | None] = mapped_column(Integer, comment='Color')
-    group_id: Mapped[str | None] = mapped_column(
-        String(50), comment='Group name')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Material name')
-    cname: Mapped[str | None] = mapped_column(
-        String(50), comment='Chinese name')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Material name')
+    cname: Mapped[str | None] = mapped_column(String(50), comment='Chinese name')
     conductivity: Mapped[float | None] = mapped_column(
         Float, comment='Conductivity (W/m·K)'
     )
-    density: Mapped[float | None] = mapped_column(
-        Float, comment='Density (kg/m³)')
+    density: Mapped[float | None] = mapped_column(Float, comment='Density (kg/m³)')
     specific_heat: Mapped[float | None] = mapped_column(
         Float, comment='Specific heat (J/kg·K)'
     )
     s: Mapped[float | None] = mapped_column(Float, comment='S parameter')
-    steam: Mapped[float | None] = mapped_column(
-        Float, comment='Steam permeability')
-    ex_coef: Mapped[float | None] = mapped_column(
-        Float, comment='Emission coefficient')
+    steam: Mapped[float | None] = mapped_column(Float, comment='Steam permeability')
+    ex_coef: Mapped[float | None] = mapped_column(Float, comment='Emission coefficient')
     rf_coef: Mapped[float | None] = mapped_column(
         Float, comment='Reflection coefficient'
     )
-    emissivity: Mapped[float | None] = mapped_column(
-        Float, comment='Emissivity')
-    thick: Mapped[float | None] = mapped_column(
-        Float, comment='Thickness (mm)')
+    emissivity: Mapped[float | None] = mapped_column(Float, comment='Emissivity')
+    thick: Mapped[float | None] = mapped_column(Float, comment='Thickness (mm)')
     pattern: Mapped[str | None] = mapped_column(String(50), comment='Pattern')
-    eraseflag: Mapped[int | None] = mapped_column(
-        Integer, comment='Erase flag')
+    eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
-    anotation: Mapped[str | None] = mapped_column(
-        String(255), comment='Annotation')
+    anotation: Mapped[str | None] = mapped_column(String(255), comment='Annotation')
 
 
 class MainEnclosure(Base):
@@ -479,29 +426,24 @@ class MainEnclosure(Base):
 
     __tablename__ = 'main_enclosure'
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, comment='Enclosure ID')
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Enclosure name')
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Enclosure ID')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Enclosure name')
     side1: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('surface.surface_id'), comment='Side 1'
     )
     side2: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('surface.surface_id'), comment='Side 2'
     )
-    middle_plane: Mapped[int | None] = mapped_column(
-        Integer, comment='Middle plane')
+    middle_plane: Mapped[int | None] = mapped_column(Integer, comment='Middle plane')
     kind: Mapped[int | None] = mapped_column(Integer, comment='Enclosure kind')
-    construction: Mapped[int | None] = mapped_column(
-        Integer, comment='Construction ID')
+    construction: Mapped[int | None] = mapped_column(Integer, comment='Construction ID')
     user_def_dll: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('user_def_dll.dll_id'), comment='User defined DLL'
     )
     cal_num_shares: Mapped[int | None] = mapped_column(
         Integer, comment='Calculation shares number'
     )
-    fourier_num: Mapped[int | None] = mapped_column(
-        Integer, comment='Fourier number')
+    fourier_num: Mapped[float | None] = mapped_column(Numeric, comment='Fourier number')
     of_storey: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('storey.id'), comment='Storey reference'
     )
@@ -528,8 +470,7 @@ class LibPhaseChangeMat(Base):
     lib_phase_change_mat_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='PCM ID'
     )
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Material name')
+    name: Mapped[str | None] = mapped_column(String(50), comment='Material name')
     tm: Mapped[float | None] = mapped_column(
         Float, comment='Phase change temperature (°C)'
     )
@@ -557,15 +498,17 @@ class PhaseChangeMat(Base):
 
     __tablename__ = 'phase_change_mat'
 
+    enclosure: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey('main_enclosure.id'),
+        primary_key=True,
+        comment='Enclosure ID',
+    )
     room_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('room.id'), primary_key=True, comment='Room ID'
     )
-    enclosure: Mapped[int | None] = mapped_column(Integer, ForeignKey(
-        'main_enclosure.id'), primary_key=True, comment='Enclosure ID')
-    thickness: Mapped[float | None] = mapped_column(
-        Float, comment='Thickness (mm)')
-    area_ratio: Mapped[float | None] = mapped_column(
-        Float, comment='Area ratio')
+    thickness: Mapped[float | None] = mapped_column(Float, comment='Thickness (mm)')
+    area_ratio: Mapped[float | None] = mapped_column(Float, comment='Area ratio')
     lib_phase_change_mat_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey('lib_phase_change_mat.lib_phase_change_mat_id'),
@@ -580,7 +523,7 @@ class PhaseChangeMat(Base):
     lib_phase_change_mat: Mapped[LibPhaseChangeMat | None] = relationship(
         'LibPhaseChangeMat'
     )
-    enclosure: Mapped[MainEnclosure | None] = relationship('MainEnclosure')
+    enclosure_ref: Mapped[MainEnclosure | None] = relationship('MainEnclosure')
 
 
 class GroundConstruction(Base):
@@ -591,10 +534,13 @@ class GroundConstruction(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Ground construction ID'
     )
-    name: Mapped[str | None] = mapped_column(
-        String(50), comment='Construction name')
-    type: Mapped[int | None] = mapped_column(
-        Integer, comment='Construction type')
+    layer_no: Mapped[int] = mapped_column(
+        Integer, primary_key=True, comment='Layer number'
+    )
+    conductivity: Mapped[float | None] = mapped_column(Float, comment='Conductivity')
+    density: Mapped[float | None] = mapped_column(Float, comment='Density')
+    specific_heat: Mapped[float | None] = mapped_column(Float, comment='Specific heat')
+    thickness: Mapped[float | None] = mapped_column(Float, comment='Thickness')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
@@ -605,8 +551,7 @@ class GroundData(Base):
 
     __tablename__ = 'ground_data'
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, comment='Ground data ID')
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Ground data ID')
     hour: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Hour of year (0-8759)'
     )

@@ -50,16 +50,8 @@ class StoreyGroup(Base):
         Integer, primary_key=True, comment='Storey group ID'
     )
     name: Mapped[str | None] = mapped_column(String(50), comment='Storey group name')
-    of_building: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('building.building_id'), comment='Building reference'
-    )
-    storey_count: Mapped[int | None] = mapped_column(Integer, comment='Storey count')
-    ext_property: Mapped[int | None] = mapped_column(
-        Integer, comment='Extended property'
-    )
 
     # Relationships
-    building: Mapped[Building | None] = relationship('Building')
     storeys: Mapped[list[Storey]] = relationship(
         'Storey', back_populates='storey_group'
     )
@@ -81,7 +73,7 @@ class Storey(Base):
     no: Mapped[int | None] = mapped_column(Integer, comment='Storey number')
     multiple: Mapped[int | None] = mapped_column(Integer, comment='Multiple')
     height: Mapped[float | None] = mapped_column(Float, comment='Storey height (mm)')
-    visible: Mapped[int | None] = mapped_column(Integer, comment='Visibility flag')
+    visible: Mapped[bool | None] = mapped_column(Boolean, comment='Visibility flag')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
@@ -329,8 +321,8 @@ class RoomRelation(Base):
         ForeignKey('schedule_year.schedule_id'),
         comment='Ventilation schedule ID',
     )
-    vent_set_max: Mapped[float | None] = mapped_column(
-        Float, comment='Maximum ventilation setpoint'
+    vent_set_max: Mapped[int | None] = mapped_column(
+        Integer, comment='Maximum ventilation setpoint'
     )
     vent_type: Mapped[int | None] = mapped_column(Integer, comment='Ventilation type')
     start_point_id: Mapped[int | None] = mapped_column(

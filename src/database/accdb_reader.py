@@ -90,6 +90,105 @@ class AccdbReader:
                 tables.append(table_name)
         return sorted(tables)
 
+    def get_table_columns(self, table_name: str) -> list[dict[str, Any]]:
+        """Get column information for a table.
+
+        Args:
+            table_name: Name of the table.
+
+        Returns:
+            List of column info dicts with keys: name, type_name, type_code,
+            size, nullable, ordinal.
+        """
+        if self._connection is None:
+            raise RuntimeError('Not connected to database')
+
+        metadata = self._connection.jconn.getMetaData()
+        result_set = metadata.getColumns(None, None, table_name, '%')
+
+        columns = []
+        while result_set.next():
+            columns.append(
+                {
+                    'name': result_set.getString('COLUMN_NAME'),
+                    'type_name': result_set.getString('TYPE_NAME'),
+                    'type_code': result_set.getInt('DATA_TYPE'),
+                    'size': result_set.getInt('COLUMN_SIZE'),
+                    'nullable': result_set.getInt('NULLABLE') == 1,
+                    'ordinal': result_set.getInt('ORDINAL_POSITION'),
+                }
+            )
+        return columns
+
+    def get_primary_keys(self, table_name: str) -> list[str]:
+        """Get primary key columns for a table.
+
+        Args:
+            table_name: Name of the table.
+
+        Returns:
+            List of primary key column names.
+        """
+        if self._connection is None:
+            raise RuntimeError('Not connected to database')
+
+        metadata = self._connection.jconn.getMetaData()
+        result_set = metadata.getPrimaryKeys(None, None, table_name)
+
+        pk_columns = []
+        while result_set.next():
+            pk_columns.append(result_set.getString('COLUMN_NAME'))
+        return pk_columns
+
+    def get_foreign_keys(self, table_name: str) -> list[dict[str, str]]:
+        """Get foreign key relationships for a table.
+
+        Args:
+            table_name: Name of the table.
+
+        Returns:
+            List of FK info dicts with keys: column, ref_table, ref_column, fk_name.
+        """
+        if self._connection is None:
+            raise RuntimeError('Not connected to database')
+
+        metadata = self._connection.jconn.getMetaData()
+        result_set = metadata.getImportedKeys(None, None, table_name)
+
+        fk_list = []
+        while result_set.next():
+            fk_list.append(
+                {
+                    'column': result_set.getString('FKCOLUMN_NAME'),
+                    'ref_table': result_set.getString('PKTABLE_NAME'),
+                    'ref_column': result_set.getString('PKCOLUMN_NAME'),
+                    'fk_name': result_set.getString('FK_NAME'),
+                }
+            )
+        return fk_list
+
+    def get_row_count(self, table_name: str) -> int:
+        """Get the number of rows in a table.
+
+        Args:
+            table_name: Name of the table.
+
+        Returns:
+            Row count, or -1 if failed.
+        """
+        if self._connection is None:
+            raise RuntimeError('Not connected to database')
+
+        try:
+            cursor = self._connection.cursor()
+            cursor.execute(f'SELECT COUNT(*) FROM [{table_name}]')
+            count = cursor.fetchone()[0]
+            cursor.close()
+            return count
+        except Exception as e:
+            logger.warning(f'Failed to get row count for {table_name}: {e}')
+            return -1
+
     def query(self, sql: str) -> list[dict[str, Any]]:
         """Execute SQL query and return results as list of dicts.
 

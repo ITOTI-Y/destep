@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Integer, SmallInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
@@ -74,7 +74,7 @@ class ClimateData(Base):
     )
     t_sky: Mapped[float | None] = mapped_column(Float, comment='Sky temperature (°C)')
     ws: Mapped[float | None] = mapped_column(Float, comment='Wind speed (m/s)')
-    wd: Mapped[float | None] = mapped_column(Float, comment='Wind direction (°)')
+    wd: Mapped[int | None] = mapped_column(SmallInteger, comment='Wind direction (°)')
     b: Mapped[float | None] = mapped_column(Float, comment='Atmospheric pressure (Pa)')
 
 

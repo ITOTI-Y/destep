@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Integer, LargeBinary, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
@@ -171,8 +171,8 @@ class LibShading(Base):
     wr: Mapped[float | None] = mapped_column(Float, comment='Width right')
     degr: Mapped[float | None] = mapped_column(Float, comment='Degree right')
     price: Mapped[float | None] = mapped_column(Float, comment='Price')
-    image: Mapped[str | None] = mapped_column(String(255), comment='Image path')
-    group: Mapped[str | None] = mapped_column(String(50), comment='Group name')
+    image: Mapped[bytes | None] = mapped_column(LargeBinary, comment='Image data')
+    group_field: Mapped[int | None] = mapped_column('group', Integer, comment='Group')
     note: Mapped[str | None] = mapped_column(String(255), comment='Note')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
@@ -284,11 +284,9 @@ class Door(Base):
     schedule: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('schedule_year.schedule_id'), comment='Schedule ID'
     )
-    of_storey: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('storey.id'), comment='Storey reference'
+    user_def_dll: Mapped[str | None] = mapped_column(
+        String(255), comment='User defined DLL'
     )
-    type: Mapped[int | None] = mapped_column(Integer, comment='Door type')
-    k: Mapped[float | None] = mapped_column(Float, comment='Heat transfer coefficient')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
@@ -303,7 +301,6 @@ class Door(Base):
     main_enclosure: Mapped[MainEnclosure | None] = relationship('MainEnclosure')
     door_construction_ref: Mapped[SysDoor | None] = relationship('SysDoor')
     schedule_ref: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
-    storey: Mapped[Storey | None] = relationship('Storey', back_populates='doors')
 
 
 class WindowTypeData(Base):

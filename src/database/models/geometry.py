@@ -10,7 +10,6 @@ from ._base import Base
 if TYPE_CHECKING:
     from .building import Building, Room
     from .fenestration import Window
-    from .schedule import ScheduleYear
 
 
 class Geometry(Base):
@@ -77,14 +76,17 @@ class LoopPoint(Base):
     __tablename__ = 'loop_point'
 
     loop_id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Loop ID')
+    of_geometry: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey('geometry.geometry_id'),
+        primary_key=True,
+        comment='Geometry reference',
+    )
     point_no: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Point number in loop'
     )
     point: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('point.point_id'), comment='Point reference'
-    )
-    of_geometry: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('geometry.geometry_id'), comment='Geometry reference'
     )
 
     # Relationships
@@ -103,21 +105,18 @@ class Shading(Base):
     of_building: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('building.building_id'), comment='Building reference'
     )
-    geometry: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('geometry.geometry_id'), comment='Geometry'
+    lib_shading_id: Mapped[int | None] = mapped_column(
+        Integer, comment='Library shading ID'
     )
-    schedule: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('schedule_year.schedule_id'), comment='Schedule'
-    )
-    reflectance: Mapped[float | None] = mapped_column(Float, comment='Reflectance')
+    material: Mapped[int | None] = mapped_column(Integer, comment='Material')
+    rou: Mapped[float | None] = mapped_column(Float, comment='Rou')
+    tao: Mapped[float | None] = mapped_column(Float, comment='Tao')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
 
     # Relationships
     building: Mapped[Building | None] = relationship('Building')
-    geometry_ref: Mapped[Geometry | None] = relationship('Geometry')
-    schedule_ref: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
     surfaces: Mapped[list[Surface]] = relationship('Surface', back_populates='shading')
 
 
@@ -177,10 +176,12 @@ class Surface(Base):
 
 
 class SurfaceSunShadeMap(Base):
-    """Surface sun shade map model."""
+    """Surface sun shade map model (surface_id is not a primary key in DB)."""
 
     __tablename__ = 'surface_sun_shade_map'
 
+    # Note: In the actual database, this table has no primary key.
+    # We use surface_id as a pseudo primary key for ORM compatibility.
     surface_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey('surface.surface_id'),
