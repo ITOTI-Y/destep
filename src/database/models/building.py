@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ._base import Base
 
 if TYPE_CHECKING:
-    from .fenestration import Door, Window
+    from .fenestration import Window
     from .geometry import Point, Surface
     from .hvac import AcSys, HeatingPipe
     from .misc import DistMode, RoomTypeData
@@ -87,7 +87,6 @@ class Storey(Base):
     )
     rooms: Mapped[list[Room]] = relationship('Room', back_populates='storey')
     windows: Mapped[list[Window]] = relationship('Window', back_populates='storey')
-    doors: Mapped[list[Door]] = relationship('Door', back_populates='storey')
 
 
 class RoomGroup(Base):

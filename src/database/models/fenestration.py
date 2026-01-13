@@ -172,7 +172,7 @@ class LibShading(Base):
     degr: Mapped[float | None] = mapped_column(Float, comment='Degree right')
     price: Mapped[float | None] = mapped_column(Float, comment='Price')
     image: Mapped[bytes | None] = mapped_column(LargeBinary, comment='Image data')
-    group_field: Mapped[int | None] = mapped_column('group', Integer, comment='Group')
+    group: Mapped[int | None] = mapped_column(Integer, comment='Group')
     note: Mapped[str | None] = mapped_column(String(255), comment='Note')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'

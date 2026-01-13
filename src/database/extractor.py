@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from loguru import logger
+from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from .accdb_reader import AccdbConfig, AccdbReader
@@ -17,6 +18,8 @@ class DataExtractor:
     Handles table dependency ordering via topological sort and
     provides robust error handling for individual row failures.
     """
+
+    BATCH_SIZE = 5000
 
     def __init__(
         self,
@@ -35,12 +38,9 @@ class DataExtractor:
             AccdbReader(self.accdb_config) as reader,
             SQLiteManager(self.sqlite_path) as db,
         ):
-            db.create_tables()
-
             accdb_tables = {t.upper() for t in reader.get_table_names()}
             sorted_tables = self._get_sorted_tables()
 
-            # Pre-load primary key values for FK validation
             self._load_pk_values(reader, accdb_tables)
 
             extracted_count = 0
@@ -57,34 +57,85 @@ class DataExtractor:
         session: Session,
         table_name: str,
     ) -> None:
-        """Extract a single table from Access to SQLite."""
+        """Extract a single table from Access to SQLite using bulk insert."""
         model_class = self._get_model_class(table_name)
         if model_class is None:
             logger.warning(f"No model for table '{table_name}', skipping")
             return
 
         fk_info = self._get_fk_info(table_name)
+        batch: list[dict[str, Any]] = []
         success_count = 0
         error_count = 0
 
         for row in reader.iter_table(table_name):
             try:
                 decoded_row = self._decode_row(row, fk_info)
-                instance = model_class(**decoded_row)
-                with session.begin_nested():
-                    session.merge(instance)
-                success_count += 1
+                batch.append(decoded_row)
+
+                if len(batch) >= self.BATCH_SIZE:
+                    inserted, errors = self._flush_batch(session, model_class, batch)
+                    success_count += inserted
+                    error_count += errors
+                    batch = []
             except Exception as e:
                 error_count += 1
-                logger.warning(f"Failed to insert row in '{table_name}': {e}")
-                continue
+                logger.warning(f"Failed to decode row in '{table_name}': {e}")
 
-        if success_count > 0:
-            session.commit()
+        # 处理剩余数据
+        if batch:
+            inserted, errors = self._flush_batch(session, model_class, batch)
+            success_count += inserted
+            error_count += errors
+
+        session.commit()
+
         log_msg = f"Extracted {success_count} rows from '{table_name}'"
         if error_count > 0:
             log_msg += f' ({error_count} errors)'
         logger.info(log_msg)
+
+    def _flush_batch(
+        self,
+        session: Session,
+        model_class: type[Base],
+        batch: list[dict[str, Any]],
+    ) -> tuple[int, int]:
+        """Flush batch to database. Returns (success_count, error_count)."""
+        try:
+            mapper = inspect(model_class)
+            session.bulk_insert_mappings(mapper, batch)
+            session.flush()
+            return len(batch), 0
+        except Exception as e:
+            session.rollback()
+            logger.warning(f'Batch insert failed, falling back to row-by-row: {e}')
+            return self._insert_rows_individually(session, model_class, batch)
+
+    def _insert_rows_individually(
+        self,
+        session: Session,
+        model_class: type[Base],
+        batch: list[dict[str, Any]],
+    ) -> tuple[int, int]:
+        """Insert rows one by one when batch fails. Returns (success, errors)."""
+        success_count = 0
+        error_count = 0
+
+        for row_data in batch:
+            savepoint = session.begin_nested()
+            try:
+                instance = model_class(**row_data)
+                session.merge(instance)
+                session.flush()
+                savepoint.commit()
+                success_count += 1
+            except Exception as e:
+                savepoint.rollback()
+                error_count += 1
+                logger.debug(f'Row insert failed: {e}')
+
+        return success_count, error_count
 
     def _load_pk_values(self, reader: AccdbReader, accdb_tables: set[str]) -> None:
         """Pre-load primary key values from all tables for FK validation."""
@@ -98,38 +149,30 @@ class DataExtractor:
                 continue
 
             pk_col = pk_cols[0].upper()
-            if reader._connection is not None:
-                cursor = reader._connection.cursor()
-                cursor.execute(f'SELECT {pk_col} FROM {table_name}')
+            cursor = reader.connection.cursor()
+            try:
+                cursor.execute(f'SELECT [{pk_col}] FROM [{table_name}]')
                 self._pk_values[table_name] = {row[0] for row in cursor.fetchall()}
+            finally:
                 cursor.close()
-            else:
-                logger.error(
-                    f'Could not load PK values for {table_name}: No connection'
-                )
-                raise RuntimeError(
-                    f'Could not load PK values for {table_name}: No connection'
-                )
 
         logger.debug(f'Loaded PK values for {len(self._pk_values)} tables')
 
     def _decode_row(
         self, row: dict[str, Any], fk_info: dict[str, str]
     ) -> dict[str, Any]:
-        """Decode BLOB fields, normalize column names, and validate FK references."""
+        """Normalize column names, and validate FK references."""
         result = {}
         for key, value in row.items():
             col_name = key.lower()
-            decoded_value = AccdbReader.decode_blob(value)
 
-            # Validate foreign key references
-            if col_name in fk_info and decoded_value is not None:
+            if col_name in fk_info and value is not None:
                 parent_table = fk_info[col_name]
                 valid_pks = self._pk_values.get(parent_table, set())
-                if decoded_value not in valid_pks:
-                    decoded_value = None
+                if value not in valid_pks:
+                    value = None
 
-            result[col_name] = decoded_value
+            result[col_name] = value
         return result
 
     def _get_fk_info(self, table_name: str) -> dict[str, str]:
@@ -137,7 +180,7 @@ class DataExtractor:
         for table in Base.metadata.sorted_tables:
             if table.name.upper() == table_name.upper():
                 return {
-                    fk.parent.name: fk.column.table.name.upper()
+                    fk.parent.name.lower(): fk.column.table.name.upper()
                     for fk in table.foreign_keys
                 }
         return {}
@@ -150,7 +193,7 @@ class DataExtractor:
         for table in Base.metadata.sorted_tables:
             table_name = table.name.upper()
             all_tables.add(table_name)
-            graph[table_name]
+            _ = graph[table_name]  # Initialize empty dependency set
 
             for fk in table.foreign_keys:
                 parent_table = fk.column.table.name.upper()

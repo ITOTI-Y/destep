@@ -634,47 +634,47 @@ class LibVrvSource(Base):
         Integer, primary_key=True, comment='VRV outdoor unit library ID'
     )
     name: Mapped[str | None] = mapped_column(String(50), comment='Name')
-    alpha_1: Mapped[float | None] = mapped_column('ALPHA_1', Float)
-    alpha_2: Mapped[float | None] = mapped_column('ALPHA_2', Float)
-    capacity_cool: Mapped[float | None] = mapped_column('CAPACITY_COOL', Float)
-    capacity_heat: Mapped[float | None] = mapped_column('CAPACITY_HEAT', Float)
+    alpha_1: Mapped[float | None] = mapped_column(Float)
+    alpha_2: Mapped[float | None] = mapped_column(Float)
+    capacity_cool: Mapped[float | None] = mapped_column(Float)
+    capacity_heat: Mapped[float | None] = mapped_column(Float)
     ext_property: Mapped[float | None] = mapped_column(
         Float, comment='Extended property'
     )
-    fai_gas: Mapped[float | None] = mapped_column('FAI_GAS', Float)
-    fai_liquid: Mapped[float | None] = mapped_column('FAI_LIQUID', Float)
-    fan_power_a: Mapped[float | None] = mapped_column('FAN_POWER_A', Float)
-    fan_power_b: Mapped[float | None] = mapped_column('FAN_POWER_B', Float)
-    fan_power_c: Mapped[float | None] = mapped_column('FAN_POWER_C', Float)
-    fan_power_d: Mapped[float | None] = mapped_column('FAN_POWER_D', Float)
-    fan_power_e: Mapped[float | None] = mapped_column('FAN_POWER_E', Float)
-    fan_power_f: Mapped[float | None] = mapped_column('FAN_POWER_F', Float)
-    fan_power_nom: Mapped[float | None] = mapped_column('FAN_POWER_NOM', Float)
-    flowrate: Mapped[float | None] = mapped_column('FLOWRATE', Float)
-    h_cppower_a: Mapped[float | None] = mapped_column('H_CPPOWER_A', Float)
-    h_cppower_b: Mapped[float | None] = mapped_column('H_CPPOWER_B', Float)
-    h_cppower_c: Mapped[float | None] = mapped_column('H_CPPOWER_C', Float)
-    h_cppower_d: Mapped[float | None] = mapped_column('H_CPPOWER_D', Float)
-    h_cppower_e: Mapped[float | None] = mapped_column('H_CPPOWER_E', Float)
-    h_cppower_f: Mapped[float | None] = mapped_column('H_CPPOWER_F', Float)
-    l_cppower_a: Mapped[float | None] = mapped_column('L_CPPOWER_A', Float)
-    l_cppower_b: Mapped[float | None] = mapped_column('L_CPPOWER_B', Float)
-    l_cppower_c: Mapped[float | None] = mapped_column('L_CPPOWER_C', Float)
-    l_cppower_d: Mapped[float | None] = mapped_column('L_CPPOWER_D', Float)
-    l_cppower_e: Mapped[float | None] = mapped_column('L_CPPOWER_E', Float)
-    l_cppower_f: Mapped[float | None] = mapped_column('L_CPPOWER_F', Float)
-    manufacturer: Mapped[str | None] = mapped_column('MANUFACTURER', String(100))
-    nom_air_flow: Mapped[float | None] = mapped_column('NOM_AIR_FLOW', Float)
-    nom_ref_flow: Mapped[float | None] = mapped_column('NOM_REF_FLOW', Float)
-    plr_lowlimit: Mapped[float | None] = mapped_column('PLR_LOWLIMIT', Float)
-    power_comp_cool: Mapped[float | None] = mapped_column('POWER_COMP_COOL', Float)
-    power_cool: Mapped[float | None] = mapped_column('POWER_COOL', Float)
-    power_heat: Mapped[float | None] = mapped_column('POWER_HEAT', Float)
-    power_loss: Mapped[float | None] = mapped_column('POWER_LOSS', Float)
-    r_air: Mapped[float | None] = mapped_column('R_AIR', Float)
-    r_ref: Mapped[float | None] = mapped_column('R_REF', Float)
-    sweptvolume: Mapped[float | None] = mapped_column('SWEPTVOLUME', Float)
-    type: Mapped[str | None] = mapped_column('TYPE', String(100))
+    fai_gas: Mapped[float | None] = mapped_column(Float)
+    fai_liquid: Mapped[float | None] = mapped_column(Float)
+    fan_power_a: Mapped[float | None] = mapped_column(Float)
+    fan_power_b: Mapped[float | None] = mapped_column(Float)
+    fan_power_c: Mapped[float | None] = mapped_column(Float)
+    fan_power_d: Mapped[float | None] = mapped_column(Float)
+    fan_power_e: Mapped[float | None] = mapped_column(Float)
+    fan_power_f: Mapped[float | None] = mapped_column(Float)
+    fan_power_nom: Mapped[float | None] = mapped_column(Float)
+    flowrate: Mapped[float | None] = mapped_column(Float)
+    h_cppower_a: Mapped[float | None] = mapped_column(Float)
+    h_cppower_b: Mapped[float | None] = mapped_column(Float)
+    h_cppower_c: Mapped[float | None] = mapped_column(Float)
+    h_cppower_d: Mapped[float | None] = mapped_column(Float)
+    h_cppower_e: Mapped[float | None] = mapped_column(Float)
+    h_cppower_f: Mapped[float | None] = mapped_column(Float)
+    l_cppower_a: Mapped[float | None] = mapped_column(Float)
+    l_cppower_b: Mapped[float | None] = mapped_column(Float)
+    l_cppower_c: Mapped[float | None] = mapped_column(Float)
+    l_cppower_d: Mapped[float | None] = mapped_column(Float)
+    l_cppower_e: Mapped[float | None] = mapped_column(Float)
+    l_cppower_f: Mapped[float | None] = mapped_column(Float)
+    manufacturer: Mapped[str | None] = mapped_column(String(100))
+    nom_air_flow: Mapped[float | None] = mapped_column(Float)
+    nom_ref_flow: Mapped[float | None] = mapped_column(Float)
+    plr_lowlimit: Mapped[float | None] = mapped_column(Float)
+    power_comp_cool: Mapped[float | None] = mapped_column(Float)
+    power_cool: Mapped[float | None] = mapped_column(Float)
+    power_heat: Mapped[float | None] = mapped_column(Float)
+    power_loss: Mapped[float | None] = mapped_column(Float)
+    r_air: Mapped[float | None] = mapped_column(Float)
+    r_ref: Mapped[float | None] = mapped_column(Float)
+    sweptvolume: Mapped[float | None] = mapped_column(Float)
+    type: Mapped[str | None] = mapped_column(String(100))
 
 
 class LibVrvSourceV1(Base):
@@ -686,42 +686,42 @@ class LibVrvSourceV1(Base):
         Integer, primary_key=True, comment='VRV outdoor unit library V1 ID'
     )
     name: Mapped[str | None] = mapped_column(String(50), comment='Name')
-    capacity_cool: Mapped[float | None] = mapped_column('CAPACITY_COOL', Float)
-    capacity_heat: Mapped[float | None] = mapped_column('CAPACITY_HEAT', Float)
-    c_cppower_a: Mapped[float | None] = mapped_column('C_CPPOWER_A', Float)
-    c_cppower_b: Mapped[float | None] = mapped_column('C_CPPOWER_B', Float)
-    c_cppower_c: Mapped[float | None] = mapped_column('C_CPPOWER_C', Float)
-    c_cppower_d: Mapped[float | None] = mapped_column('C_CPPOWER_D', Float)
-    c_cppower_e: Mapped[float | None] = mapped_column('C_CPPOWER_E', Float)
-    c_cppower_f: Mapped[float | None] = mapped_column('C_CPPOWER_F', Float)
+    capacity_cool: Mapped[float | None] = mapped_column(Float)
+    capacity_heat: Mapped[float | None] = mapped_column(Float)
+    c_cppower_a: Mapped[float | None] = mapped_column(Float)
+    c_cppower_b: Mapped[float | None] = mapped_column(Float)
+    c_cppower_c: Mapped[float | None] = mapped_column(Float)
+    c_cppower_d: Mapped[float | None] = mapped_column(Float)
+    c_cppower_e: Mapped[float | None] = mapped_column(Float)
+    c_cppower_f: Mapped[float | None] = mapped_column(Float)
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
-    fai_gas: Mapped[float | None] = mapped_column('FAI_GAS', Float)
-    fai_liquid: Mapped[float | None] = mapped_column('FAI_LIQUID', Float)
-    fan_power_a: Mapped[float | None] = mapped_column('FAN_POWER_A', Float)
-    fan_power_b: Mapped[float | None] = mapped_column('FAN_POWER_B', Float)
-    fan_power_c: Mapped[float | None] = mapped_column('FAN_POWER_C', Float)
-    fan_power_d: Mapped[float | None] = mapped_column('FAN_POWER_D', Float)
-    fan_power_e: Mapped[float | None] = mapped_column('FAN_POWER_E', Float)
-    fan_power_f: Mapped[float | None] = mapped_column('FAN_POWER_F', Float)
-    fan_power_nom: Mapped[float | None] = mapped_column('FAN_POWER_NOM', Float)
-    flowrate: Mapped[float | None] = mapped_column('FLOWRATE', Float)
-    h_cppower_a: Mapped[float | None] = mapped_column('H_CPPOWER_A', Float)
-    h_cppower_b: Mapped[float | None] = mapped_column('H_CPPOWER_B', Float)
-    h_cppower_c: Mapped[float | None] = mapped_column('H_CPPOWER_C', Float)
-    h_cppower_d: Mapped[float | None] = mapped_column('H_CPPOWER_D', Float)
-    h_cppower_e: Mapped[float | None] = mapped_column('H_CPPOWER_E', Float)
-    h_cppower_f: Mapped[float | None] = mapped_column('H_CPPOWER_F', Float)
-    manufacturer: Mapped[str | None] = mapped_column('MANUFACTURER', String(100))
-    nom_air_flow: Mapped[float | None] = mapped_column('NOM_AIR_FLOW', Float)
-    nom_ref_flow: Mapped[float | None] = mapped_column('NOM_REF_FLOW', Float)
-    plr_lowlimit: Mapped[float | None] = mapped_column('PLR_LOWLIMIT', Float)
-    power_comp_cool: Mapped[float | None] = mapped_column('POWER_COMP_COOL', Float)
-    power_comp_heat: Mapped[float | None] = mapped_column('POWER_COMP_HEAT', Float)
-    power_cool: Mapped[float | None] = mapped_column('POWER_COOL', Float)
-    power_heat: Mapped[float | None] = mapped_column('POWER_HEAT', Float)
-    type: Mapped[str | None] = mapped_column('TYPE', String(100))
+    fai_gas: Mapped[float | None] = mapped_column(Float)
+    fai_liquid: Mapped[float | None] = mapped_column(Float)
+    fan_power_a: Mapped[float | None] = mapped_column(Float)
+    fan_power_b: Mapped[float | None] = mapped_column(Float)
+    fan_power_c: Mapped[float | None] = mapped_column(Float)
+    fan_power_d: Mapped[float | None] = mapped_column(Float)
+    fan_power_e: Mapped[float | None] = mapped_column(Float)
+    fan_power_f: Mapped[float | None] = mapped_column(Float)
+    fan_power_nom: Mapped[float | None] = mapped_column(Float)
+    flowrate: Mapped[float | None] = mapped_column(Float)
+    h_cppower_a: Mapped[float | None] = mapped_column(Float)
+    h_cppower_b: Mapped[float | None] = mapped_column(Float)
+    h_cppower_c: Mapped[float | None] = mapped_column(Float)
+    h_cppower_d: Mapped[float | None] = mapped_column(Float)
+    h_cppower_e: Mapped[float | None] = mapped_column(Float)
+    h_cppower_f: Mapped[float | None] = mapped_column(Float)
+    manufacturer: Mapped[str | None] = mapped_column(String(100))
+    nom_air_flow: Mapped[float | None] = mapped_column(Float)
+    nom_ref_flow: Mapped[float | None] = mapped_column(Float)
+    plr_lowlimit: Mapped[float | None] = mapped_column(Float)
+    power_comp_cool: Mapped[float | None] = mapped_column(Float)
+    power_comp_heat: Mapped[float | None] = mapped_column(Float)
+    power_cool: Mapped[float | None] = mapped_column(Float)
+    power_heat: Mapped[float | None] = mapped_column(Float)
+    type: Mapped[str | None] = mapped_column(String(100))
 
 
 class LibVrvTerminal(Base):
@@ -744,8 +744,8 @@ class LibVrvTerminal(Base):
     fan_flow_low: Mapped[float | None] = mapped_column(Float)
     fan_power: Mapped[float | None] = mapped_column(Float)
     manufacturer: Mapped[str | None] = mapped_column(String(50))
-    r_air: Mapped[float | None] = mapped_column('R_AIR', Float)
-    r_ref: Mapped[float | None] = mapped_column('R_REF', Float)
+    r_air: Mapped[float | None] = mapped_column(Float)
+    r_ref: Mapped[float | None] = mapped_column(Float)
     type: Mapped[str | None] = mapped_column(String(50))
 
 
@@ -884,13 +884,9 @@ class HacnetNode(Base):
     x: Mapped[float | None] = mapped_column(Float, comment='X coordinate')
     y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
     z: Mapped[float | None] = mapped_column(Float, comment='Z coordinate')
-    lose_flow: Mapped[float | None] = mapped_column(
-        'LOSEFLOW', Float, comment='Loss flow'
-    )
+    lose_flow: Mapped[float | None] = mapped_column(Float, comment='Loss flow')
     pressure: Mapped[float | None] = mapped_column(Float, comment='Pressure')
-    temperature: Mapped[float | None] = mapped_column(
-        'TEMPRATURE', Float, comment='Temperature'
-    )
+    temperature: Mapped[float | None] = mapped_column(Float, comment='Temperature')
     of_subnet: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
     )
@@ -931,22 +927,22 @@ class HacnetBranch(Base):
     roughness: Mapped[float | None] = mapped_column(Float, comment='Roughness')
     flow: Mapped[float | None] = mapped_column(Float, comment='Flow')
     yczlinputdirect: Mapped[bool | None] = mapped_column(
-        'YCZLINPUTDIRECT', Boolean, default=False, comment='Direct resistance input'
+        Boolean, default=False, comment='Direct resistance input'
     )
     yczlxishu: Mapped[float | None] = mapped_column(
-        'YCZLXISHU', Float, comment='Resistance coefficient'
+        Float, comment='Resistance coefficient'
     )
     jzstyle: Mapped[int | None] = mapped_column(
-        'JZSTYLE', Integer, comment='Local resistance style'
+        Integer, comment='Local resistance style'
     )
     jztodynhead: Mapped[float | None] = mapped_column(
-        'JZTODYNHEAD', Float, comment='Local resistance to dynamic head'
+        Float, comment='Local resistance to dynamic head'
     )
     jztoyc: Mapped[float | None] = mapped_column(
-        'JZTOYC', Float, comment='Local resistance to remaining'
+        Float, comment='Local resistance to remaining'
     )
     bfontshow: Mapped[bool | None] = mapped_column(
-        'bFontShow', Boolean, default=False, comment='Font display'
+        Boolean, default=False, comment='Font display'
     )
 
     # Relationships
@@ -1008,7 +1004,7 @@ class HacnetTerminal(Base):
     dblsteadyheatcalfactor: Mapped[float | None] = mapped_column(Float)
     design_flow: Mapped[float | None] = mapped_column(Float, comment='Design flow')
     design_pressuredrop: Mapped[float | None] = mapped_column(
-        'DESIGN_PRESSUREDROP', Float, comment='Design pressure drop'
+        Float, comment='Design pressure drop'
     )
     of_branch: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('hacnet_branch.branch_id'), comment='Parent branch'
@@ -1023,7 +1019,7 @@ class HacnetTerminal(Base):
         Integer, ForeignKey('hacnet_subnet.subnet_id'), comment='Parent subnet'
     )
     ratio_in_branchline: Mapped[float | None] = mapped_column(
-        'RATIOINBRANCHLINE', Float, comment='Ratio in branch line'
+        Float, comment='Ratio in branch line'
     )
     s: Mapped[float | None] = mapped_column(Float, comment='S parameter')
 
@@ -1288,12 +1284,8 @@ class Ductnet(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='ID')
     name: Mapped[str | None] = mapped_column(String(50), comment='Name')
-    ahu_type: Mapped[int | None] = mapped_column(
-        'AHUType', SmallInteger, comment='AHU type'
-    )
-    run_mode: Mapped[int | None] = mapped_column(
-        'RunMode', SmallInteger, comment='Run mode'
-    )
+    ahu_type: Mapped[int | None] = mapped_column(SmallInteger, comment='AHU type')
+    run_mode: Mapped[int | None] = mapped_column(SmallInteger, comment='Run mode')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
@@ -1304,120 +1296,104 @@ class Ductnet(Base):
 
     # Fresh duct dimensions (L/W/H)
     fresh_duct_l: Mapped[float | None] = mapped_column(
-        'FRESH_DUCT_L', Float, comment='Fresh duct length'
+        Float, comment='Fresh duct length'
     )
     fresh_duct_w: Mapped[float | None] = mapped_column(
-        'FRESH_DUCT_W', Float, comment='Fresh duct width'
+        Float, comment='Fresh duct width'
     )
     fresh_duct_h: Mapped[float | None] = mapped_column(
-        'FRESH_DUCT_H', Float, comment='Fresh duct height'
+        Float, comment='Fresh duct height'
     )
 
     # Exhaust duct dimensions (L/W/H)
     exhaust_duct_l: Mapped[float | None] = mapped_column(
-        'EXHAUST_DUCT_L', Float, comment='Exhaust duct length'
+        Float, comment='Exhaust duct length'
     )
     exhaust_duct_w: Mapped[float | None] = mapped_column(
-        'EXHAUST_DUCT_W', Float, comment='Exhaust duct width'
+        Float, comment='Exhaust duct width'
     )
     exhaust_duct_h: Mapped[float | None] = mapped_column(
-        'EXHAUST_DUCT_H', Float, comment='Exhaust duct height'
+        Float, comment='Exhaust duct height'
     )
 
     # Elbow numbers (S/F/E/R)
     s_elbow_number: Mapped[int | None] = mapped_column(
-        'S_ELBOW_NUMBER', SmallInteger, comment='Supply elbow number'
+        SmallInteger, comment='Supply elbow number'
     )
     f_elbow_number: Mapped[int | None] = mapped_column(
-        'F_ELBOW_NUMBER', SmallInteger, comment='Fresh elbow number'
+        SmallInteger, comment='Fresh elbow number'
     )
     e_elbow_number: Mapped[int | None] = mapped_column(
-        'E_ELBOW_NUMBER', SmallInteger, comment='Exhaust elbow number'
+        SmallInteger, comment='Exhaust elbow number'
     )
     r_elbow_number: Mapped[int | None] = mapped_column(
-        'R_ELBOW_NUMBER', SmallInteger, comment='Return elbow number'
+        SmallInteger, comment='Return elbow number'
     )
 
     # Elbow Ksai values (S/F/E/R)
     s_elbow_ksai: Mapped[float | None] = mapped_column(
-        'S_ELBOW_KSAI', Float, comment='Supply elbow Ksai'
+        Float, comment='Supply elbow Ksai'
     )
     f_elbow_ksai: Mapped[float | None] = mapped_column(
-        'F_ELBOW_KSAI', Float, comment='Fresh elbow Ksai'
+        Float, comment='Fresh elbow Ksai'
     )
     e_elbow_ksai: Mapped[float | None] = mapped_column(
-        'E_ELBOW_KSAI', Float, comment='Exhaust elbow Ksai'
+        Float, comment='Exhaust elbow Ksai'
     )
     r_elbow_ksai: Mapped[float | None] = mapped_column(
-        'R_ELBOW_KSAI', Float, comment='Return elbow Ksai'
+        Float, comment='Return elbow Ksai'
     )
 
     # Muffler numbers (S/F/E/R)
     s_muffler_number: Mapped[int | None] = mapped_column(
-        'S_MUFFLER_NUMBER', SmallInteger, comment='Supply muffler number'
+        SmallInteger, comment='Supply muffler number'
     )
     f_muffler_number: Mapped[int | None] = mapped_column(
-        'F_MUFFLER_NUMBER', SmallInteger, comment='Fresh muffler number'
+        SmallInteger, comment='Fresh muffler number'
     )
     e_muffler_number: Mapped[int | None] = mapped_column(
-        'E_MUFFLER_NUMBER', SmallInteger, comment='Exhaust muffler number'
+        SmallInteger, comment='Exhaust muffler number'
     )
     r_muffler_number: Mapped[int | None] = mapped_column(
-        'R_MUFFLER_NUMBER', SmallInteger, comment='Return muffler number'
+        SmallInteger, comment='Return muffler number'
     )
 
     # Muffler Ksai values (S/F/E/R)
     s_muffler_ksai: Mapped[float | None] = mapped_column(
-        'S_MUFFLER_KSAI', Float, comment='Supply muffler Ksai'
+        Float, comment='Supply muffler Ksai'
     )
     f_muffler_ksai: Mapped[float | None] = mapped_column(
-        'F_MUFFLER_KSAI', Float, comment='Fresh muffler Ksai'
+        Float, comment='Fresh muffler Ksai'
     )
     e_muffler_ksai: Mapped[float | None] = mapped_column(
-        'E_MUFFLER_KSAI', Float, comment='Exhaust muffler Ksai'
+        Float, comment='Exhaust muffler Ksai'
     )
     r_muffler_ksai: Mapped[float | None] = mapped_column(
-        'R_MUFFLER_KSAI', Float, comment='Return muffler Ksai'
+        Float, comment='Return muffler Ksai'
     )
 
     # Filter G/P
-    filter_g: Mapped[float | None] = mapped_column(
-        'FILTER_G', Float, comment='Filter G'
-    )
-    filter_p: Mapped[float | None] = mapped_column(
-        'FILTER_P', Float, comment='Filter P'
-    )
+    filter_g: Mapped[float | None] = mapped_column(Float, comment='Filter G')
+    filter_p: Mapped[float | None] = mapped_column(Float, comment='Filter P')
 
     # Coil G/P
-    coil_g: Mapped[float | None] = mapped_column('COIL_G', Float, comment='Coil G')
-    coil_p: Mapped[float | None] = mapped_column('COIL_P', Float, comment='Coil P')
+    coil_g: Mapped[float | None] = mapped_column(Float, comment='Coil G')
+    coil_p: Mapped[float | None] = mapped_column(Float, comment='Coil P')
 
     # Spray room G/P
-    sprayroom_g: Mapped[float | None] = mapped_column(
-        'SPRAYROOM_G', Float, comment='Spray room G'
-    )
-    sprayroom_p: Mapped[float | None] = mapped_column(
-        'SPRAYROOM_P', Float, comment='Spray room P'
-    )
+    sprayroom_g: Mapped[float | None] = mapped_column(Float, comment='Spray room G')
+    sprayroom_p: Mapped[float | None] = mapped_column(Float, comment='Spray room P')
 
     # Recover heat G/P
-    recoverheat_g: Mapped[float | None] = mapped_column(
-        'RECOVERHEAT_G', Float, comment='Recover heat G'
-    )
-    recoverheat_p: Mapped[float | None] = mapped_column(
-        'RECOVERHEAT_P', Float, comment='Recover heat P'
-    )
+    recoverheat_g: Mapped[float | None] = mapped_column(Float, comment='Recover heat G')
+    recoverheat_p: Mapped[float | None] = mapped_column(Float, comment='Recover heat P')
 
     # Reheater G/P
-    reheater_g: Mapped[float | None] = mapped_column(
-        'REHEATER_G', Float, comment='Reheater G'
-    )
-    reheater_p: Mapped[float | None] = mapped_column(
-        'REHEATER_P', Float, comment='Reheater P'
-    )
+    reheater_g: Mapped[float | None] = mapped_column(Float, comment='Reheater G')
+    reheater_p: Mapped[float | None] = mapped_column(Float, comment='Reheater P')
 
     constant_p_point_value: Mapped[float | None] = mapped_column(
-        'Constant_P_Point_value', Float, comment='Constant pressure point value'
+        Float, comment='Constant pressure point value'
     )
 
 
@@ -1538,10 +1514,10 @@ class WaterSystem(Base):
         SmallInteger, comment='Heat source pump'
     )
     second_pump_cool: Mapped[int | None] = mapped_column(
-        'SECOND_PUMP_COOL', Integer, comment='Secondary pump cool'
+        Integer, comment='Secondary pump cool'
     )
     second_pump_heat: Mapped[int | None] = mapped_column(
-        'SECOND_PUMP_HEAT', Integer, comment='Secondary pump heat'
+        Integer, comment='Secondary pump heat'
     )
     water_temperature: Mapped[int | None] = mapped_column(
         Integer, comment='Water temperature'
@@ -1550,56 +1526,52 @@ class WaterSystem(Base):
         Integer, comment='Hot water temperature'
     )
     pressure_loss1_cool: Mapped[float | None] = mapped_column(
-        'PRESSURE_LOSS1_COOL', Float, comment='Pressure loss 1 cool'
+        Float, comment='Pressure loss 1 cool'
     )
     pressure_loss1_heat: Mapped[float | None] = mapped_column(
-        'PRESSURE_LOSS1_HEAT', Float, comment='Pressure loss 1 heat'
+        Float, comment='Pressure loss 1 heat'
     )
     pressure_loss2_cool: Mapped[float | None] = mapped_column(
-        'PRESSURE_LOSS2_COOL', Float, comment='Pressure loss 2 cool'
+        Float, comment='Pressure loss 2 cool'
     )
     pressure_loss2_heat: Mapped[float | None] = mapped_column(
-        'PRESSURE_LOSS2_HEAT', Float, comment='Pressure loss 2 heat'
+        Float, comment='Pressure loss 2 heat'
     )
     prim_pump_ctrl_cool: Mapped[int | None] = mapped_column(
-        'PRIM_PUMP_CTRL_COOL', Integer, comment='Primary pump control cool'
+        Integer, comment='Primary pump control cool'
     )
     prim_pump_ctrl_heat: Mapped[int | None] = mapped_column(
-        'PRIM_PUMP_CTRL_HEAT', Integer, comment='Primary pump control heat'
+        Integer, comment='Primary pump control heat'
     )
     secd_pump_ctrl_cool: Mapped[int | None] = mapped_column(
-        'SECD_PUMP_CTRL_COOL', Integer, comment='Secondary pump control cool'
+        Integer, comment='Secondary pump control cool'
     )
     secd_pump_ctrl_heat: Mapped[int | None] = mapped_column(
-        'SECD_PUMP_CTRL_HEAT', Integer, comment='Secondary pump control heat'
+        Integer, comment='Secondary pump control heat'
     )
     cool_pump_ctrl: Mapped[int | None] = mapped_column(
-        'COOL_PUMP_CTRL', Integer, comment='Cooling pump control'
+        Integer, comment='Cooling pump control'
     )
     heat_pump_ctrl: Mapped[int | None] = mapped_column(
-        'HEAT_PUMP_CTRL', Integer, comment='Heat pump control'
+        Integer, comment='Heat pump control'
     )
     coolingtower_ctrl: Mapped[int | None] = mapped_column(
-        'COOLINGTOWER_CTRL', Integer, comment='Cooling tower control'
+        Integer, comment='Cooling tower control'
     )
     heatexchanger_ctrl: Mapped[int | None] = mapped_column(
-        'HEATEXCHANGER_CTRL', Integer, comment='Heat exchanger control'
+        Integer, comment='Heat exchanger control'
     )
     refill_pump_ctrl: Mapped[int | None] = mapped_column(
-        'REFILL_PUMP_CTRL', Integer, comment='Refill pump control'
+        Integer, comment='Refill pump control'
     )
     tank_bypass_cool: Mapped[int | None] = mapped_column(
-        'TANK_BYBASS_COOL', Integer, comment='Tank bypass cool'
+        Integer, comment='Tank bypass cool'
     )
     tank_bypass_heat: Mapped[int | None] = mapped_column(
-        'TANK_BYBASS_HEAT', Integer, comment='Tank bypass heat'
+        Integer, comment='Tank bypass heat'
     )
-    blank_1: Mapped[float | None] = mapped_column(
-        'BLANK_1', Numeric, comment='Reserved field 1'
-    )
-    blank_2: Mapped[float | None] = mapped_column(
-        'BLANK_2', Numeric, comment='Reserved field 2'
-    )
+    blank_1: Mapped[float | None] = mapped_column(Numeric, comment='Reserved field 1')
+    blank_2: Mapped[float | None] = mapped_column(Numeric, comment='Reserved field 2')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )

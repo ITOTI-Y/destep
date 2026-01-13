@@ -309,3 +309,9 @@ class AccdbReader:
         values = [round(v, 1) for v in values]
 
         return values
+
+    @property
+    def connection(self) -> jaydebeapi.Connection:
+        if self._connection is None:
+            raise RuntimeError('Not connected to database')
+        return self._connection
