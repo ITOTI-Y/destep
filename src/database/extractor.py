@@ -51,8 +51,7 @@ class DataExtractor:
                     self._extract_table(reader, db.session, table_name)
                     extracted_count += 1
 
-            logger.info(
-                f'Extraction complete: {extracted_count} tables processed')
+            logger.info(f'Extraction complete: {extracted_count} tables processed')
 
     def _extract_table(
         self,
@@ -77,8 +76,7 @@ class DataExtractor:
                 batch.append(decoded_row)
 
                 if len(batch) >= self.BATCH_SIZE:
-                    inserted, errors = self._flush_batch(
-                        session, model_class, batch)
+                    inserted, errors = self._flush_batch(session, model_class, batch)
                     success_count += inserted
                     error_count += errors
                     batch = []
@@ -113,8 +111,7 @@ class DataExtractor:
             return len(batch), 0
         except Exception as e:
             session.rollback()
-            logger.warning(
-                f'Batch insert failed, falling back to row-by-row: {e}')
+            logger.warning(f'Batch insert failed, falling back to row-by-row: {e}')
             return self._insert_rows_individually(session, model_class, batch)
 
     def _insert_rows_individually(
