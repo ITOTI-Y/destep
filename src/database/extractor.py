@@ -38,8 +38,6 @@ class DataExtractor:
             AccdbReader(self.accdb_config) as reader,
             SQLiteManager(self.sqlite_path) as db,
         ):
-            db.create_tables()
-
             accdb_tables = {t.upper() for t in reader.get_table_names()}
             sorted_tables = self._get_sorted_tables()
 
@@ -152,9 +150,11 @@ class DataExtractor:
 
             pk_col = pk_cols[0].upper()
             cursor = reader.connection.cursor()
-            cursor.execute(f'SELECT [{pk_col}] FROM [{table_name}]')
-            self._pk_values[table_name] = {row[0] for row in cursor.fetchall()}
-            cursor.close()
+            try:
+                cursor.execute(f'SELECT [{pk_col}] FROM [{table_name}]')
+                self._pk_values[table_name] = {row[0] for row in cursor.fetchall()}
+            finally:
+                cursor.close()
 
         logger.debug(f'Loaded PK values for {len(self._pk_values)} tables')
 
