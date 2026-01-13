@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Float, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
+
+if TYPE_CHECKING:
+    from .building import Room, Storey
+    from .misc import DistMode
+    from .schedule import ScheduleYear
 
 
 class OccupantGains(Base):
@@ -48,6 +55,12 @@ class OccupantGains(Base):
     y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
     z: Mapped[float | None] = mapped_column(Float, comment='Z coordinate')
 
+    # Relationships
+    room: Mapped[Room | None] = relationship('Room')
+    schedule_year: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
+    dist_mode_ref: Mapped[DistMode | None] = relationship('DistMode')
+    storey: Mapped[Storey | None] = relationship('Storey')
+
 
 class LightGains(Base):
     """Lighting heat gains model."""
@@ -85,6 +98,12 @@ class LightGains(Base):
     x: Mapped[float | None] = mapped_column(Float, comment='X coordinate')
     y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
     z: Mapped[float | None] = mapped_column(Float, comment='Z coordinate')
+
+    # Relationships
+    room: Mapped[Room | None] = relationship('Room')
+    schedule_year: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
+    dist_mode_ref: Mapped[DistMode | None] = relationship('DistMode')
+    storey: Mapped[Storey | None] = relationship('Storey')
 
 
 class EquipmentGains(Base):
@@ -126,3 +145,9 @@ class EquipmentGains(Base):
     x: Mapped[float | None] = mapped_column(Float, comment='X coordinate')
     y: Mapped[float | None] = mapped_column(Float, comment='Y coordinate')
     z: Mapped[float | None] = mapped_column(Float, comment='Z coordinate')
+
+    # Relationships
+    room: Mapped[Room | None] = relationship('Room')
+    schedule_year: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
+    dist_mode_ref: Mapped[DistMode | None] = relationship('DistMode')
+    storey: Mapped[Storey | None] = relationship('Storey')

@@ -2,13 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Integer, LargeBinary, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
 
 if TYPE_CHECKING:
     from .building import Storey
+    from .construction import MainEnclosure
+    from .geometry import Shading, Surface
+    from .misc import DistMode, UserDefDll
+    from .schedule import ScheduleYear
 
 
 class SysWindow(Base):
@@ -19,7 +23,7 @@ class SysWindow(Base):
     window_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Window construction ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Window name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Window name (Chinese)'
@@ -76,7 +80,7 @@ class SysDoor(Base):
     door_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Door construction ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Door name')
     cname: Mapped[str | None] = mapped_column(String(50), comment='Door name (Chinese)')
     conduct_co: Mapped[float | None] = mapped_column(
@@ -100,7 +104,7 @@ class SysCurtain(Base):
     curtain_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Curtain ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Curtain name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Curtain name (Chinese)'
@@ -126,7 +130,7 @@ class SysShading(Base):
     shield_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, comment='Shading ID'
     )
-    group_id: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    group_id: Mapped[str | None] = mapped_column(String(50), comment='Group name')
     name: Mapped[str | None] = mapped_column(String(50), comment='Shading name')
     cname: Mapped[str | None] = mapped_column(
         String(50), comment='Shading name (Chinese)'
@@ -167,8 +171,8 @@ class LibShading(Base):
     wr: Mapped[float | None] = mapped_column(Float, comment='Width right')
     degr: Mapped[float | None] = mapped_column(Float, comment='Degree right')
     price: Mapped[float | None] = mapped_column(Float, comment='Price')
-    image: Mapped[str | None] = mapped_column(String(255), comment='Image path')
-    group: Mapped[int | None] = mapped_column(Integer, comment='Group ID')
+    image: Mapped[bytes | None] = mapped_column(LargeBinary, comment='Image data')
+    group_field: Mapped[int | None] = mapped_column('group', Integer, comment='Group')
     note: Mapped[str | None] = mapped_column(String(255), comment='Note')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
@@ -231,7 +235,30 @@ class Window(Base):
     )
 
     # Relationships
-    storey: Mapped[Storey | None] = relationship('Storey')
+    surface_side1: Mapped[Surface | None] = relationship(
+        'Surface', foreign_keys=[side1]
+    )
+    surface_side2: Mapped[Surface | None] = relationship(
+        'Surface', foreign_keys=[side2]
+    )
+    main_enclosure: Mapped[MainEnclosure | None] = relationship('MainEnclosure')
+    window_construction_ref: Mapped[SysWindow | None] = relationship('SysWindow')
+    shading_ref: Mapped[SysShading | None] = relationship(
+        'SysShading', foreign_keys=[shading]
+    )
+    shading_lib: Mapped[Shading | None] = relationship(
+        'Shading', foreign_keys=[shadingid]
+    )
+    curtain_ref: Mapped[SysCurtain | None] = relationship('SysCurtain')
+    cur_schedule: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[cur_ref_schedule]
+    )
+    schedule_ref: Mapped[ScheduleYear | None] = relationship(
+        'ScheduleYear', foreign_keys=[schedule]
+    )
+    dll: Mapped[UserDefDll | None] = relationship('UserDefDll')
+    dist_mode: Mapped[DistMode | None] = relationship('DistMode')
+    storey: Mapped[Storey | None] = relationship('Storey', back_populates='windows')
 
 
 class Door(Base):
@@ -257,17 +284,23 @@ class Door(Base):
     schedule: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('schedule_year.schedule_id'), comment='Schedule ID'
     )
-    of_storey: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('storey.id'), comment='Storey reference'
+    user_def_dll: Mapped[str | None] = mapped_column(
+        String(255), comment='User defined DLL'
     )
-    type: Mapped[int | None] = mapped_column(Integer, comment='Door type')
-    k: Mapped[float | None] = mapped_column(Float, comment='Heat transfer coefficient')
     ext_property: Mapped[int | None] = mapped_column(
         Integer, comment='Extended property'
     )
 
     # Relationships
-    storey: Mapped[Storey | None] = relationship('Storey')
+    surface_side1: Mapped[Surface | None] = relationship(
+        'Surface', foreign_keys=[side1]
+    )
+    surface_side2: Mapped[Surface | None] = relationship(
+        'Surface', foreign_keys=[side2]
+    )
+    main_enclosure: Mapped[MainEnclosure | None] = relationship('MainEnclosure')
+    door_construction_ref: Mapped[SysDoor | None] = relationship('SysDoor')
+    schedule_ref: Mapped[ScheduleYear | None] = relationship('ScheduleYear')
 
 
 class WindowTypeData(Base):
