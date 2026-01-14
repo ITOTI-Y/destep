@@ -158,7 +158,6 @@ def extract_nested_classes(
     """
     nested_classes: list[dict[str, Any]] = []
     seen_structures: dict[str, str] = {}  # structure hash -> class name
-    used_names: set[str] = set()  # track used class names
 
     for obj in objects:
         for field in obj.fields:
@@ -169,24 +168,18 @@ def extract_nested_classes(
             ):
                 nested_fields = field.items_spec.nested_fields
 
-                # Create structure signature for deduplication
                 if deduplicate:
                     structure_sig = _get_structure_signature(nested_fields)
                     if structure_sig in seen_structures:
-                        # Reuse existing class - set the class name on items_spec
                         field.items_spec.item_class_name = seen_structures[
                             structure_sig
                         ]
                         continue
 
-                # Always use parent class prefix to ensure global uniqueness
-                # This prevents name collisions across different model files
                 class_name = _generate_nested_class_name(field.name, obj.class_name)
 
-                used_names.add(class_name)
                 nested_classes.append({'name': class_name, 'fields': nested_fields})
 
-                # Set the class name on items_spec for python_type_filter
                 field.items_spec.item_class_name = class_name
 
                 if deduplicate:
