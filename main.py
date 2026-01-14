@@ -62,6 +62,24 @@ def check_schema(
 
 
 @app.command()
+def codegen(
+    schema_path: Annotated[
+        Path, Option('--schema-path', '-s', help='Path to the schema file')
+    ] = Path('examples/Energy+.schema.epJSON'),
+    output_dir: Annotated[
+        Path, Option('--output-dir', '-o', help='Path to the output directory')
+    ] = Path('src/idf/models/'),
+):
+    from src.codegen import ModelGenerator, SchemaParser
+
+    parser = SchemaParser(schema_path=schema_path)
+    specs = parser.parse()
+    schema_version = parser.get_version()
+    generator = ModelGenerator(output_dir=output_dir)
+    generator.generate_all(specs, schema_version=schema_version)
+
+
+@app.command()
 def main():
     pass
 
