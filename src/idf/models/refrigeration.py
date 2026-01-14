@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Refrigeration
 """
 
@@ -16,10 +16,14 @@ from ._refs import (
     BivariateFunctionsRef,
     FluidAndGlycolNamesRef,
     FluidNamesRef,
+    RefrigerationAirChillerNamesRef,
     RefrigerationAllTypesCondenserNamesRef,
     RefrigerationAllTypesGasCoolerNamesRef,
+    RefrigerationCascadeCondenserAndSecondarySystemNamesRef,
     RefrigerationCaseAndWalkInAndListNamesRef,
+    RefrigerationCaseAndWalkInNamesRef,
     RefrigerationCompressorAndListNamesRef,
+    RefrigerationCompressorNamesRef,
     RefrigerationSecondarySystemAndCascadeCondenserAndTransferLoadListNamesRef,
     RefrigerationSubcoolerNamesRef,
     RefrigerationSystemNamesRef,
@@ -34,7 +38,7 @@ from ._refs import (
 class RefrigerationCaseAndWalkInListCasesAndWalkinsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    case_or_walkin_name: str | None = Field(
+    case_or_walkin_name: RefrigerationCaseAndWalkInNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RefrigerationCaseAndWalkInNames'],
@@ -46,7 +50,7 @@ class RefrigerationCaseAndWalkInListCasesAndWalkinsItem(IDFBaseModel):
 class RefrigerationCompressorListCompressorsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    refrigeration_compressor_name: str = Field(
+    refrigeration_compressor_name: RefrigerationCompressorNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['RefrigerationCompressorNames'],
@@ -58,7 +62,7 @@ class RefrigerationCompressorListCompressorsItem(IDFBaseModel):
 class RefrigerationTransferLoadListTransferLoadsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    cascade_condenser_name_or_secondary_system_name: str = Field(
+    cascade_condenser_name_or_secondary_system_name: RefrigerationCascadeCondenserAndSecondarySystemNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['RefrigerationCascadeCondenserAndSecondarySystemNames'],
@@ -150,7 +154,7 @@ class RefrigerationWalkInZoneDataItem(IDFBaseModel):
 class ZoneHVACRefrigerationChillerSetChillersItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    air_chiller_name: str | None = Field(
+    air_chiller_name: RefrigerationAirChillerNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RefrigerationAirChillerNames'],

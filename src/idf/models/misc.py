@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Variable Refrigerant Flow Equipment
 """
 
@@ -17,12 +17,12 @@ from ._refs import (
     AFNHeatExchangerNamesRef,
     AFNReliefAirFlowNamesRef,
     AFNTerminalUnitNamesRef,
-    AirflowNetworkComponentNamesRef,
     AirFlowNetworkMultizoneZonesRef,
+    AirLoopControllersRef,
+    AirflowNetworkComponentNamesRef,
     AirflowNetworkNodeAndZoneNamesRef,
     AirflowNetworkNodeNamesRef,
     AirflowNetworkOccupantVentilationControlNamesRef,
-    AirLoopControllersRef,
     AllHeatTranSurfNamesRef,
     BivariateFunctionsRef,
     BranchListsRef,
@@ -31,10 +31,10 @@ from ._refs import (
     ControllerMechanicalVentNamesRef,
     CoolingCoilsDXMultiModeOrSingleSpeedRef,
     CoolingCoilsDXVariableSpeedRef,
+    DSOASpaceListNamesRef,
     DesiccantHXPerfDataRef,
     DesignSpecificationOutdoorAirNamesRef,
     DesignSpecificationZoneAirDistributionNamesRef,
-    DSOASpaceListNamesRef,
     ExternalNodeNamesRef,
     FansCVandOnOffandVAVRef,
     FansCVandVAVRef,
@@ -43,25 +43,27 @@ from ._refs import (
     FansZoneExhaustRef,
     FluidAndGlycolNamesRef,
     FluidNamesRef,
-    HeatingCoilNameRef,
     HXDesiccantBalancedRef,
+    HeatingCoilNameRef,
     IndependentVariableListNameRef,
+    IndependentVariableNameRef,
     OutdoorAirMixersRef,
     OutdoorAirNodeNamesRef,
     PlantOperationSchemesRef,
     ReferenceCrackConditionsRef,
     RoomAirflowNetworkNodesRef,
     ScheduleNamesRef,
-    SurfaceAirflowLeakageNamesRef,
     SurfAndSubSurfNamesRef,
+    SurfaceAirflowLeakageNamesRef,
     SystemAvailabilityManagerListsRef,
     UnivariateFunctionsRef,
-    WaterStorageTankNamesRef,
     WPCSetNamesRef,
     WPCValueNamesRef,
+    WaterStorageTankNamesRef,
     ZoneAndZoneListNamesRef,
     ZoneNamesRef,
     ZoneTerminalUnitListNamesRef,
+    ZoneTerminalUnitNamesRef,
 )
 
 
@@ -155,7 +157,7 @@ class ParametricSetValueForRunValuesItem(IDFBaseModel):
 class TableIndependentVariableListIndependentVariablesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    independent_variable_name: str = Field(
+    independent_variable_name: IndependentVariableNameRef = Field(
         ..., json_schema_extra={'object_list': ['IndependentVariableName']}
     )
 
@@ -169,7 +171,7 @@ class TableLookupValuesItem(IDFBaseModel):
 class ZoneTerminalUnitListTerminalUnitsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    zone_terminal_unit_name: str = Field(
+    zone_terminal_unit_name: ZoneTerminalUnitNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneTerminalUnitNames']}
     )
 

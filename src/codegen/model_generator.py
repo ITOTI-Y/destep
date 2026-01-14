@@ -14,6 +14,7 @@ from typing import ClassVar
 from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 
+from .field_parser import FieldSpec
 from .schema_parser import ObjectSpec
 from .template_filters import (
     TEMPLATE_FILTERS,
@@ -562,15 +563,29 @@ class ModelGenerator:
         """
         object_lists: set[str] = set()
 
+        def collect_from_field(field: FieldSpec) -> None:
+            if field.object_list:
+                object_lists.update(field.object_list)
+
+            if field.anyof_specs:
+                for anyof in field.anyof_specs:
+                    if anyof.object_list:
+                        object_lists.update(anyof.object_list)
+
+            if field.items_spec:
+                if field.items_spec.object_list:
+                    object_lists.update(field.items_spec.object_list)
+                if field.items_spec.nested_fields:
+                    for nested in field.items_spec.nested_fields:
+                        collect_from_field(nested)
+
+            if field.nested_fields:
+                for nested in field.nested_fields:
+                    collect_from_field(nested)
+
         for spec in specs.values():
             for field in spec.fields:
-                if field.object_list:
-                    object_lists.update(field.object_list)
-                # Check anyof_specs for nested object_lists
-                if field.anyof_specs:
-                    for anyof in field.anyof_specs:
-                        if hasattr(anyof, 'object_list') and anyof.object_list:
-                            object_lists.update(anyof.object_list)
+                collect_from_field(field)
 
         return object_lists
 
@@ -672,14 +687,14 @@ class ModelGenerator:
             '    def __init__(self, object_list: str):',
             '        self.object_list = object_list',
             '',
-            '    def __call__(self, v: Any) -> str:',
+            '    def __call__(self, v: Any) -> str | None:',
             '        """Validate reference value.',
             '',
             '        Note: Context-based validation happens in IDF.add().',
             '        This basic validator just ensures string conversion.',
             '        """',
             '        if v is None:',
-            '            return v',
+            '            return None',
             '        return str(v)',
             '',
             '    def __get_pydantic_core_schema__(self, source_type, handler):',

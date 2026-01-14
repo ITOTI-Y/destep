@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Zone HVAC Forced Air Units
 """
 
@@ -17,32 +17,32 @@ from ._refs import (
     CoilCoolingDXRef,
     ControllerStandAloneEnergyRecoveryVentilatorRef,
     CoolingCoilsDXSingleSpeedRef,
-    CoolingCoilsDXVariableSpeedRef,
     CoolingCoilsDXVarRefrigFlowFluidTemperatureControlRef,
     CoolingCoilsDXVarRefrigFlowRef,
+    CoolingCoilsDXVariableSpeedRef,
     CoolingCoilsWaterRef,
     CoolingCoilsWaterToAirHPRef,
     CoolingCoilsWaterToAirVSHPRef,
+    DSOASpaceListNamesRef,
     DesignSpecificationOutdoorAirNamesRef,
     DesignSpecificationZoneHVACSizingNameRef,
-    DSOASpaceListNamesRef,
     EvapCoolerNamesRef,
-    FansCVandOnOffandVAVRef,
     FansCVandOnOffRef,
+    FansCVandOnOffandVAVRef,
     FansCVandVAVRef,
     FansOnOffRef,
     FansRef,
     FansSystemModelRef,
+    HXAirToAirSensibleAndLatentNamesRef,
     HeatingCoilNameRef,
     HeatingCoilsDXSingleSpeedRef,
-    HeatingCoilsDXVariableSpeedRef,
     HeatingCoilsDXVarRefrigFlowFluidTemperatureControlRef,
     HeatingCoilsDXVarRefrigFlowRef,
+    HeatingCoilsDXVariableSpeedRef,
     HeatingCoilsElectricRef,
     HeatingCoilsWaterRef,
     HeatingCoilsWaterToAirHPRef,
     HeatingCoilsWaterToAirVSHPRef,
-    HXAirToAirSensibleAndLatentNamesRef,
     MultivariateFunctionsRef,
     OutdoorAirMixersRef,
     OutdoorAirUnitEquipmentListsRef,

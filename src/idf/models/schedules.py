@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Schedules
 """
 
@@ -15,6 +15,7 @@ from ._base import IDFBaseModel
 from ._refs import (
     DayScheduleNamesRef,
     ScheduleTypeLimitsNamesRef,
+    WeekScheduleNamesRef,
 )
 
 
@@ -60,7 +61,7 @@ class ScheduleWeekCompactDataItem(IDFBaseModel):
 class ScheduleYearScheduleWeeksItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    schedule_week_name: str = Field(
+    schedule_week_name: WeekScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['WeekScheduleNames']}
     )
     start_month: int = Field(..., ge=1, le=12)

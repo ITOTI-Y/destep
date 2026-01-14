@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Plant-Condenser Control
 """
 
@@ -16,10 +16,14 @@ from ._refs import (
     ChillersRef,
     ControlSchemeListRef,
     IceThermalStorageEquipmentRef,
-    PlantAndCondenserEquipmentListsRef,
     PLHPCoolingNamesRef,
     PLHPHeatingNamesRef,
+    PlantAndCondenserEquipmentListsRef,
     ScheduleNamesRef,
+    ValidCondenserEquipmentNamesRef,
+    ValidCondenserEquipmentTypesRef,
+    ValidPlantEquipmentNamesRef,
+    ValidPlantEquipmentTypesRef,
     ZoneListNamesRef,
 )
 
@@ -27,13 +31,24 @@ from ._refs import (
 class CondenserEquipmentListEquipmentItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    equipment_object_type: str | None = Field(
+    equipment_object_type: ValidCondenserEquipmentTypesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['validCondenserEquipmentTypes']},
     )
-    equipment_name: str | None = Field(
+    equipment_name: ValidCondenserEquipmentNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['validCondenserEquipmentNames']},
+    )
+
+
+class PlantEquipmentListEquipmentItem(IDFBaseModel):
+    """Nested object type for array items."""
+
+    equipment_object_type: ValidPlantEquipmentTypesRef | None = Field(
+        default=None, json_schema_extra={'object_list': ['validPlantEquipmentTypes']}
+    )
+    equipment_name: ValidPlantEquipmentNamesRef | None = Field(
+        default=None, json_schema_extra={'object_list': ['validPlantEquipmentNames']}
     )
 
 
@@ -245,7 +260,7 @@ class PlantEquipmentList(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'PlantEquipmentList'
     name: str = Field(...)
-    equipment: list[CondenserEquipmentListEquipmentItem] | None = Field(default=None)
+    equipment: list[PlantEquipmentListEquipmentItem] | None = Field(default=None)
 
 
 class PlantEquipmentOperationChillerHeaterChangeover(IDFBaseModel):

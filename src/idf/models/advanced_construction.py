@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Advanced Construction, Surface, Zone Concepts
 """
 
@@ -106,6 +106,14 @@ class SurfacePropertyGroundSurfacesGroundSurfacesItem(IDFBaseModel):
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values are fraction, 0.0 to 1.0, units dimensionless',
         },
+    )
+
+
+class SurfacePropertyHeatTransferAlgorithmSurfaceListSurfaceItem(IDFBaseModel):
+    """Nested object type for array items."""
+
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
     )
 
 
@@ -2289,8 +2297,8 @@ class SurfacePropertyHeatTransferAlgorithmSurfaceList(IDFBaseModel):
         ]
         | None
     ) = Field(default='ConductionTransferFunction')
-    surface: list[SurfacePropertyExteriorNaturalVentedCAVitySurfaceItem] | None = Field(
-        default=None
+    surface: list[SurfacePropertyHeatTransferAlgorithmSurfaceListSurfaceItem] | None = (
+        Field(default=None)
     )
 
 

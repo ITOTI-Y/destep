@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Demand Limiting Controls
 """
 
@@ -13,6 +13,10 @@ from pydantic import Field
 
 from ._base import IDFBaseModel
 from ._refs import (
+    DemandManagerNamesRef,
+    ElectricEquipmentNamesRef,
+    ExteriorLightsNamesRef,
+    LightsNamesRef,
     OAControllerNamesRef,
     ScheduleNamesRef,
     ZoneControlThermostaticNamesRef,
@@ -32,7 +36,7 @@ class DemandManagerAssignmentListManagerDataItem(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    demandmanager_name: str | None = Field(
+    demandmanager_name: DemandManagerNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DemandManagerNames']}
     )
 
@@ -40,7 +44,7 @@ class DemandManagerAssignmentListManagerDataItem(IDFBaseModel):
 class DemandManagerElectricEquipmentEquipmentItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    electric_equipment_name: str = Field(
+    electric_equipment_name: ElectricEquipmentNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ElectricEquipmentNames'],
@@ -52,7 +56,7 @@ class DemandManagerElectricEquipmentEquipmentItem(IDFBaseModel):
 class DemandManagerExteriorLightsLightsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    exterior_lights_name: str = Field(
+    exterior_lights_name: ExteriorLightsNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ExteriorLightsNames'],
@@ -64,7 +68,7 @@ class DemandManagerExteriorLightsLightsItem(IDFBaseModel):
 class DemandManagerLightsLightsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    lights_name: str = Field(
+    lights_name: LightsNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['LightsNames'],

@@ -1,12 +1,13 @@
 """Auto-generated EnergyPlus IDF models.
 
 This module exports all EnergyPlus object types as Pydantic models.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 """
 
 from __future__ import annotations
 
 from ._base import IDFBaseModel
+
 from .advanced_construction import (
     ComplexFenestrationPropertySolarAbsorbedLayers,
     FoundationKiva,
@@ -31,6 +32,7 @@ from .advanced_construction import (
     SurfacePropertyHeatTransferAlgorithmConstruction,
     SurfacePropertyHeatTransferAlgorithmMultipleSurface,
     SurfacePropertyHeatTransferAlgorithmSurfaceList,
+    SurfacePropertyHeatTransferAlgorithmSurfaceListSurfaceItem,
     SurfacePropertyIncidentSolarMultiplier,
     SurfacePropertyLocalEnvironment,
     SurfacePropertyOtherSideCoefficients,
@@ -58,6 +60,7 @@ from .air_distribution import (
     AirLoopHVACSplitter,
     AirLoopHVACSplitterNodesItem,
     AirLoopHVACSupplyPath,
+    AirLoopHVACSupplyPathComponentsItem,
     AirLoopHVACSupplyPlenum,
     AirLoopHVACZoneMixer,
     AirLoopHVACZoneSplitter,
@@ -97,12 +100,12 @@ from .coils import (
     CoilCoolingWaterToAirHeatPumpEquationFit,
     CoilCoolingWaterToAirHeatPumpParameterEstimation,
     CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit,
-    CoilHeatingDesuperheater,
     CoilHeatingDXMultiSpeed,
     CoilHeatingDXSingleSpeed,
     CoilHeatingDXVariableRefrigerantFlow,
     CoilHeatingDXVariableRefrigerantFlowFluidTemperatureControl,
     CoilHeatingDXVariableSpeed,
+    CoilHeatingDesuperheater,
     CoilHeatingElectric,
     CoilHeatingElectricMultiStage,
     CoilHeatingFuel,
@@ -197,8 +200,8 @@ from .constructions import (
     WindowMaterialShade,
     WindowMaterialShadeEquivalentLayer,
     WindowMaterialSimpleGlazingSystem,
-    WindowsCalculationEngine,
     WindowThermalModelParams,
+    WindowsCalculationEngine,
 )
 from .curves import (
     CurveBicubic,
@@ -300,8 +303,8 @@ from .electric_load import (
     GeneratorMicroCHP,
     GeneratorMicroCHPNonNormalizedParameters,
     GeneratorMicroTurbine,
-    GeneratorPhotovoltaic,
     GeneratorPVWatts,
+    GeneratorPhotovoltaic,
     GeneratorWindTurbine,
     PhotovoltaicPerformanceEquivalentOneDiode,
     PhotovoltaicPerformanceSandia,
@@ -486,6 +489,7 @@ from .misc import (
     AirConditionerVariableRefrigerantFlowFluidTemperatureControl,
     AirConditionerVariableRefrigerantFlowFluidTemperatureControlHR,
     AirConditionerVariableRefrigerantFlowFluidTemperatureControlLoadingIndicesItem,
+    AirLoopHVACControllerList,
     AirflowNetworkDistributionComponentCoil,
     AirflowNetworkDistributionComponentConstantPressureDrop,
     AirflowNetworkDistributionComponentDuct,
@@ -519,7 +523,6 @@ from .misc import (
     AirflowNetworkOccupantVentilationControl,
     AirflowNetworkSimulationControl,
     AirflowNetworkZoneControlPressureController,
-    AirLoopHVACControllerList,
     ComplianceBuilding,
     CondenserLoop,
     ControllerMechanicalVentilation,
@@ -636,8 +639,8 @@ from .outputs import (
     OutputMeterCumulativeMeterFileOnly,
     OutputMeterMeterFileOnly,
     OutputPreprocessorMessage,
-    OutputSchedules,
     OutputSQLite,
+    OutputSchedules,
     OutputSurfacesDrawing,
     OutputSurfacesList,
     OutputTableAnnual,
@@ -656,6 +659,7 @@ from .plant_control import (
     CondenserEquipmentListEquipmentItem,
     CondenserEquipmentOperationSchemes,
     PlantEquipmentList,
+    PlantEquipmentListEquipmentItem,
     PlantEquipmentOperationChillerHeaterChangeover,
     PlantEquipmentOperationComponentSetpoint,
     PlantEquipmentOperationCoolingLoad,
@@ -820,9 +824,9 @@ from .setpoint_managers import (
 from .simulation import (
     Building,
     ConvergenceLimits,
+    HVACSystemRootFindingAlgorithm,
     HeatBalanceAlgorithm,
     HeatBalanceSettingsConductionFiniteDifference,
-    HVACSystemRootFindingAlgorithm,
     PerformancePrecisionTradeoffs,
     ShadowCalculation,
     ShadowCalculationShadingZoneGroupsItem,
@@ -16687,6 +16691,7 @@ __all__ = [
     'AirLoopHVACSplitter',
     'AirLoopHVACSplitterNodesItem',
     'AirLoopHVACSupplyPath',
+    'AirLoopHVACSupplyPathComponentsItem',
     'AirLoopHVACSupplyPlenum',
     'AirLoopHVACUnitaryFurnaceHeatCool',
     'AirLoopHVACUnitaryFurnaceHeatOnly',
@@ -17239,6 +17244,7 @@ __all__ = [
     'PlantComponentTemperatureSource',
     'PlantComponentUserDefined',
     'PlantEquipmentList',
+    'PlantEquipmentListEquipmentItem',
     'PlantEquipmentOperationChillerHeaterChangeover',
     'PlantEquipmentOperationComponentSetpoint',
     'PlantEquipmentOperationCoolingLoad',
@@ -17449,6 +17455,7 @@ __all__ = [
     'SurfacePropertyHeatTransferAlgorithmConstruction',
     'SurfacePropertyHeatTransferAlgorithmMultipleSurface',
     'SurfacePropertyHeatTransferAlgorithmSurfaceList',
+    'SurfacePropertyHeatTransferAlgorithmSurfaceListSurfaceItem',
     'SurfacePropertyIncidentSolarMultiplier',
     'SurfacePropertyLocalEnvironment',
     'SurfacePropertyOtherSideCoefficients',

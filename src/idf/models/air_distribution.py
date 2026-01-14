@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Air Distribution
 """
 
@@ -22,7 +22,9 @@ from ._refs import (
     ControllerListsRef,
     FansComponentModelRef,
     FansSystemModelRef,
+    ReturnPathComponentNamesRef,
     ScheduleNamesRef,
+    SupplyPathComponentNamesRef,
     SystemAvailabilityManagerListsRef,
     ValidBranchEquipmentNamesRef,
     ValidOASysEquipmentNamesRef,
@@ -56,7 +58,7 @@ class AirLoopHVACReturnPathComponentsItem(IDFBaseModel):
     component_object_type: Literal[
         'AirLoopHVAC:ReturnPlenum', 'AirLoopHVAC:ZoneMixer'
     ] = Field(...)
-    component_name: str = Field(
+    component_name: ReturnPathComponentNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ReturnPathComponentNames']}
     )
 
@@ -65,6 +67,22 @@ class AirLoopHVACSplitterNodesItem(IDFBaseModel):
     """Nested object type for array items."""
 
     outlet_node_name: str = Field(...)
+
+
+class AirLoopHVACSupplyPathComponentsItem(IDFBaseModel):
+    """Nested object type for array items."""
+
+    component_object_type: Literal[
+        'AirLoopHVAC:SupplyPlenum', 'AirLoopHVAC:ZoneSplitter'
+    ] = Field(
+        ...,
+        json_schema_extra={
+            'note': 'Supply path components must be listed in flow order.'
+        },
+    )
+    component_name: SupplyPathComponentNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SupplyPathComponentNames']}
+    )
 
 
 class AirLoopHVAC(IDFBaseModel):
@@ -351,7 +369,7 @@ class AirLoopHVACSupplyPath(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:SupplyPath'
     name: str = Field(...)
     supply_air_path_inlet_node_name: str = Field(...)
-    components: list[AirLoopHVACReturnPathComponentsItem] | None = Field(default=None)
+    components: list[AirLoopHVACSupplyPathComponentsItem] | None = Field(default=None)
 
 
 class AirLoopHVACSupplyPlenum(IDFBaseModel):

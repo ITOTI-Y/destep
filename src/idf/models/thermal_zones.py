@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Thermal Zones and Surfaces
 """
 
@@ -17,6 +17,7 @@ from ._refs import (
     ComplexFenestrationStatesRef,
     ConstructionNamesRef,
     DaylightingControlNamesRef,
+    GlazedExtSubSurfNamesRef,
     GlazingMaterialNameRef,
     OutFaceEnvNamesRef,
     ScheduleNamesRef,
@@ -59,7 +60,7 @@ class SpaceListSpacesItem(IDFBaseModel):
 class WindowShadingControlFenestrationSurfacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    fenestration_surface_name: str = Field(
+    fenestration_surface_name: GlazedExtSubSurfNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['GlazedExtSubSurfNames'],

@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: HVAC Design Objects
 """
 
@@ -14,9 +14,9 @@ from pydantic import Field
 from ._base import IDFBaseModel
 from ._refs import (
     AirPrimaryLoopsRef,
+    DSOASpaceListNamesRef,
     DesignSpecificationOutdoorAirNamesRef,
     DesignSpecificationZoneAirDistributionNamesRef,
-    DSOASpaceListNamesRef,
     PlantLoopsRef,
     ScheduleNamesRef,
     SpaceNamesRef,

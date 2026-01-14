@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Zone HVAC Air Loop Terminal Units
 """
 
@@ -15,10 +15,10 @@ from ._base import IDFBaseModel
 from ._refs import (
     AirTerminalUnitNamesRef,
     CoolingCoilNameRef,
-    DesignSpecificationAirTerminalSizingNameRef,
-    DesignSpecificationOutdoorAirNamesRef,
     DOAToZonalUnitRef,
     DSOASpaceListNamesRef,
+    DesignSpecificationAirTerminalSizingNameRef,
+    DesignSpecificationOutdoorAirNamesRef,
     FansCVRef,
     FansSystemModelRef,
     FansVAVRef,

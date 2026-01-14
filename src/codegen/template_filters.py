@@ -263,10 +263,56 @@ def _get_structure_signature(fields: list[FieldSpec]) -> str:
     """
     if not fields:
         return '<empty>'
-    parts = []
-    for f in sorted(fields, key=lambda x: x.name):
-        parts.append(f'{f.name}:{f.field_type}:{f.required}')
-    return '|'.join(parts)
+
+    def _get_field_signature(field: FieldSpec) -> str:
+        """Build a signature for a single field including constraints/enums."""
+        parts: list[str] = [
+            f'name={field.name}',
+            f'type={field.field_type}',
+            f'required={field.required}',
+        ]
+
+        if field.enum_values:
+            enum_strings = [str(v) for v in field.enum_values]
+            parts.append('enum=' + '|'.join(sorted(enum_strings)))
+        if field.object_list:
+            parts.append('object_list=' + '|'.join(sorted(field.object_list)))
+        if field.data_type:
+            parts.append(f'data_type={field.data_type}')
+
+        # Numeric constraints
+        if field.minimum is not None:
+            parts.append(f'min={field.minimum}')
+        if field.maximum is not None:
+            parts.append(f'max={field.maximum}')
+        if field.exclusive_minimum is not None:
+            parts.append(f'gt={field.exclusive_minimum}')
+        if field.exclusive_maximum is not None:
+            parts.append(f'lt={field.exclusive_maximum}')
+
+        # anyOf alternatives
+        if field.anyof_specs:
+            anyof_sigs = []
+            for alt in field.anyof_specs:
+                alt_parts = [f'type={alt.field_type}']
+                if alt.enum_values:
+                    alt_enum_strings = [str(v) for v in alt.enum_values]
+                    alt_parts.append('enum=' + '|'.join(sorted(alt_enum_strings)))
+                anyof_sigs.append(';'.join(alt_parts))
+            parts.append('anyof=' + '|'.join(sorted(anyof_sigs)))
+
+        # Array / nested object descriptors
+        if field.items_spec:
+            parts.append('items=' + _get_field_signature(field.items_spec))
+        if field.nested_fields:
+            parts.append('nested=' + _get_structure_signature(field.nested_fields))
+
+        return ';'.join(parts)
+
+    field_signatures = [
+        _get_field_signature(f) for f in sorted(fields, key=lambda x: x.name)
+    ]
+    return '|'.join(field_signatures)
 
 
 def is_optional_filter(spec: FieldSpec) -> bool:

@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Internal Gains
 """
 
@@ -21,8 +21,8 @@ from ._refs import (
     ScheduleNamesRef,
     SpaceAndSpaceListNamesRef,
     SpaceNamesRef,
-    SurfaceNamesRef,
     SurfAndSubSurfNamesRef,
+    SurfaceNamesRef,
     UnivariateFunctionsRef,
     ZoneAndZoneListNamesRef,
     ZoneNamesRef,

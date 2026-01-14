@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Energy Management System (EMS)
 """
 
@@ -15,6 +15,7 @@ from ._base import IDFBaseModel
 from ._refs import (
     BivariateFunctionsRef,
     ConstructionNamesRef,
+    ErlProgramNamesRef,
     MultivariateFunctionsRef,
     QuadvariateFunctionsRef,
     QuintvariateFunctionsRef,
@@ -40,7 +41,7 @@ class EnergyManagementSystemProgramLinesItem(IDFBaseModel):
 class EnergyManagementSystemProgramCallingManagerProgramsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    program_name: str = Field(
+    program_name: ErlProgramNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ErlProgramNames'],

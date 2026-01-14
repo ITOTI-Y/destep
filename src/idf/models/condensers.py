@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Condenser Equipment and Heat Exchangers
 """
 
@@ -17,6 +17,7 @@ from ._refs import (
     GroundHeatExchangerVerticalArrayNamesRef,
     GroundHeatExchangerVerticalPropertiesNamesRef,
     GroundHeatExchangerVerticalResponseFactorNamesRef,
+    GroundHeatExchangerVerticalSingleNamesRef,
     ScheduleNamesRef,
     UndisturbedGroundTempModelsRef,
     UnivariateFunctionsRef,
@@ -35,7 +36,9 @@ class GroundHeatExchangerResponseFactorsGFunctionsItem(IDFBaseModel):
 class GroundHeatExchangerSystemVerticalWellLocationsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    ghe_vertical_single_object_name: str | None = Field(
+    ghe_vertical_single_object_name: (
+        GroundHeatExchangerVerticalSingleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={'object_list': ['GroundHeatExchangerVerticalSingleNames']},
     )

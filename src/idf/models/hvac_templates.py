@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: HVAC Templates
 """
 
@@ -23,9 +23,9 @@ from ._refs import (
     CompactHVACThermostatsRef,
     CondenserOperationSchemesRef,
     CoolingTowersRef,
+    DSOASpaceListNamesRef,
     DesignSpecificationOutdoorAirNamesRef,
     DesignSpecificationZoneAirDistributionNamesRef,
-    DSOASpaceListNamesRef,
     HVACTemplateConstantVolumeZonesRef,
     HVACTemplateDOASSystemsRef,
     PlantOperationSchemesRef,

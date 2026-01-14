@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Node-Branch Management
 """
 
@@ -16,11 +16,14 @@ from ._refs import (
     BranchesRef,
     ConstructionNamesRef,
     OSCMNamesRef,
+    PipingSystemUndergroundCircuitNamesRef,
+    PipingSystemUndergroundSegmentNamesRef,
     PlantConnectorsRef,
     ScheduleNamesRef,
     UndisturbedGroundTempModelsRef,
     UnivariateFunctionsRef,
     ValidBranchEquipmentNamesRef,
+    ValidBranchEquipmentTypesRef,
     WPCValueNamesRef,
     ZoneNamesRef,
 )
@@ -29,7 +32,7 @@ from ._refs import (
 class BranchComponentsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    component_object_type: str = Field(
+    component_object_type: ValidBranchEquipmentTypesRef = Field(
         ..., json_schema_extra={'object_list': ['validBranchEquipmentTypes']}
     )
     component_name: ValidBranchEquipmentNamesRef = Field(
@@ -78,7 +81,7 @@ class OutdoorAirNodeListNodesItem(IDFBaseModel):
 class PipingSystemUndergroundDomainPipeCircuitsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    pipe_circuit: str = Field(
+    pipe_circuit: PipingSystemUndergroundCircuitNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['PipingSystemUndergroundCircuitNames'],
@@ -90,7 +93,7 @@ class PipingSystemUndergroundDomainPipeCircuitsItem(IDFBaseModel):
 class PipingSystemUndergroundPipeCircuitPipeSegmentsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    pipe_segment: str = Field(
+    pipe_segment: PipingSystemUndergroundSegmentNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['PipingSystemUndergroundSegmentNames'],

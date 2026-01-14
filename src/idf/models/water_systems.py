@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Water Systems
 """
 
@@ -17,6 +17,7 @@ from ._refs import (
     MaterialNameRef,
     ScheduleNamesRef,
     WaterStorageTankNamesRef,
+    WaterUseEquipmentNamesRef,
     ZoneNamesRef,
 )
 
@@ -24,7 +25,7 @@ from ._refs import (
 class WaterUseConnectionsConnectionsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    water_use_equipment_name: str = Field(
+    water_use_equipment_name: WaterUseEquipmentNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['WaterUseEquipmentNames'],

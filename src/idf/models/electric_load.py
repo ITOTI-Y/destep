@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: Electric Load Center-Generator Specifications
 """
 
@@ -25,8 +25,9 @@ from ._refs import (
     FCStackCoolerNamesRef,
     FCStorageNamesRef,
     FCWaterSupNamesRef,
-    GeneratorListsRef,
     GenFuelSupNamesRef,
+    GeneratorListsRef,
+    GeneratorNamesRef,
     InverterListRef,
     MicroCHPParametersNamesRef,
     PVModulesRef,
@@ -41,7 +42,7 @@ from ._refs import (
 class ElectricLoadCenterGeneratorsGeneratorOutputsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    generator_name: str = Field(
+    generator_name: GeneratorNamesRef = Field(
         ..., json_schema_extra={'object_list': ['GeneratorNames']}
     )
     generator_object_type: Literal[

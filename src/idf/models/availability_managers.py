@@ -1,7 +1,7 @@
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
-Generated from Energy+.schema.epJSON version unknown.
+Generated from Energy+.schema.epJSON version 25.1.
 Group: System Availability Managers
 """
 
@@ -16,6 +16,7 @@ from ._refs import (
     AirPrimaryLoopsRef,
     HVACTemplateSystemsRef,
     ScheduleNamesRef,
+    SystemAvailabilityManagersRef,
     UnivariateFunctionsRef,
     VentilationNamesRef,
     ZoneAndZoneListNamesRef,
@@ -40,7 +41,7 @@ class AvailabilityManagerAssignmentListManagersItem(IDFBaseModel):
         'AvailabilityManager:ScheduledOff',
         'AvailabilityManager:ScheduledOn',
     ] = Field(...)
-    availability_manager_name: str = Field(
+    availability_manager_name: SystemAvailabilityManagersRef = Field(
         ..., json_schema_extra={'object_list': ['SystemAvailabilityManagers']}
     )
 
