@@ -12,6 +12,13 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllShadingAndHTSurfNamesRef,
+    MaterialNameRef,
+    ScheduleNamesRef,
+    WaterStorageTankNamesRef,
+    ZoneNamesRef,
+)
 
 
 class WaterUseConnectionsConnectionsItem(IDFBaseModel):
@@ -29,7 +36,7 @@ class WaterUseConnectionsConnectionsItem(IDFBaseModel):
 class WaterUseRainCollectorSurfacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    collection_surface_name: str = Field(
+    collection_surface_name: AllShadingAndHTSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
 
@@ -45,24 +52,24 @@ class WaterUseConnections(IDFBaseModel):
     name: str = Field(...)
     inlet_node_name: str | None = Field(default=None)
     outlet_node_name: str | None = Field(default=None)
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'If blank, or tank is empty, defaults to fresh water from the mains',
         },
     )
-    reclamation_water_storage_tank_name: str | None = Field(
+    reclamation_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
-    hot_water_supply_temperature_schedule_name: str | None = Field(
+    hot_water_supply_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Defaults to cold water supply temperature',
         },
     )
-    cold_water_supply_temperature_schedule_name: str | None = Field(
+    cold_water_supply_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -99,45 +106,45 @@ class WaterUseEquipment(IDFBaseModel):
         },
     )
     peak_flow_rate: float = Field(..., ge=0.0, json_schema_extra={'units': 'm3/s'})
-    flow_rate_fraction_schedule_name: str | None = Field(
+    flow_rate_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Defaults to 1.0 at all times',
         },
     )
-    target_temperature_schedule_name: str | None = Field(
+    target_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Defaults to hot water supply temperature',
         },
     )
-    hot_water_supply_temperature_schedule_name: str | None = Field(
+    hot_water_supply_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Defaults to cold water supply temperature',
         },
     )
-    cold_water_supply_temperature_schedule_name: str | None = Field(
+    cold_water_supply_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Defaults to water temperatures calculated by Site:WaterMainsTemperature object',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
-    sensible_fraction_schedule_name: str | None = Field(
+    sensible_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Defaults to 0.0 at all times',
         },
     )
-    latent_fraction_schedule_name: str | None = Field(
+    latent_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -157,7 +164,7 @@ class WaterUseRainCollector(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'WaterUse:RainCollector'
     name: str = Field(...)
-    storage_tank_name: str = Field(
+    storage_tank_name: WaterStorageTankNamesRef = Field(
         ..., json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     loss_factor_mode: Literal['Constant', 'Scheduled'] | None = Field(default=None)
@@ -167,7 +174,7 @@ class WaterUseRainCollector(IDFBaseModel):
             'note': 'this is the portion of rain that is lost in the process of collecting it the rain collected is one minus this factor'
         },
     )
-    collection_loss_factor_schedule_name: str | None = Field(
+    collection_loss_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     maximum_collection_rate: float | None = Field(
@@ -203,7 +210,7 @@ class WaterUseStorage(IDFBaseModel):
         default=None,
         json_schema_extra={'units': 'm3/s', 'note': 'Defaults to unlimited flow.'},
     )
-    overflow_destination: str | None = Field(
+    overflow_destination: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
@@ -234,22 +241,22 @@ class WaterUseStorage(IDFBaseModel):
             'note': "Lower range of secondary target storage level used to keep tanks at a minimum level using mains water if well can't keep up",
         },
     )
-    other_tank_name: str | None = Field(
+    other_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     water_thermal_mode: Literal['ScheduledTemperature', 'ThermalModel'] | None = Field(
         default=None
     )
-    water_temperature_schedule_name: str = Field(
+    water_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     ambient_temperature_indicator: Literal['Outdoors', 'Schedule', 'Zone'] | None = (
         Field(default=None)
     )
-    ambient_temperature_schedule_name: str | None = Field(
+    ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     tank_surface_area: float | None = Field(
@@ -258,7 +265,7 @@ class WaterUseStorage(IDFBaseModel):
     tank_u_value: float | None = Field(
         default=None, json_schema_extra={'units': 'W/m2-K'}
     )
-    tank_outside_surface_material_name: str | None = Field(
+    tank_outside_surface_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
 
@@ -271,7 +278,7 @@ class WaterUseWell(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'WaterUse:Well'
     name: str = Field(...)
-    storage_tank_name: str = Field(
+    storage_tank_name: WaterStorageTankNamesRef = Field(
         ..., json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     pump_depth: float | None = Field(default=None, json_schema_extra={'units': 'm'})
@@ -297,6 +304,6 @@ class WaterUseWell(IDFBaseModel):
     water_table_depth: float | None = Field(
         default=None, json_schema_extra={'units': 'm'}
     )
-    water_table_depth_schedule_name: str | None = Field(
+    water_table_depth_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )

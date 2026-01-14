@@ -12,6 +12,10 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ScheduleNamesRef,
+    UtilityCostTariffsRef,
+)
 
 
 class LifeCycleCostUseAdjustmentMultipliersItem(IDFBaseModel):
@@ -679,7 +683,7 @@ class UtilityCostChargeBlock(IDFBaseModel):
             'note': 'Charge Variable Name This is the name associated with the UtilityCost:Charge:Block object and will appear in the report. In addition the results of the UtilityCost:Charge:Block are stored in a vari...'
         },
     )
-    tariff_name: str = Field(
+    tariff_name: UtilityCostTariffsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UtilityCostTariffs'],
@@ -923,7 +927,7 @@ class UtilityCostChargeSimple(IDFBaseModel):
             'note': 'Charge Variable Name This is the name associated with the UtilityCost:Charge:Simple object and will appear in the report. In addition the results of the UtilityCost:Charge:Simple calculation are st...'
         },
     )
-    tariff_name: str = Field(
+    tariff_name: UtilityCostTariffsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UtilityCostTariffs'],
@@ -977,7 +981,7 @@ class UtilityCostComputation(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'UtilityCost:Computation'
     name: str = Field(...)
-    tariff_name: str = Field(
+    tariff_name: UtilityCostTariffsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UtilityCostTariffs'],
@@ -1037,7 +1041,7 @@ class UtilityCostQualify(IDFBaseModel):
             'note': 'Displayed in the report if the tariff does not qualify'
         },
     )
-    tariff_name: str = Field(
+    tariff_name: UtilityCostTariffsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UtilityCostTariffs'],
@@ -1093,7 +1097,7 @@ class UtilityCostRatchet(IDFBaseModel):
             'note': 'Ratchet Variable Name The name of the ratchet and the name of the result of this single ratchet.'
         },
     )
-    tariff_name: str = Field(
+    tariff_name: UtilityCostTariffsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UtilityCostTariffs'],
@@ -1193,21 +1197,21 @@ class UtilityCostTariff(IDFBaseModel):
             'note': 'Is a multiplier used to convert demand into the units specified by the utility in their tariff. If left blank it defaults to 1 (no conversion). This field should will be used only if Conversion Fac...'
         },
     )
-    time_of_use_period_schedule_name: str | None = Field(
+    time_of_use_period_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The name of the schedule that defines the time-of-use periods that occur each day. The values for the different variables are: 1 for Peak. 2 for Shoulder. 3 for OffPeak. 4 for MidPeak. The followin...',
         },
     )
-    season_schedule_name: str | None = Field(
+    season_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The name of a schedule that defines the seasons. The schedule values are: 1 for Winter. 2 for Spring. 3 for Summer. 4 for Autumn. Variables are automatically created if a season schedule is used. T...',
         },
     )
-    month_schedule_name: str | None = Field(
+    month_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1234,14 +1238,14 @@ class UtilityCostTariff(IDFBaseModel):
             'note': 'The minimum total charge for the tariff or if a variable name is entered here its values for each month are used.'
         },
     )
-    real_time_pricing_charge_schedule_name: str | None = Field(
+    real_time_pricing_charge_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Used with real time pricing rates. The name of a schedule that contains the cost of energy for that particular time period of the year. Real time rates can be modeled using a charge schedule with t...',
         },
     )
-    customer_baseline_load_schedule_name: str | None = Field(
+    customer_baseline_load_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1270,7 +1274,7 @@ class UtilityCostVariable(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'UtilityCost:Variable'
     name: str = Field(...)
-    tariff_name: str = Field(
+    tariff_name: UtilityCostTariffsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UtilityCostTariffs'],

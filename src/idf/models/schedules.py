@@ -12,6 +12,10 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    DayScheduleNamesRef,
+    ScheduleTypeLimitsNamesRef,
+)
 
 
 class ScheduleCompactDataItem(IDFBaseModel):
@@ -48,7 +52,7 @@ class ScheduleWeekCompactDataItem(IDFBaseModel):
             'note': '"For" is an optional prefix/start of the For fields. Choices can be combined on single line if separated by spaces. i.e. "Holiday Weekends" Should have a space after For, if it is included. i.e. "F...'
         },
     )
-    schedule_day_name: str = Field(
+    schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
 
@@ -74,7 +78,7 @@ class ScheduleCompact(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:Compact'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     data: list[ScheduleCompactDataItem] | None = Field(default=None)
@@ -85,7 +89,7 @@ class ScheduleConstant(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:Constant'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     hourly_value: float | None = Field(default=0.0)
@@ -96,7 +100,7 @@ class ScheduleDayHourly(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:Day:Hourly'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     hour_1: float | None = Field(default=0.0)
@@ -132,7 +136,7 @@ class ScheduleDayInterval(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:Day:Interval'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     interpolate_to_timestep: Literal['', 'Average', 'Linear', 'No'] | None = Field(
@@ -150,7 +154,7 @@ class ScheduleDayList(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:Day:List'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     interpolate_to_timestep: Literal['', 'Average', 'Linear', 'No'] | None = Field(
@@ -174,7 +178,7 @@ class ScheduleFile(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:File'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     file_name: str = Field(...)
@@ -294,40 +298,40 @@ class ScheduleWeekDaily(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:Week:Daily'
     name: str = Field(...)
-    sunday_schedule_day_name: str = Field(
+    sunday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    monday_schedule_day_name: str = Field(
+    monday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    tuesday_schedule_day_name: str = Field(
+    tuesday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    wednesday_schedule_day_name: str = Field(
+    wednesday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    thursday_schedule_day_name: str = Field(
+    thursday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    friday_schedule_day_name: str = Field(
+    friday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    saturday_schedule_day_name: str = Field(
+    saturday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    holiday_schedule_day_name: str = Field(
+    holiday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    summerdesignday_schedule_day_name: str = Field(
+    summerdesignday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    winterdesignday_schedule_day_name: str = Field(
+    winterdesignday_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    customday1_schedule_day_name: str = Field(
+    customday1_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
-    customday2_schedule_day_name: str = Field(
+    customday2_schedule_day_name: DayScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DayScheduleNames']}
     )
 
@@ -337,7 +341,7 @@ class ScheduleYear(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Schedule:Year'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     schedule_weeks: list[ScheduleYearScheduleWeeksItem] | None = Field(default=None)

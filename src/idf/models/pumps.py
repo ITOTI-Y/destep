@@ -12,6 +12,11 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ScheduleNamesRef,
+    UnivariateFunctionsRef,
+    ZoneNamesRef,
+)
 
 
 class HeaderedPumpsConstantSpeed(IDFBaseModel):
@@ -58,14 +63,14 @@ class HeaderedPumpsConstantSpeed(IDFBaseModel):
     pump_control_type: Literal['', 'Continuous', 'Intermittent'] | None = Field(
         default='Continuous'
     )
-    pump_flow_rate_schedule_name: str | None = Field(
+    pump_flow_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Modifies the rated flow rate of the pump on a time basis. Default is that the pump is on and runs according to its other operational requirements specified above. The schedule is for special pump o...',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -168,14 +173,14 @@ class HeaderedPumpsVariableSpeed(IDFBaseModel):
     pump_control_type: Literal['', 'Continuous', 'Intermittent'] | None = Field(
         default='Continuous'
     )
-    pump_flow_rate_schedule_name: str | None = Field(
+    pump_flow_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Modifies the rated flow rate of the pump on a time basis. Default is that the pump is on and runs according to its other operational requirements specified above. The schedule is for special pump o...',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -257,14 +262,14 @@ class PumpConstantSpeed(IDFBaseModel):
     pump_control_type: Literal['', 'Continuous', 'Intermittent'] | None = Field(
         default='Continuous'
     )
-    pump_flow_rate_schedule_name: str | None = Field(
+    pump_flow_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Modifies the rated flow rate of the pump on a time basis. Default is that the pump is on and runs according to its other operational requirements specified above. The schedule is for special pump o...',
         },
     )
-    pump_curve_name: str | None = Field(
+    pump_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -282,7 +287,7 @@ class PumpConstantSpeed(IDFBaseModel):
             'note': '"N" in above expression in field A6',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -375,14 +380,14 @@ class PumpVariableSpeed(IDFBaseModel):
     pump_control_type: Literal['', 'Continuous', 'Intermittent'] | None = Field(
         default='Continuous'
     )
-    pump_flow_rate_schedule_name: str | None = Field(
+    pump_flow_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Modifies the rated flow rate of the pump on a time basis. Default is that the pump is on and runs according to its other operational requirements specified above. The schedule is for special pump o...',
         },
     )
-    pump_curve_name: str | None = Field(
+    pump_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -396,30 +401,30 @@ class PumpVariableSpeed(IDFBaseModel):
     vfd_control_type: Literal['ManualControl', 'PressureSetpointControl'] | None = (
         Field(default=None)
     )
-    pump_rpm_schedule_name: str | None = Field(
+    pump_rpm_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Modifies the rpm of the pump on a time basis. Default is that the pump is on and runs according to its other operational requirements specified above. The schedule is for special pump operations.',
         },
     )
-    minimum_pressure_schedule: str | None = Field(
+    minimum_pressure_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={'units': 'Pa', 'object_list': ['ScheduleNames']},
     )
-    maximum_pressure_schedule: str | None = Field(
+    maximum_pressure_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={'units': 'Pa', 'object_list': ['ScheduleNames']},
     )
-    minimum_rpm_schedule: str | None = Field(
+    minimum_rpm_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={'units': 'rev/min', 'object_list': ['ScheduleNames']},
     )
-    maximum_rpm_schedule: str | None = Field(
+    maximum_rpm_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={'units': 'rev/min', 'object_list': ['ScheduleNames']},
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -513,14 +518,14 @@ class PumpVariableSpeedCondensate(IDFBaseModel):
     coefficient_2_of_the_part_load_performance_curve: float | None = Field(default=1.0)
     coefficient_3_of_the_part_load_performance_curve: float | None = Field(default=0.0)
     coefficient_4_of_the_part_load_performance_curve: float | None = Field(default=0.0)
-    pump_flow_rate_schedule_name: str | None = Field(
+    pump_flow_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Modifies the rated flow rate of the pump on a time basis. Default is that the pump is on and runs according to its other operational requirements specified above. The schedule is for special pump o...',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],

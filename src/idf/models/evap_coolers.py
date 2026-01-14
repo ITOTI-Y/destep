@@ -12,6 +12,11 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ScheduleNamesRef,
+    UnivariateFunctionsRef,
+    WaterStorageTankNamesRef,
+)
 
 
 class EvaporativeCoolerDirectCelDekPad(IDFBaseModel):
@@ -20,7 +25,7 @@ class EvaporativeCoolerDirectCelDekPad(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'EvaporativeCooler:Direct:CelDekPad'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -44,7 +49,7 @@ class EvaporativeCoolerDirectCelDekPad(IDFBaseModel):
             'note': 'This field is not currently used and can be left blank'
         },
     )
-    water_supply_storage_tank_name: str | None = Field(
+    water_supply_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
 
@@ -57,7 +62,7 @@ class EvaporativeCoolerDirectResearchSpecial(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'EvaporativeCooler:Direct:ResearchSpecial'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -70,7 +75,7 @@ class EvaporativeCoolerDirectResearchSpecial(IDFBaseModel):
         le=1.0,
         json_schema_extra={'note': 'effectiveness with respect to wet-bulb depression'},
     )
-    effectiveness_flow_ratio_modifier_curve_name: str | None = Field(
+    effectiveness_flow_ratio_modifier_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -96,7 +101,7 @@ class EvaporativeCoolerDirectResearchSpecial(IDFBaseModel):
             'note': 'This field is used when the previous field is set to autosize. The pump power is scaled with Primary Air Design Air Flow Rate. This value was backed out from inputs in energy plus example files. Av...',
         },
     )
-    water_pump_power_modifier_curve_name: str | None = Field(
+    water_pump_power_modifier_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -106,7 +111,7 @@ class EvaporativeCoolerDirectResearchSpecial(IDFBaseModel):
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
     sensor_node_name: str = Field(...)
-    water_supply_storage_tank_name: str | None = Field(
+    water_supply_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     drift_loss_fraction: float | None = Field(
@@ -151,7 +156,7 @@ class EvaporativeCoolerIndirectCelDekPad(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'EvaporativeCooler:Indirect:CelDekPad'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -185,7 +190,7 @@ class EvaporativeCoolerIndirectCelDekPad(IDFBaseModel):
             'note': 'This field is not currently used and can be left blank'
         },
     )
-    water_supply_storage_tank_name: str | None = Field(
+    water_supply_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     secondary_air_inlet_node_name: str | None = Field(
@@ -202,7 +207,7 @@ class EvaporativeCoolerIndirectResearchSpecial(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'EvaporativeCooler:Indirect:ResearchSpecial'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -217,7 +222,9 @@ class EvaporativeCoolerIndirectResearchSpecial(IDFBaseModel):
             'note': 'wet operation effectiveness with respect to wetbulb depression this is the nominal design wetbulb effectiveness at design air flow rates and water rate'
         },
     )
-    wetbulb_effectiveness_flow_ratio_modifier_curve_name: str | None = Field(
+    wetbulb_effectiveness_flow_ratio_modifier_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -231,7 +238,9 @@ class EvaporativeCoolerIndirectResearchSpecial(IDFBaseModel):
             'note': 'dry operation effectiveness with respect to drybulb temperature difference this is the nominal design drybulb effectiveness at design air flow rates, no evaporation water active'
         },
     )
-    drybulb_effectiveness_flow_ratio_modifier_curve_name: str | None = Field(
+    drybulb_effectiveness_flow_ratio_modifier_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -254,7 +263,7 @@ class EvaporativeCoolerIndirectResearchSpecial(IDFBaseModel):
             'note': 'This field is used when the previous field is set to autosize. The pump power is scaled with Secondary Air Design Air Flow Rate. This value was backed out from inputs in energy plus example files. ...',
         },
     )
-    water_pump_power_modifier_curve_name: str | None = Field(
+    water_pump_power_modifier_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -285,7 +294,7 @@ class EvaporativeCoolerIndirectResearchSpecial(IDFBaseModel):
             'note': 'This field is used when the previous field is set to autosize. The fan power is scaled with Secondary Air Design Flow Rate. The default value is estimated from 125 Pa fan total pressure and fan tot...',
         },
     )
-    secondary_air_fan_power_modifier_curve_name: str | None = Field(
+    secondary_air_fan_power_modifier_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -302,7 +311,7 @@ class EvaporativeCoolerIndirectResearchSpecial(IDFBaseModel):
     secondary_air_outlet_node_name: str = Field(...)
     sensor_node_name: str = Field(...)
     relief_air_inlet_node_name: str | None = Field(default=None)
-    water_supply_storage_tank_name: str | None = Field(
+    water_supply_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     drift_loss_fraction: float | None = Field(
@@ -350,7 +359,7 @@ class EvaporativeCoolerIndirectWetCoil(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'EvaporativeCooler:Indirect:WetCoil'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -377,7 +386,7 @@ class EvaporativeCoolerIndirectWetCoil(IDFBaseModel):
             'note': 'This field is not currently used and can be left blank'
         },
     )
-    water_supply_storage_tank_name: str | None = Field(
+    water_supply_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     secondary_air_inlet_node_name: str = Field(

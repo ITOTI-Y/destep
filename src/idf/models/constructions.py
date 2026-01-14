@@ -12,6 +12,23 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    BivariateFunctionsRef,
+    CFSGapRef,
+    CFSGlazingNameRef,
+    ConstructionNamesRef,
+    DataMatricesRef,
+    GlazingMaterialNameRef,
+    MaterialNameRef,
+    ScheduleNamesRef,
+    SpectralDataSetsRef,
+    WindowComplexShadesRef,
+    WindowEquivalentLayerMaterialNamesRef,
+    WindowGapDeflectionStatesRef,
+    WindowGapSupportPillarsRef,
+    WindowGasAndGasMixturesRef,
+    WindowThermalModelParametersRef,
+)
 
 
 class MaterialPropertyGlazingSpectralDataExtensionsItem(IDFBaseModel):
@@ -64,7 +81,7 @@ class WindowMaterialGlazingGroupThermochromicTemperatureDataItem(IDFBaseModel):
     """Nested object type for array items."""
 
     optical_data_temperature: float = Field(..., json_schema_extra={'units': 'C'})
-    window_material_glazing_name: str = Field(
+    window_material_glazing_name: GlazingMaterialNameRef = Field(
         ..., json_schema_extra={'object_list': ['GlazingMaterialName']}
     )
 
@@ -75,32 +92,34 @@ class Construction(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Construction'
     name: str = Field(...)
-    outside_layer: str = Field(..., json_schema_extra={'object_list': ['MaterialName']})
-    layer_2: str | None = Field(
+    outside_layer: MaterialNameRef = Field(
+        ..., json_schema_extra={'object_list': ['MaterialName']}
+    )
+    layer_2: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_3: str | None = Field(
+    layer_3: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_4: str | None = Field(
+    layer_4: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_5: str | None = Field(
+    layer_5: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_6: str | None = Field(
+    layer_6: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_7: str | None = Field(
+    layer_7: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_8: str | None = Field(
+    layer_8: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_9: str | None = Field(
+    layer_9: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
-    layer_10: str | None = Field(
+    layer_10: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
 
@@ -129,7 +148,7 @@ class ConstructionAirBoundary(IDFBaseModel):
             'note': 'If the Air Exchange Method is SimpleMixing then this field specifies the air changes per hour using the volume of the smaller zone as the basis. If an AirflowNetwork simulation is active this field...',
         },
     )
-    simple_mixing_schedule_name: str | None = Field(
+    simple_mixing_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -173,137 +192,137 @@ class ConstructionComplexFenestrationState(IDFBaseModel):
     basis_symmetry_type: Literal['', 'Axisymmetric', 'None'] | None = Field(
         default='None'
     )
-    window_thermal_model: str = Field(
+    window_thermal_model: WindowThermalModelParametersRef = Field(
         ..., json_schema_extra={'object_list': ['WindowThermalModelParameters']}
     )
-    basis_matrix_name: str = Field(
+    basis_matrix_name: DataMatricesRef = Field(
         ..., json_schema_extra={'object_list': ['DataMatrices']}
     )
-    solar_optical_complex_front_transmittance_matrix_name: str = Field(
+    solar_optical_complex_front_transmittance_matrix_name: DataMatricesRef = Field(
         ..., json_schema_extra={'object_list': ['DataMatrices']}
     )
-    solar_optical_complex_back_reflectance_matrix_name: str = Field(
+    solar_optical_complex_back_reflectance_matrix_name: DataMatricesRef = Field(
         ..., json_schema_extra={'object_list': ['DataMatrices']}
     )
-    visible_optical_complex_front_transmittance_matrix_name: str = Field(
+    visible_optical_complex_front_transmittance_matrix_name: DataMatricesRef = Field(
         ..., json_schema_extra={'object_list': ['DataMatrices']}
     )
-    visible_optical_complex_back_transmittance_matrix_name: str = Field(
+    visible_optical_complex_back_transmittance_matrix_name: DataMatricesRef = Field(
         ..., json_schema_extra={'object_list': ['DataMatrices']}
     )
-    outside_layer_name: str = Field(
+    outside_layer_name: CFSGlazingNameRef | WindowComplexShadesRef = Field(
         ...,
         json_schema_extra={'object_list': ['CFSGlazingName', 'WindowComplexShades']},
     )
-    outside_layer_directional_front_absorptance_matrix_name: str = Field(
+    outside_layer_directional_front_absorptance_matrix_name: DataMatricesRef = Field(
         ..., json_schema_extra={'object_list': ['DataMatrices']}
     )
-    outside_layer_directional_back_absorptance_matrix_name: str = Field(
+    outside_layer_directional_back_absorptance_matrix_name: DataMatricesRef = Field(
         ..., json_schema_extra={'object_list': ['DataMatrices']}
     )
-    gap_1_name: str | None = Field(
+    gap_1_name: CFSGapRef | None = Field(
         default=None, json_schema_extra={'object_list': ['CFSGap']}
     )
-    cfs_gap_1_directional_front_absorptance_matrix_name: str | None = Field(
+    cfs_gap_1_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    cfs_gap_1_directional_back_absorptance_matrix_name: str | None = Field(
+    cfs_gap_1_directional_back_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    layer_2_name: str | None = Field(
+    layer_2_name: (CFSGlazingNameRef | WindowComplexShadesRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['CFSGlazingName', 'WindowComplexShades']},
     )
-    layer_2_directional_front_absorptance_matrix_name: str | None = Field(
+    layer_2_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DataMatrices']}
     )
-    layer_2_directional_back_absorptance_matrix_name: str | None = Field(
+    layer_2_directional_back_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DataMatrices']}
     )
-    gap_2_name: str | None = Field(
+    gap_2_name: CFSGapRef | None = Field(
         default=None, json_schema_extra={'object_list': ['CFSGap']}
     )
-    gap_2_directional_front_absorptance_matrix_name: str | None = Field(
+    gap_2_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    gap_2_directional_back_absorptance_matrix_name: str | None = Field(
+    gap_2_directional_back_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    layer_3_name: str | None = Field(
+    layer_3_name: (CFSGlazingNameRef | WindowComplexShadesRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['CFSGlazingName', 'WindowComplexShades']},
     )
-    layer_3_directional_front_absorptance_matrix_name: str | None = Field(
+    layer_3_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DataMatrices']}
     )
-    layer_3_directional_back_absorptance_matrix_name: str | None = Field(
+    layer_3_directional_back_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DataMatrices']}
     )
-    gap_3_name: str | None = Field(
+    gap_3_name: CFSGapRef | None = Field(
         default=None, json_schema_extra={'object_list': ['CFSGap']}
     )
-    gap_3_directional_front_absorptance_matrix_name: str | None = Field(
+    gap_3_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    gap_3_directional_back_absorptance_matrix_name: str | None = Field(
+    gap_3_directional_back_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    layer_4_name: str | None = Field(
+    layer_4_name: (CFSGlazingNameRef | WindowComplexShadesRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['CFSGlazingName', 'WindowComplexShades']},
     )
-    layer_4_directional_front_absorptance_matrix_name: str | None = Field(
+    layer_4_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DataMatrices']}
     )
-    layer_4_directional_back_absorptance_matrix_name: str | None = Field(
+    layer_4_directional_back_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DataMatrices']}
     )
-    gap_4_name: str | None = Field(
+    gap_4_name: CFSGapRef | None = Field(
         default=None, json_schema_extra={'object_list': ['CFSGap']}
     )
-    gap_4_directional_front_absorptance_matrix_name: str | None = Field(
+    gap_4_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    gap_4_directional_back_absorptance_matrix_name: str | None = Field(
+    gap_4_directional_back_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DataMatrices'],
             'note': 'Reserved for future use. Leave it blank for this version',
         },
     )
-    layer_5_name: str | None = Field(
+    layer_5_name: (CFSGlazingNameRef | WindowComplexShadesRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['CFSGlazingName', 'WindowComplexShades']},
     )
-    layer_5_directional_front_absorptance_matrix_name: str | None = Field(
+    layer_5_directional_front_absorptance_matrix_name: DataMatricesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DataMatrices']}
     )
     layer_5_directional_back_absorptance_matrix_name: str | None = Field(default=None)
@@ -336,7 +355,7 @@ class ConstructionPropertyInternalHeatSource(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ConstructionProperty:InternalHeatSource'
     name: str = Field(...)
-    construction_name: str | None = Field(
+    construction_name: ConstructionNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ConstructionNames']}
     )
     thermal_source_present_after_layer_number: int = Field(
@@ -395,46 +414,46 @@ class ConstructionWindowEquivalentLayer(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Construction:WindowEquivalentLayer'
     name: str = Field(...)
-    outside_layer: str = Field(
+    outside_layer: WindowEquivalentLayerMaterialNamesRef = Field(
         ..., json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']}
     )
-    layer_2: str | None = Field(
+    layer_2: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_3: str | None = Field(
+    layer_3: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_4: str | None = Field(
+    layer_4: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_5: str | None = Field(
+    layer_5: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_6: str | None = Field(
+    layer_6: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_7: str | None = Field(
+    layer_7: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_8: str | None = Field(
+    layer_8: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_9: str | None = Field(
+    layer_9: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_10: str | None = Field(
+    layer_10: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
-    layer_11: str | None = Field(
+    layer_11: WindowEquivalentLayerMaterialNamesRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['WindowEquivalentLayerMaterialNames']},
     )
@@ -541,7 +560,7 @@ class MaterialPropertyHeatAndMoistureTransferDiffusion(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'MaterialProperty:HeatAndMoistureTransfer:Diffusion'
     )
-    material_name: str = Field(
+    material_name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -865,7 +884,7 @@ class MaterialPropertyHeatAndMoistureTransferRedistribution(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'MaterialProperty:HeatAndMoistureTransfer:Redistribution'
     )
-    material_name: str = Field(
+    material_name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1033,7 +1052,7 @@ class MaterialPropertyHeatAndMoistureTransferSettings(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'MaterialProperty:HeatAndMoistureTransfer:Settings'
     )
-    material_name: str = Field(
+    material_name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1059,7 +1078,7 @@ class MaterialPropertyHeatAndMoistureTransferSorptionIsotherm(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'MaterialProperty:HeatAndMoistureTransfer:SorptionIsotherm'
     )
-    material_name: str = Field(
+    material_name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1376,7 +1395,7 @@ class MaterialPropertyHeatAndMoistureTransferSuction(IDFBaseModel):
     algorithms"""
 
     _idf_object_type: ClassVar[str] = 'MaterialProperty:HeatAndMoistureTransfer:Suction'
-    material_name: str = Field(
+    material_name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1549,7 +1568,7 @@ class MaterialPropertyHeatAndMoistureTransferThermalConductivity(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'MaterialProperty:HeatAndMoistureTransfer:ThermalConductivity'
     )
-    material_name: str = Field(
+    material_name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1717,7 +1736,7 @@ class MaterialPropertyMoisturePenetrationDepthSettings(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'MaterialProperty:MoisturePenetrationDepth:Settings'
     )
-    name: str = Field(
+    name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1772,7 +1791,7 @@ class MaterialPropertyPhaseChange(IDFBaseModel):
     effect with other HeatBalanceAlgorithm solution algorithms"""
 
     _idf_object_type: ClassVar[str] = 'MaterialProperty:PhaseChange'
-    name: str = Field(
+    name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1797,7 +1816,7 @@ class MaterialPropertyPhaseChangeHysteresis(IDFBaseModel):
     process. Has no effect with other HeatBalanceAlgorithm solution algorithms."""
 
     _idf_object_type: ClassVar[str] = 'MaterialProperty:PhaseChangeHysteresis'
-    name: str = Field(
+    name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1920,7 +1939,7 @@ class MaterialPropertyVariableAbsorptance(IDFBaseModel):
             'note': 'The name of the dynamic coating material with variable thermal or solar absorptance.'
         },
     )
-    reference_material_name: str = Field(
+    reference_material_name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -1972,7 +1991,7 @@ class MaterialPropertyVariableThermalConductivity(IDFBaseModel):
     with other HeatBalanceAlgorithm solution algorithms"""
 
     _idf_object_type: ClassVar[str] = 'MaterialProperty:VariableThermalConductivity'
-    name: str = Field(
+    name: MaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -2697,7 +2716,7 @@ class WindowMaterialGap(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'WindowMaterial:Gap'
     name: str = Field(...)
     thickness: float = Field(..., gt=0.0, json_schema_extra={'units': 'm'})
-    gas_or_gas_mixture: str = Field(
+    gas_or_gas_mixture: WindowGasAndGasMixturesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['WindowGasAndGasMixtures'],
@@ -2705,14 +2724,14 @@ class WindowMaterialGap(IDFBaseModel):
         },
     )
     pressure: float | None = Field(default=101325.0, json_schema_extra={'units': 'Pa'})
-    deflection_state: str | None = Field(
+    deflection_state: WindowGapDeflectionStatesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WindowGapDeflectionStates'],
             'note': 'If left blank, it will be considered that gap is not deflected',
         },
     )
-    support_pillar: str | None = Field(
+    support_pillar: WindowGapSupportPillarsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WindowGapSupportPillars'],
@@ -2894,7 +2913,7 @@ class WindowMaterialGlazing(IDFBaseModel):
     optical_data_type: Literal[
         'BSDF', 'Spectral', 'SpectralAndAngle', 'SpectralAverage'
     ] = Field(...)
-    window_glass_spectral_data_set_name: str | None = Field(
+    window_glass_spectral_data_set_name: SpectralDataSetsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpectralDataSets'],
@@ -2983,7 +3002,7 @@ class WindowMaterialGlazing(IDFBaseModel):
         },
     )
     window_glass_spectral_and_incident_angle_transmittance_data_set_table_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2992,7 +3011,7 @@ class WindowMaterialGlazing(IDFBaseModel):
         },
     )
     window_glass_spectral_and_incident_angle_front_reflectance_data_set_table_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3001,7 +3020,7 @@ class WindowMaterialGlazing(IDFBaseModel):
         },
     )
     window_glass_spectral_and_incident_angle_back_reflectance_data_set_table_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3023,7 +3042,7 @@ class WindowMaterialGlazingEquivalentLayer(IDFBaseModel):
             'note': 'Spectral is not currently supported and SpectralAverage is the default.'
         },
     )
-    window_glass_spectral_data_set_name: str | None = Field(
+    window_glass_spectral_data_set_name: SpectralDataSetsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpectralDataSets'],

@@ -12,6 +12,15 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    BivariateFunctionsRef,
+    ConstructionNamesRef,
+    MultivariateFunctionsRef,
+    QuadvariateFunctionsRef,
+    QuintvariateFunctionsRef,
+    TrivariateFunctionsRef,
+    UnivariateFunctionsRef,
+)
 
 
 class EnergyManagementSystemGlobalVariableVariablesItem(IDFBaseModel):
@@ -65,7 +74,7 @@ class EnergyManagementSystemConstructionIndexVariable(IDFBaseModel):
             'note': 'This name becomes a variable for use in Erl programs no spaces allowed in name'
         },
     )
-    construction_object_name: str = Field(
+    construction_object_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
 
@@ -80,7 +89,14 @@ class EnergyManagementSystemCurveOrTableIndexVariable(IDFBaseModel):
             'note': 'This name becomes a variable for use in Erl programs no spaces allowed in name'
         },
     )
-    curve_or_table_object_name: str = Field(
+    curve_or_table_object_name: (
+        BivariateFunctionsRef
+        | MultivariateFunctionsRef
+        | QuadvariateFunctionsRef
+        | QuintvariateFunctionsRef
+        | TrivariateFunctionsRef
+        | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [

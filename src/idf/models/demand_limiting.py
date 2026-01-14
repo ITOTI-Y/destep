@@ -12,6 +12,11 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    OAControllerNamesRef,
+    ScheduleNamesRef,
+    ZoneControlThermostaticNamesRef,
+)
 
 
 class DemandManagerAssignmentListManagerDataItem(IDFBaseModel):
@@ -71,7 +76,7 @@ class DemandManagerLightsLightsItem(IDFBaseModel):
 class DemandManagerThermostatsThermostatsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    thermostat_name: str = Field(
+    thermostat_name: ZoneControlThermostaticNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneControlThermostaticNames'],
@@ -83,7 +88,7 @@ class DemandManagerThermostatsThermostatsItem(IDFBaseModel):
 class DemandManagerVentilationControllersItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    controller_outdoor_air_name: str = Field(
+    controller_outdoor_air_name: OAControllerNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OAControllerNames'],
@@ -99,18 +104,18 @@ class DemandManagerAssignmentList(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'DemandManagerAssignmentList'
     name: str = Field(...)
     meter_name: str = Field(...)
-    demand_limit_schedule_name: str | None = Field(
+    demand_limit_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     demand_limit_safety_fraction: float = Field(..., ge=0.0)
-    billing_period_schedule_name: str | None = Field(
+    billing_period_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This field should reference the same schedule as the month schedule name field of the UtilityCost:Tariff object, if used. If blank, defaults to regular divisions between months.',
         },
     )
-    peak_period_schedule_name: str | None = Field(
+    peak_period_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -129,7 +134,7 @@ class DemandManagerElectricEquipment(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'DemandManager:ElectricEquipment'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -168,7 +173,7 @@ class DemandManagerExteriorLights(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'DemandManager:ExteriorLights'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -205,7 +210,7 @@ class DemandManagerLights(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'DemandManager:Lights'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -242,7 +247,7 @@ class DemandManagerThermostats(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'DemandManager:Thermostats'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -282,7 +287,7 @@ class DemandManagerVentilation(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'DemandManager:Ventilation'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],

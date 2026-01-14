@@ -12,12 +12,22 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AttachedShadingSurfNamesRef,
+    ConstructionNamesRef,
+    DaylightReferencePointNamesRef,
+    ScheduleNamesRef,
+    SpaceNamesRef,
+    SubSurfNamesRef,
+    SurfaceNamesRef,
+    ZoneNamesRef,
+)
 
 
 class DaylightingControlsControlDataItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    daylighting_reference_point_name: str = Field(
+    daylighting_reference_point_name: DaylightReferencePointNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DaylightReferencePointNames']}
     )
     fraction_of_lights_controlled_by_reference_point: float | None = Field(
@@ -31,7 +41,7 @@ class DaylightingControlsControlDataItem(IDFBaseModel):
 class DaylightingDeviceTubularTransitionLengthsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    transition_zone_name: str | None = Field(
+    transition_zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     transition_zone_length: float | None = Field(
@@ -45,13 +55,13 @@ class DaylightingControls(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Daylighting:Controls'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     daylighting_method: Literal['', 'DElight', 'SplitFlux'] | None = Field(
         default='SplitFlux'
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     lighting_control_type: (
@@ -73,7 +83,9 @@ class DaylightingControls(IDFBaseModel):
     probability_lighting_will_be_reset_when_needed_in_manual_stepped_control: (
         float | None
     ) = Field(default=1.0, ge=0.0, le=1.0)
-    glare_calculation_daylighting_reference_point_name: str | None = Field(
+    glare_calculation_daylighting_reference_point_name: (
+        DaylightReferencePointNamesRef | None
+    ) = Field(
         default=None, json_schema_extra={'object_list': ['DaylightReferencePointNames']}
     )
     glare_calculation_azimuth_angle_of_view_direction_clockwise_from_zone_y_axis: (
@@ -106,14 +118,14 @@ class DaylightingDELightComplexFenestration(IDFBaseModel):
             'note': 'Used to select the appropriate Complex Fenestration BTDF data'
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'This is a reference to a valid surface object (such as BuildingSurface:Detailed) hosting this complex fenestration, analogous to the base surface Name field for subsurfaces such as Windows.',
         },
     )
-    window_name: str = Field(
+    window_name: SubSurfNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SubSurfNames'],
@@ -135,7 +147,7 @@ class DaylightingDeviceLightWell(IDFBaseModel):
     used with skylights."""
 
     _idf_object_type: ClassVar[str] = 'DaylightingDevice:LightWell'
-    exterior_window_name: str = Field(
+    exterior_window_name: SubSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SubSurfNames']}
     )
     height_of_well: float = Field(
@@ -164,22 +176,24 @@ class DaylightingDeviceShelf(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'DaylightingDevice:Shelf'
     name: str = Field(...)
-    window_name: str = Field(..., json_schema_extra={'object_list': ['SubSurfNames']})
-    inside_shelf_name: str | None = Field(
+    window_name: SubSurfNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SubSurfNames']}
+    )
+    inside_shelf_name: SurfaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'This must refer to a BuildingSurface:Detailed or equivalent object This surface must be its own Surface for other side boundary conditions.',
         },
     )
-    outside_shelf_name: str | None = Field(
+    outside_shelf_name: AttachedShadingSurfNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AttachedShadingSurfNames'],
             'note': 'This must refer to a Shading:Zone:Detailed object',
         },
     )
-    outside_shelf_construction_name: str | None = Field(
+    outside_shelf_construction_name: ConstructionNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
@@ -196,21 +210,21 @@ class DaylightingDeviceTubular(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'DaylightingDevice:Tubular'
     name: str = Field(...)
-    dome_name: str = Field(
+    dome_name: SubSurfNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SubSurfNames'],
             'note': 'This must refer to a subsurface object of type TubularDaylightDome',
         },
     )
-    diffuser_name: str = Field(
+    diffuser_name: SubSurfNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SubSurfNames'],
             'note': 'This must refer to a subsurface object of type TubularDaylightDiffuser Delivery zone is specified in the diffuser object',
         },
     )
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
     diameter: float = Field(..., gt=0.0, json_schema_extra={'units': 'm'})
@@ -243,7 +257,7 @@ class DaylightingReferencePoint(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Daylighting:ReferencePoint'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     x_coordinate_of_reference_point: float = Field(
@@ -284,7 +298,7 @@ class OutputIlluminanceMap(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Output:IlluminanceMap'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     z_height: float | None = Field(default=0.0, json_schema_extra={'units': 'm'})

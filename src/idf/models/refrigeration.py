@@ -12,6 +12,23 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    BivariateFunctionsRef,
+    FluidAndGlycolNamesRef,
+    FluidNamesRef,
+    RefrigerationAllTypesCondenserNamesRef,
+    RefrigerationAllTypesGasCoolerNamesRef,
+    RefrigerationCaseAndWalkInAndListNamesRef,
+    RefrigerationCompressorAndListNamesRef,
+    RefrigerationSecondarySystemAndCascadeCondenserAndTransferLoadListNamesRef,
+    RefrigerationSubcoolerNamesRef,
+    RefrigerationSystemNamesRef,
+    ScheduleNamesRef,
+    TrivariateFunctionsRef,
+    UnivariateFunctionsRef,
+    WaterStorageTankNamesRef,
+    ZoneNamesRef,
+)
 
 
 class RefrigerationCaseAndWalkInListCasesAndWalkinsItem(IDFBaseModel):
@@ -53,7 +70,7 @@ class RefrigerationTransferLoadListTransferLoadsItem(IDFBaseModel):
 class RefrigerationWalkInZoneDataItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -90,12 +107,14 @@ class RefrigerationWalkInZoneDataItem(IDFBaseModel):
             'note': 'The default value corresponds to R5 [ft2-F-hr/Btu] To convert other IP R-values to U, divide 5.678 by the R-value',
         },
     )
-    glass_reach_in_door_opening_schedule_name_facing_zone: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'Schedule values should all be between 0.0 and 1.0. For example, if the door is open 30% of the time during working hours, then the schedule would hold the value 0.3 during working hours and 0 durin...',
-        },
+    glass_reach_in_door_opening_schedule_name_facing_zone: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'Schedule values should all be between 0.0 and 1.0. For example, if the door is open 30% of the time during working hours, then the schedule would hold the value 0.3 during working hours and 0 durin...',
+            },
+        )
     )
     area_of_stocking_doors_facing_zone: float | None = Field(
         default=0.0, json_schema_extra={'units': 'm2'}
@@ -111,7 +130,7 @@ class RefrigerationWalkInZoneDataItem(IDFBaseModel):
             'note': 'The default value corresponds to R15 [ft2-F-hr/Btu] To convert other IP R-values to U, divide 5.678 by the R-value Some examples: R5 is U 1.136 W/m2-K R18 is U 0.3154 W/m2-K',
         },
     )
-    stocking_door_opening_schedule_name_facing_zone: str | None = Field(
+    stocking_door_opening_schedule_name_facing_zone: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -150,7 +169,7 @@ class RefrigerationAirChiller(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:AirChiller'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -250,7 +269,9 @@ class RefrigerationAirChiller(IDFBaseModel):
             'note': 'In each case, select the correction curve type that corresponds to the rating type. default LinearSHR60 unless Capacity Rating Type = CapacityTotalSpecificConditions'
         },
     )
-    capacity_correction_curve_name: str | None = Field(
+    capacity_correction_curve_name: (
+        TrivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['TrivariateFunctions', 'UnivariateFunctions'],
@@ -272,7 +293,7 @@ class RefrigerationAirChiller(IDFBaseModel):
             'note': 'Include total for all heater power Do not include defrost heater power',
         },
     )
-    heating_power_schedule_name: str | None = Field(
+    heating_power_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -305,14 +326,14 @@ class RefrigerationAirChiller(IDFBaseModel):
     defrost_control_type: (
         Literal['', 'TemperatureTermination', 'TimeSchedule'] | None
     ) = Field(default='TimeSchedule')
-    defrost_schedule_name: str = Field(
+    defrost_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The schedule values should be 0 (off) or 1 (on)',
         },
     )
-    defrost_drip_down_schedule_name: str | None = Field(
+    defrost_drip_down_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -358,14 +379,14 @@ class RefrigerationCase(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:Case'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -393,7 +414,7 @@ class RefrigerationCase(IDFBaseModel):
         Literal['', 'CaseTemperatureMethod', 'DewpointMethod', 'RelativeHumidityMethod']
         | None
     ) = Field(default='CaseTemperatureMethod')
-    latent_case_credit_curve_name: str = Field(
+    latent_case_credit_curve_name: UnivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     standard_case_fan_power_per_unit_length: float | None = Field(
@@ -412,7 +433,7 @@ class RefrigerationCase(IDFBaseModel):
             'note': 'default set equal to Standard Case Lighting Power per Unit Length',
         },
     )
-    case_lighting_schedule_name: str | None = Field(
+    case_lighting_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     fraction_of_lighting_energy_to_case: float | None = Field(
@@ -473,14 +494,14 @@ class RefrigerationCase(IDFBaseModel):
         ]
         | None
     ) = Field(default='OffCycle')
-    case_defrost_schedule_name: str | None = Field(
+    case_defrost_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'A case defrost schedule name is required unless case defrost type = None',
         },
     )
-    case_defrost_drip_down_schedule_name: str | None = Field(
+    case_defrost_drip_down_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -502,7 +523,7 @@ class RefrigerationCase(IDFBaseModel):
             'note': 'Case Temperature, Relative Humidity, and Dewpoint Method are applicable to case defrost types with temperature termination only.'
         },
     )
-    defrost_energy_correction_curve_name: str | None = Field(
+    defrost_energy_correction_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -512,14 +533,14 @@ class RefrigerationCase(IDFBaseModel):
     under_case_hvac_return_air_fraction: float | None = Field(
         default=0.0, ge=0.0, le=1.0
     )
-    refrigerated_case_restocking_schedule_name: str | None = Field(
+    refrigerated_case_restocking_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values should be in units of Watts per unit case length (W/m) Leave this field blank if no restocking is to be modeled',
         },
     )
-    case_credit_fraction_schedule_name: str | None = Field(
+    case_credit_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -568,14 +589,14 @@ class RefrigerationCompressor(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:Compressor'
     name: str = Field(...)
-    refrigeration_compressor_power_curve_name: str = Field(
+    refrigeration_compressor_power_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'the input order for the Curve:Bicubic does not match the ARI 540-2004 Eq. 1 coefficient order N1 is ARI_C1, N2 is ARI_C2, N3 is ARI_C4, N4 is ARI_C3, N5 is ARI_C6, N6 is ARI_C5, N7 is ARI_C7, N8 is...',
         },
     )
-    refrigeration_compressor_capacity_curve_name: str = Field(
+    refrigeration_compressor_capacity_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -619,10 +640,10 @@ class RefrigerationCompressor(IDFBaseModel):
     mode_of_operation: Literal['', 'Subcritical', 'Transcritical'] | None = Field(
         default='Subcritical'
     )
-    transcritical_compressor_power_curve_name: str | None = Field(
+    transcritical_compressor_power_curve_name: BivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['BivariateFunctions']}
     )
-    transcritical_compressor_capacity_curve_name: str | None = Field(
+    transcritical_compressor_capacity_curve_name: BivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['BivariateFunctions']}
     )
 
@@ -664,7 +685,7 @@ class RefrigerationCompressorRack(IDFBaseModel):
             'note': 'It is important that this COP correspond to the lowest saturated suction temperature needed to serve all refrigeration loads',
         },
     )
-    compressor_rack_cop_function_of_temperature_curve_name: str = Field(
+    compressor_rack_cop_function_of_temperature_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -676,9 +697,9 @@ class RefrigerationCompressorRack(IDFBaseModel):
         ge=0.0,
         json_schema_extra={'units': 'W', 'note': 'Design power for condenser fan(s).'},
     )
-    condenser_fan_power_function_of_temperature_curve_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
-    )
+    condenser_fan_power_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['UnivariateFunctions']})
     condenser_type: (
         Literal['', 'AirCooled', 'EvaporativelyCooled', 'WaterCooled'] | None
     ) = Field(
@@ -697,12 +718,14 @@ class RefrigerationCompressorRack(IDFBaseModel):
             },
         )
     )
-    water_cooled_condenser_outlet_temperature_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'Applicable only when loop Flow type is VariableFlow.',
-        },
+    water_cooled_condenser_outlet_temperature_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'Applicable only when loop Flow type is VariableFlow.',
+            },
+        )
     )
     water_cooled_condenser_design_flow_rate: float | None = Field(
         default=None,
@@ -721,7 +744,7 @@ class RefrigerationCompressorRack(IDFBaseModel):
     water_cooled_condenser_minimum_water_inlet_temperature: float | None = Field(
         default=10.0, ge=10.0, le=30.0, json_schema_extra={'units': 'C'}
     )
-    evaporative_condenser_availability_schedule_name: str | None = Field(
+    evaporative_condenser_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -771,7 +794,7 @@ class RefrigerationCompressorRack(IDFBaseModel):
             'note': 'Design recirc water pump power for Condenser Type = EvaporativelyCooled. Applicable only for Condenser Type = EvaporativelyCooled.',
         },
     )
-    evaporative_water_supply_tank_name: str | None = Field(
+    evaporative_water_supply_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
@@ -790,16 +813,16 @@ class RefrigerationCompressorRack(IDFBaseModel):
             'note': 'Any text may be used here to categorize the end-uses in the ABUPS End Uses by Subcategory table.'
         },
     )
-    refrigeration_case_name_or_walkin_name_or_caseandwalkinlist_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['RefrigerationCaseAndWalkInAndListNames'],
-                'note': 'Enter the name of a Refrigeration:Case or Refrigeration:Walkin or Refrigeration:CaseAndWalkinList object.',
-            },
-        )
+    refrigeration_case_name_or_walkin_name_or_caseandwalkinlist_name: (
+        RefrigerationCaseAndWalkInAndListNamesRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['RefrigerationCaseAndWalkInAndListNames'],
+            'note': 'Enter the name of a Refrigeration:Case or Refrigeration:Walkin or Refrigeration:CaseAndWalkinList object.',
+        },
     )
-    heat_rejection_zone_name: str | None = Field(
+    heat_rejection_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -813,7 +836,9 @@ class RefrigerationCondenserAirCooled(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:Condenser:AirCooled'
     name: str = Field(...)
-    rated_effective_total_heat_rejection_rate_curve_name: str | None = Field(
+    rated_effective_total_heat_rejection_rate_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1046,14 +1071,14 @@ class RefrigerationCondenserEvaporativeCooled(IDFBaseModel):
             'note': 'Design recirculating water pump power.',
         },
     )
-    evaporative_water_supply_tank_name: str | None = Field(
+    evaporative_water_supply_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'If blank, water supply is from Mains.',
         },
     )
-    evaporative_condenser_availability_schedule_name: str | None = Field(
+    evaporative_condenser_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1119,7 +1144,7 @@ class RefrigerationCondenserWaterCooled(IDFBaseModel):
     water_cooled_loop_flow_type: Literal['', 'ConstantFlow', 'VariableFlow'] | None = (
         Field(default='VariableFlow')
     )
-    water_outlet_temperature_schedule_name: str | None = Field(
+    water_outlet_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1172,7 +1197,7 @@ class RefrigerationGasCoolerAirCooled(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:GasCooler:AirCooled'
     name: str = Field(...)
-    rated_total_heat_rejection_rate_curve_name: str = Field(
+    rated_total_heat_rejection_rate_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1259,7 +1284,7 @@ class RefrigerationSecondarySystem(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:SecondarySystem'
     name: str = Field(...)
-    refrigerated_case_or_walkin_or_caseandwalkinlist_name: str = Field(
+    refrigerated_case_or_walkin_or_caseandwalkinlist_name: RefrigerationCaseAndWalkInAndListNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['RefrigerationCaseAndWalkInAndListNames'],
@@ -1272,7 +1297,7 @@ class RefrigerationSecondarySystem(IDFBaseModel):
             'note': 'If "FluidAlwaysLiquid" is selected, the fluid properties must be input using the objects: FluidProperties:Name, FluidProperties:GlycolConcentration, and, if user defined fluid type, FluidProperties...'
         },
     )
-    circulating_fluid_name: str = Field(
+    circulating_fluid_name: FluidAndGlycolNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FluidAndGlycolNames'],
@@ -1352,7 +1377,7 @@ class RefrigerationSecondarySystem(IDFBaseModel):
     pump_drive_type: Literal['', 'Constant', 'Variable'] | None = Field(
         default='Constant'
     )
-    variable_speed_pump_cubic_curve_name: str | None = Field(
+    variable_speed_pump_cubic_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1375,7 +1400,7 @@ class RefrigerationSecondarySystem(IDFBaseModel):
             'note': 'Use only if you want to include distribution piping heat gain in refrigeration load.',
         },
     )
-    distribution_piping_zone_name: str | None = Field(
+    distribution_piping_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1389,7 +1414,7 @@ class RefrigerationSecondarySystem(IDFBaseModel):
             'note': 'Use only if you want to include Receiver/Separator Shell heat gain in refrigeration load.',
         },
     )
-    receiver_separator_zone_name: str | None = Field(
+    receiver_separator_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1445,7 +1470,7 @@ class RefrigerationSubcooler(IDFBaseModel):
             'note': 'design inlet temperature on vapor side Applicable only and required for liquid suction heat exchangers (LSHX) Design vapor inlet temperature must be less than or equal to the Liquid inlet design temp',
         },
     )
-    capacity_providing_system: str | None = Field(
+    capacity_providing_system: RefrigerationSystemNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RefrigerationSystemNames'],
@@ -1468,14 +1493,19 @@ class RefrigerationSystem(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:System'
     name: str = Field(...)
-    refrigerated_case_or_walkin_or_caseandwalkinlist_name: str | None = Field(
+    refrigerated_case_or_walkin_or_caseandwalkinlist_name: (
+        RefrigerationCaseAndWalkInAndListNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RefrigerationCaseAndWalkInAndListNames'],
             'note': 'Enter the name of a Refrigeration:Case or Refrigeration:WalkIn object. If there is more than one refrigerated case or walk-in served by this system, enter the name of a Refrigeration:CaseAndWalkInL...',
         },
     )
-    refrigeration_transfer_load_or_transferload_list_name: str | None = Field(
+    refrigeration_transfer_load_or_transferload_list_name: (
+        RefrigerationSecondarySystemAndCascadeCondenserAndTransferLoadListNamesRef
+        | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': [
@@ -1484,10 +1514,10 @@ class RefrigerationSystem(IDFBaseModel):
             'note': 'Enter the name of a Refrigeration:SecondarySystem object OR a Refrigeration:Condenser:Cascade object OR, a Refrigeration:TransferLoadList object. A transfer load is identified as one which moves th...',
         },
     )
-    refrigeration_condenser_name: str = Field(
+    refrigeration_condenser_name: RefrigerationAllTypesCondenserNamesRef = Field(
         ..., json_schema_extra={'object_list': ['RefrigerationAllTypesCondenserNames']}
     )
-    compressor_or_compressorlist_name: str = Field(
+    compressor_or_compressorlist_name: RefrigerationCompressorAndListNamesRef = Field(
         ..., json_schema_extra={'object_list': ['RefrigerationCompressorAndListNames']}
     )
     minimum_condensing_temperature: float = Field(
@@ -1497,7 +1527,7 @@ class RefrigerationSystem(IDFBaseModel):
             'note': 'related to the proper operation of the thermal expansion valves and compressors',
         },
     )
-    refrigeration_system_working_fluid_type: str = Field(
+    refrigeration_system_working_fluid_type: FluidNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FluidNames'],
@@ -1507,14 +1537,16 @@ class RefrigerationSystem(IDFBaseModel):
     suction_temperature_control_type: (
         Literal['', 'ConstantSuctionTemperature', 'FloatSuctionTemperature'] | None
     ) = Field(default='ConstantSuctionTemperature')
-    mechanical_subcooler_name: str | None = Field(
+    mechanical_subcooler_name: RefrigerationSubcoolerNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RefrigerationSubcoolerNames'],
             'note': 'Optional Field Recipient of refrigeration capacity, that is receives cool liquid from another refrigeration system to help meet aggregate case loads',
         },
     )
-    liquid_suction_heat_exchanger_subcooler_name: str | None = Field(
+    liquid_suction_heat_exchanger_subcooler_name: (
+        RefrigerationSubcoolerNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RefrigerationSubcoolerNames'],
@@ -1528,7 +1560,7 @@ class RefrigerationSystem(IDFBaseModel):
             'note': 'Use only if you want to include suction piping heat gain in refrigeration load',
         },
     )
-    suction_piping_zone_name: str | None = Field(
+    suction_piping_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1546,7 +1578,9 @@ class RefrigerationSystem(IDFBaseModel):
         Literal['', 'Flash Intercooler', 'None', 'Shell-and-Coil Intercooler'] | None
     ) = Field(default='None')
     shell_and_coil_intercooler_effectiveness: float | None = Field(default=0.8)
-    high_stage_compressor_or_compressorlist_name: str | None = Field(
+    high_stage_compressor_or_compressorlist_name: (
+        RefrigerationCompressorAndListNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={'object_list': ['RefrigerationCompressorAndListNames']},
     )
@@ -1561,7 +1595,7 @@ class RefrigerationTranscriticalSystem(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'Refrigeration:TranscriticalSystem'
     name: str = Field(...)
     system_type: Literal['SingleStage', 'TwoStage'] = Field(...)
-    medium_temperature_refrigerated_case_or_walkin_or_caseandwalkinlist_name: str = Field(
+    medium_temperature_refrigerated_case_or_walkin_or_caseandwalkinlist_name: RefrigerationCaseAndWalkInAndListNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['RefrigerationCaseAndWalkInAndListNames'],
@@ -1569,7 +1603,7 @@ class RefrigerationTranscriticalSystem(IDFBaseModel):
         },
     )
     low_temperature_refrigerated_case_or_walkin_or_caseandwalkinlist_name: (
-        str | None
+        RefrigerationCaseAndWalkInAndListNamesRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1577,13 +1611,15 @@ class RefrigerationTranscriticalSystem(IDFBaseModel):
             'note': 'Enter the name of a Refrigeration:Case or Refrigeration:WalkIn object. If there is more than one refrigerated case or walk-in served by this system, enter the name of a Refrigeration:CaseAndWalkInL...',
         },
     )
-    refrigeration_gas_cooler_name: str = Field(
+    refrigeration_gas_cooler_name: RefrigerationAllTypesGasCoolerNamesRef = Field(
         ..., json_schema_extra={'object_list': ['RefrigerationAllTypesGasCoolerNames']}
     )
-    high_pressure_compressor_or_compressorlist_name: str = Field(
+    high_pressure_compressor_or_compressorlist_name: RefrigerationCompressorAndListNamesRef = Field(
         ..., json_schema_extra={'object_list': ['RefrigerationCompressorAndListNames']}
     )
-    low_pressure_compressor_or_compressorlist_name: str | None = Field(
+    low_pressure_compressor_or_compressorlist_name: (
+        RefrigerationCompressorAndListNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={'object_list': ['RefrigerationCompressorAndListNames']},
     )
@@ -1591,7 +1627,7 @@ class RefrigerationTranscriticalSystem(IDFBaseModel):
         default=4000000.0, json_schema_extra={'units': 'Pa'}
     )
     subcooler_effectiveness: float | None = Field(default=0.4)
-    refrigeration_system_working_fluid_type: str = Field(
+    refrigeration_system_working_fluid_type: FluidNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FluidNames'],
@@ -1605,7 +1641,7 @@ class RefrigerationTranscriticalSystem(IDFBaseModel):
             'note': 'Use only if you want to include suction piping heat gain in refrigeration load',
         },
     )
-    medium_temperature_suction_piping_zone_name: str | None = Field(
+    medium_temperature_suction_piping_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1619,7 +1655,7 @@ class RefrigerationTranscriticalSystem(IDFBaseModel):
             'note': 'Use only if you want to include suction piping heat gain in refrigeration load',
         },
     )
-    low_temperature_suction_piping_zone_name: str | None = Field(
+    low_temperature_suction_piping_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1658,7 +1694,7 @@ class RefrigerationWalkIn(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Refrigeration:WalkIn'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1683,7 +1719,7 @@ class RefrigerationWalkIn(IDFBaseModel):
             'note': 'Include total for all anti-sweat, door, drip-pan, and floor heater power Do not include defrost heater power',
         },
     )
-    heating_power_schedule_name: str | None = Field(
+    heating_power_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1703,7 +1739,7 @@ class RefrigerationWalkIn(IDFBaseModel):
             'note': 'Enter the total (display + task) installed lighting power.',
         },
     )
-    lighting_schedule_name: str | None = Field(
+    lighting_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1721,14 +1757,14 @@ class RefrigerationWalkIn(IDFBaseModel):
     defrost_control_type: (
         Literal['', 'TemperatureTermination', 'TimeSchedule'] | None
     ) = Field(default='TimeSchedule')
-    defrost_schedule_name: str = Field(
+    defrost_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The schedule values should be 0 (off) or 1 (on)',
         },
     )
-    defrost_drip_down_schedule_name: str | None = Field(
+    defrost_drip_down_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1752,7 +1788,7 @@ class RefrigerationWalkIn(IDFBaseModel):
             'note': 'This is the portion of the defrost energy that is available to melt frost Needed only for defrost control type TemperatureTermination defaults to 0.7 for electric defrost and to 0.3 for hot fluid d...',
         },
     )
-    restocking_schedule_name: str | None = Field(
+    restocking_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1792,14 +1828,14 @@ class ZoneHVACRefrigerationChillerSet(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:RefrigerationChillerSet'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],

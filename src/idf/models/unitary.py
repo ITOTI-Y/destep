@@ -12,6 +12,37 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    CoilCoolingDXRef,
+    CoolingCoilsDXMultiModeOrSingleSpeedRef,
+    CoolingCoilsDXMultiSpeedRef,
+    CoolingCoilsDXRef,
+    CoolingCoilsDXSingleSpeedRef,
+    CoolingCoilsDXVariableSpeedRef,
+    CoolingCoilsWaterRef,
+    CoolingCoilsWaterToAirHPRef,
+    CoolingCoilsWaterToAirVSHPRef,
+    FansCVandOnOffRef,
+    FansOnOffRef,
+    FansRef,
+    FansSystemModelRef,
+    HeatingCoilNameRef,
+    HeatingCoilsDesuperheaterRef,
+    HeatingCoilsDXMultiSpeedRef,
+    HeatingCoilsDXRef,
+    HeatingCoilsDXSingleSpeedRef,
+    HeatingCoilsDXVariableSpeedRef,
+    HeatingCoilsElectricMultiStageRef,
+    HeatingCoilsGasMultiStageRef,
+    HeatingCoilsWaterToAirHPRef,
+    HeatingCoilsWaterToAirVSHPRef,
+    IntegratedHeatPumpsRef,
+    OutdoorAirMixersRef,
+    ScheduleNamesRef,
+    UnitarySystemPerformanceNamesRef,
+    UserDefinedCoilRef,
+    ZoneNamesRef,
+)
 
 
 class UnitarySystemPerformanceMultispeedFlowRatiosItem(IDFBaseModel):
@@ -39,7 +70,7 @@ class AirLoopHVACUnitaryFurnaceHeatCool(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:Unitary:Furnace:HeatCool'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -48,7 +79,7 @@ class AirLoopHVACUnitaryFurnaceHeatCool(IDFBaseModel):
     )
     furnace_air_inlet_node_name: str = Field(...)
     furnace_air_outlet_node_name: str = Field(...)
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -79,7 +110,7 @@ class AirLoopHVACUnitaryFurnaceHeatCool(IDFBaseModel):
             'note': "Must be less than or equal to the fan's maximum flow rate. Only used when fan operating mode is continuous (disregarded for cycling fan mode). This air flow rate is used when no heating or cooling ...",
         },
     )
-    controlling_zone_or_thermostat_location: str = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     supply_fan_object_type: Literal['Fan:ConstantVolume', 'Fan:OnOff'] = Field(
@@ -88,7 +119,7 @@ class AirLoopHVACUnitaryFurnaceHeatCool(IDFBaseModel):
             'note': 'Fan:ConstantVolume only works with continuous fan operating mode (i.e. supply air fan operating mode schedule values not equal to 0).'
         },
     )
-    supply_fan_name: str = Field(
+    supply_fan_name: FansCVandOnOffRef = Field(
         ..., json_schema_extra={'object_list': ['FansCVandOnOff']}
     )
     fan_placement: Literal['', 'BlowThrough', 'DrawThrough'] | None = Field(
@@ -105,7 +136,7 @@ class AirLoopHVACUnitaryFurnaceHeatCool(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils'
         },
     )
-    heating_coil_name: str = Field(
+    heating_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     cooling_coil_object_type: Literal[
@@ -113,11 +144,16 @@ class AirLoopHVACUnitaryFurnaceHeatCool(IDFBaseModel):
         'Coil:Cooling:DX:VariableSpeed',
         'CoilSystem:Cooling:DX:HeatExchangerAssisted',
     ] = Field(..., json_schema_extra={'note': 'Only works with DX cooling coil types'})
-    cooling_coil_name: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['CoolingCoilsDXSingleSpeed', 'CoolingCoilsDXVariableSpeed']
-        },
+    cooling_coil_name: CoolingCoilsDXSingleSpeedRef | CoolingCoilsDXVariableSpeedRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': [
+                    'CoolingCoilsDXSingleSpeed',
+                    'CoolingCoilsDXVariableSpeed',
+                ]
+            },
+        )
     )
     dehumidification_control_type: (
         Literal['', 'CoolReheat', 'Multimode', 'None'] | None
@@ -142,7 +178,7 @@ class AirLoopHVACUnitaryFurnaceHeatCool(IDFBaseModel):
             'note': 'Only required if dehumidification control type is "CoolReheat" works with gas, electric, hot water and steam heating coils'
         },
     )
-    reheat_coil_name: str | None = Field(
+    reheat_coil_name: HeatingCoilNameRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatingCoilName'],
@@ -158,7 +194,7 @@ class AirLoopHVACUnitaryFurnaceHeatOnly(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:Unitary:Furnace:HeatOnly'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -167,7 +203,7 @@ class AirLoopHVACUnitaryFurnaceHeatOnly(IDFBaseModel):
     )
     furnace_air_inlet_node_name: str = Field(...)
     furnace_air_outlet_node_name: str = Field(...)
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -184,7 +220,7 @@ class AirLoopHVACUnitaryFurnaceHeatOnly(IDFBaseModel):
             'note': 'This value should be > 0 and <= than the fan air flow rate.',
         },
     )
-    controlling_zone_or_thermostat_location: str = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     supply_fan_object_type: Literal['Fan:ConstantVolume', 'Fan:OnOff'] = Field(
@@ -193,7 +229,7 @@ class AirLoopHVACUnitaryFurnaceHeatOnly(IDFBaseModel):
             'note': 'Fan:ConstantVolume only works with continuous fan operating mode (i.e. fan operating mode schedule values are greater than 0).'
         },
     )
-    supply_fan_name: str = Field(
+    supply_fan_name: FansCVandOnOffRef = Field(
         ..., json_schema_extra={'object_list': ['FansCVandOnOff']}
     )
     fan_placement: Literal['', 'BlowThrough', 'DrawThrough'] | None = Field(
@@ -210,7 +246,7 @@ class AirLoopHVACUnitaryFurnaceHeatOnly(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils'
         },
     )
-    heating_coil_name: str = Field(
+    heating_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
 
@@ -223,7 +259,7 @@ class AirLoopHVACUnitaryHeatCool(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:UnitaryHeatCool'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -232,7 +268,7 @@ class AirLoopHVACUnitaryHeatCool(IDFBaseModel):
     )
     unitary_system_air_inlet_node_name: str = Field(...)
     unitary_system_air_outlet_node_name: str = Field(...)
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -263,7 +299,7 @@ class AirLoopHVACUnitaryHeatCool(IDFBaseModel):
             'note': "Must be less than or equal to the fan's maximum flow rate. Only used when fan operating mode is continuous (disregarded for cycling fan mode). This air flow rate is used when no heating or cooling ...",
         },
     )
-    controlling_zone_or_thermostat_location: str = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     supply_fan_object_type: Literal['Fan:ConstantVolume', 'Fan:OnOff'] = Field(
@@ -272,7 +308,7 @@ class AirLoopHVACUnitaryHeatCool(IDFBaseModel):
             'note': 'Fan:ConstantVolume only works with continuous fan operating mode (i.e. supply air fan operating mode schedule values not equal to 0).'
         },
     )
-    supply_fan_name: str = Field(
+    supply_fan_name: FansCVandOnOffRef = Field(
         ..., json_schema_extra={'object_list': ['FansCVandOnOff']}
     )
     fan_placement: Literal['', 'BlowThrough', 'DrawThrough'] | None = Field(
@@ -289,7 +325,7 @@ class AirLoopHVACUnitaryHeatCool(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils'
         },
     )
-    heating_coil_name: str = Field(
+    heating_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     cooling_coil_object_type: Literal[
@@ -302,11 +338,16 @@ class AirLoopHVACUnitaryHeatCool(IDFBaseModel):
             'note': 'Only works with DX cooling coil types or Coil:Cooling:DX:VariableSpeed.'
         },
     )
-    cooling_coil_name: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['CoolingCoilsDXSingleSpeed', 'CoolingCoilsDXVariableSpeed']
-        },
+    cooling_coil_name: CoolingCoilsDXSingleSpeedRef | CoolingCoilsDXVariableSpeedRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': [
+                    'CoolingCoilsDXSingleSpeed',
+                    'CoolingCoilsDXVariableSpeed',
+                ]
+            },
+        )
     )
     dehumidification_control_type: (
         Literal['', 'CoolReheat', 'Multimode', 'None'] | None
@@ -331,7 +372,7 @@ class AirLoopHVACUnitaryHeatCool(IDFBaseModel):
             'note': 'Only required if dehumidification control type is "CoolReheat" works with gas, electric, desuperheating, hot water and steam heating coils'
         },
     )
-    reheat_coil_name: str | None = Field(
+    reheat_coil_name: HeatingCoilNameRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatingCoilName'],
@@ -352,7 +393,7 @@ class AirLoopHVACUnitaryHeatCoolVAVChangeoverBypass(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'Enter a unique name for this unitary system.'}
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -401,7 +442,7 @@ class AirLoopHVACUnitaryHeatCoolVAVChangeoverBypass(IDFBaseModel):
             'note': 'Only used when the supply air fan operating mode is continuous (see field Supply air fan operating mode schedule name). This outdoor air flow rate is used when no heating or cooling is required and...',
         },
     )
-    outdoor_air_flow_rate_multiplier_schedule_name: str | None = Field(
+    outdoor_air_flow_rate_multiplier_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -438,7 +479,7 @@ class AirLoopHVACUnitaryHeatCoolVAVChangeoverBypass(IDFBaseModel):
             'note': 'currently only one type OutdoorAir:Mixer object is available.'
         },
     )
-    outdoor_air_mixer_name: str = Field(
+    outdoor_air_mixer_name: OutdoorAirMixersRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OutdoorAirMixers'],
@@ -453,7 +494,7 @@ class AirLoopHVACUnitaryHeatCoolVAVChangeoverBypass(IDFBaseModel):
             'note': 'Specify the type of supply air fan used in this unitary system.'
         },
     )
-    supply_air_fan_name: str = Field(
+    supply_air_fan_name: FansCVandOnOffRef | FansSystemModelRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansCVandOnOff', 'FansSystemModel'],
@@ -466,7 +507,7 @@ class AirLoopHVACUnitaryHeatCoolVAVChangeoverBypass(IDFBaseModel):
             'note': 'Specify supply air fan placement as either blow through or draw through. BlowThrough means the supply air fan is located before the cooling coil. DrawThrough means the supply air fan is located aft...'
         },
     )
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -484,7 +525,9 @@ class AirLoopHVACUnitaryHeatCoolVAVChangeoverBypass(IDFBaseModel):
             'note': 'Specify the type of cooling coil used in this unitary system.'
         },
     )
-    cooling_coil_name: str = Field(
+    cooling_coil_name: (
+        CoolingCoilsDXMultiModeOrSingleSpeedRef | CoolingCoilsDXVariableSpeedRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -507,7 +550,7 @@ class AirLoopHVACUnitaryHeatCoolVAVChangeoverBypass(IDFBaseModel):
             'note': 'works with DX, gas, electric, hot water and steam heating coils Specify the type of heating coil used in this unitary system.'
         },
     )
-    heating_coil_name: str = Field(
+    heating_coil_name: HeatingCoilNameRef | HeatingCoilsDXVariableSpeedRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['HeatingCoilName', 'HeatingCoilsDXVariableSpeed'],
@@ -572,7 +615,7 @@ class AirLoopHVACUnitaryHeatOnly(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:UnitaryHeatOnly'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -581,7 +624,7 @@ class AirLoopHVACUnitaryHeatOnly(IDFBaseModel):
     )
     unitary_system_air_inlet_node_name: str = Field(...)
     unitary_system_air_outlet_node_name: str = Field(...)
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -598,7 +641,7 @@ class AirLoopHVACUnitaryHeatOnly(IDFBaseModel):
             'note': 'This value should be > 0 and <= than the fan air flow rate.',
         },
     )
-    controlling_zone_or_thermostat_location: str = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     supply_fan_object_type: Literal['Fan:ConstantVolume', 'Fan:OnOff'] = Field(
@@ -607,7 +650,7 @@ class AirLoopHVACUnitaryHeatOnly(IDFBaseModel):
             'note': 'Fan:ConstantVolume only works with continuous fan operating mode (i.e. fan operating mode schedule values are greater than 0).'
         },
     )
-    supply_fan_name: str = Field(
+    supply_fan_name: FansCVandOnOffRef = Field(
         ..., json_schema_extra={'object_list': ['FansCVandOnOff']}
     )
     fan_placement: Literal['', 'BlowThrough', 'DrawThrough'] | None = Field(
@@ -624,7 +667,7 @@ class AirLoopHVACUnitaryHeatOnly(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils'
         },
     )
-    heating_coil_name: str = Field(
+    heating_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
 
@@ -636,7 +679,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAir(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:UnitaryHeatPump:AirToAir'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -666,7 +709,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAir(IDFBaseModel):
             'note': "Must be less than or equal to the fan's maximum flow rate. Only used when fan operating mode is continuous (disregarded for cycling fan mode). This air flow rate is used when no heating or cooling ...",
         },
     )
-    controlling_zone_or_thermostat_location: str = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     supply_air_fan_object_type: Literal['Fan:ConstantVolume', 'Fan:OnOff'] = Field(
@@ -675,7 +718,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAir(IDFBaseModel):
             'note': 'Fan:ConstantVolume only works with continuous fan operating mode (i.e. fan operating mode schedule values are greater than 0 or the fan operating mode schedule name field is left blank).'
         },
     )
-    supply_air_fan_name: str = Field(
+    supply_air_fan_name: FansCVandOnOffRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansCVandOnOff'],
@@ -692,7 +735,11 @@ class AirLoopHVACUnitaryHeatPumpAirToAir(IDFBaseModel):
             'note': 'Only works with Coil:Heating:DX:SingleSpeed or Coil:Heating:DX:VariableSpeed or CoilSystem:IntegratedHeatPump:AirSource'
         },
     )
-    heating_coil_name: str = Field(
+    heating_coil_name: (
+        HeatingCoilsDXSingleSpeedRef
+        | HeatingCoilsDXVariableSpeedRef
+        | IntegratedHeatPumpsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -714,7 +761,11 @@ class AirLoopHVACUnitaryHeatPumpAirToAir(IDFBaseModel):
             'note': 'Only works with Coil:Cooling:DX:SingleSpeed or CoilSystem:Cooling:DX:HeatExchangerAssisted or Coil:Cooling:DX:VariableSpeed or CoilSystem:IntegratedHeatPump:AirSource'
         },
     )
-    cooling_coil_name: str = Field(
+    cooling_coil_name: (
+        CoolingCoilsDXSingleSpeedRef
+        | CoolingCoilsDXVariableSpeedRef
+        | IntegratedHeatPumpsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -736,7 +787,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAir(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils'
         },
     )
-    supplemental_heating_coil_name: str = Field(
+    supplemental_heating_coil_name: HeatingCoilNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['HeatingCoilName'],
@@ -752,7 +803,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAir(IDFBaseModel):
     fan_placement: Literal['', 'BlowThrough', 'DrawThrough'] | None = Field(
         default='BlowThrough'
     )
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -777,7 +828,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAirMultiSpeed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:UnitaryHeatPump:AirToAir:MultiSpeed'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -786,7 +837,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAirMultiSpeed(IDFBaseModel):
     )
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    controlling_zone_or_thermostat_location: str = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     supply_air_fan_object_type: Literal['Fan:ConstantVolume', 'Fan:OnOff'] = Field(
@@ -795,7 +846,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAirMultiSpeed(IDFBaseModel):
             'note': 'Select the type of supply air fan used in this unitary system.'
         },
     )
-    supply_air_fan_name: str = Field(
+    supply_air_fan_name: FansCVandOnOffRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansCVandOnOff'],
@@ -808,7 +859,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAirMultiSpeed(IDFBaseModel):
             'note': 'Select supply air fan placement as either BlowThrough or DrawThrough. BlowThrough means the supply air fan is located before the cooling coil. DrawThrough means the supply air fan is located after ...'
         },
     )
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -827,7 +878,11 @@ class AirLoopHVACUnitaryHeatPumpAirToAirMultiSpeed(IDFBaseModel):
             'note': 'Multi Speed DX, Electric, Gas, and Single speed Water and Steam coils'
         },
     )
-    heating_coil_name: str = Field(
+    heating_coil_name: (
+        HeatingCoilsDXMultiSpeedRef
+        | HeatingCoilsElectricMultiStageRef
+        | HeatingCoilsGasMultiStageRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -847,7 +902,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAirMultiSpeed(IDFBaseModel):
     cooling_coil_object_type: Literal['Coil:Cooling:DX:MultiSpeed'] = Field(
         ..., json_schema_extra={'note': 'Only works with Coil:Cooling:DX:MultiSpeed'}
     )
-    cooling_coil_name: str = Field(
+    cooling_coil_name: CoolingCoilsDXMultiSpeedRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['CoolingCoilsDXMultiSpeed'],
@@ -868,7 +923,7 @@ class AirLoopHVACUnitaryHeatPumpAirToAirMultiSpeed(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils'
         },
     )
-    supplemental_heating_coil_name: str | None = Field(
+    supplemental_heating_coil_name: HeatingCoilNameRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatingCoilName'],
@@ -989,7 +1044,7 @@ class AirLoopHVACUnitaryHeatPumpWaterToAir(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:UnitaryHeatPump:WaterToAir'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1005,13 +1060,13 @@ class AirLoopHVACUnitaryHeatPumpWaterToAir(IDFBaseModel):
             'note': 'This value should be > 0 and <= than the fan air flow rate.',
         },
     )
-    controlling_zone_or_thermostat_location: str = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     supply_air_fan_object_type: Literal['Fan:OnOff'] = Field(
         ..., json_schema_extra={'note': 'Only works with On/Off Fan'}
     )
-    supply_air_fan_name: str = Field(
+    supply_air_fan_name: FansOnOffRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansOnOff'],
@@ -1023,12 +1078,17 @@ class AirLoopHVACUnitaryHeatPumpWaterToAir(IDFBaseModel):
         'Coil:Heating:WaterToAirHeatPump:ParameterEstimation',
         'Coil:Heating:WaterToAirHeatPump:VariableSpeedEquationFit',
     ] = Field(...)
-    heating_coil_name: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['HeatingCoilsWaterToAirHP', 'HeatingCoilsWaterToAirVSHP'],
-            'note': 'Needs to match in the water-to-air heat pump heating coil object',
-        },
+    heating_coil_name: HeatingCoilsWaterToAirHPRef | HeatingCoilsWaterToAirVSHPRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': [
+                    'HeatingCoilsWaterToAirHP',
+                    'HeatingCoilsWaterToAirVSHP',
+                ],
+                'note': 'Needs to match in the water-to-air heat pump heating coil object',
+            },
+        )
     )
     heating_convergence: float | None = Field(default=0.001, gt=0.0)
     cooling_coil_object_type: Literal[
@@ -1036,12 +1096,17 @@ class AirLoopHVACUnitaryHeatPumpWaterToAir(IDFBaseModel):
         'Coil:Cooling:WaterToAirHeatPump:ParameterEstimation',
         'Coil:Cooling:WaterToAirHeatPump:VariableSpeedEquationFit',
     ] = Field(...)
-    cooling_coil_name: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['CoolingCoilsWaterToAirHP', 'CoolingCoilsWaterToAirVSHP'],
-            'note': 'Needs to match in the water-to-air heat pump cooling coil object',
-        },
+    cooling_coil_name: CoolingCoilsWaterToAirHPRef | CoolingCoilsWaterToAirVSHPRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': [
+                    'CoolingCoilsWaterToAirHP',
+                    'CoolingCoilsWaterToAirVSHP',
+                ],
+                'note': 'Needs to match in the water-to-air heat pump cooling coil object',
+            },
+        )
     )
     cooling_convergence: float | None = Field(default=0.001, gt=0.0)
     supplemental_heating_coil_object_type: Literal[
@@ -1055,7 +1120,7 @@ class AirLoopHVACUnitaryHeatPumpWaterToAir(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils'
         },
     )
-    supplemental_heating_coil_name: str = Field(
+    supplemental_heating_coil_name: HeatingCoilNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['HeatingCoilName'],
@@ -1072,7 +1137,7 @@ class AirLoopHVACUnitaryHeatPumpWaterToAir(IDFBaseModel):
     fan_placement: Literal['', 'BlowThrough', 'DrawThrough'] | None = Field(
         default='BlowThrough'
     )
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1111,7 +1176,7 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'Load control requires a Controlling Zone name. SetPoint control requires set points at coil outlet node. SingleZoneVAV also requires a Controlling Zone name and allows load control at low speed fan...'
         },
     )
-    controlling_zone_or_thermostat_location: str | None = Field(
+    controlling_zone_or_thermostat_location: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1126,7 +1191,7 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'None = meet sensible load only. Required when Control Type = SingleZoneVAV. Multimode = activate enhanced dehumidification mode as needed and meet sensible load. Valid only with cooling coil type C...'
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1160,7 +1225,7 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'Enter the type of supply air fan if included in the unitary system. Fan:ConstantVolume only works with continuous fan operating mode (i.e. supply air fan operating mode schedule values greater than...'
         },
     )
-    supply_fan_name: str | None = Field(
+    supply_fan_name: FansRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['Fans'],
@@ -1173,7 +1238,7 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'Enter the type of supply air fan if included in the unitary system.'
         },
     )
-    supply_air_fan_operating_mode_schedule_name: str | None = Field(
+    supply_air_fan_operating_mode_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1204,7 +1269,18 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'Enter the type of heating coil if included in the unitary system.'
         },
     )
-    heating_coil_name: str | None = Field(
+    heating_coil_name: (
+        HeatingCoilNameRef
+        | HeatingCoilsDXRef
+        | HeatingCoilsDXMultiSpeedRef
+        | HeatingCoilsDXVariableSpeedRef
+        | HeatingCoilsDesuperheaterRef
+        | HeatingCoilsElectricMultiStageRef
+        | HeatingCoilsGasMultiStageRef
+        | HeatingCoilsWaterToAirHPRef
+        | HeatingCoilsWaterToAirVSHPRef
+        | UserDefinedCoilRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': [
@@ -1254,7 +1330,16 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'Enter the type of cooling coil if included in the unitary system.'
         },
     )
-    cooling_coil_name: str | None = Field(
+    cooling_coil_name: (
+        CoilCoolingDXRef
+        | CoolingCoilsDXRef
+        | CoolingCoilsDXMultiSpeedRef
+        | CoolingCoilsDXVariableSpeedRef
+        | CoolingCoilsWaterRef
+        | CoolingCoilsWaterToAirHPRef
+        | CoolingCoilsWaterToAirVSHPRef
+        | UserDefinedCoilRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': [
@@ -1315,7 +1400,12 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'Enter the type of supplemental heating or reheat coil if included in the unitary system. Only required if dehumidification control type is "CoolReheat". This coil supplements heating mode operation...'
         },
     )
-    supplemental_heating_coil_name: str | None = Field(
+    supplemental_heating_coil_name: (
+        HeatingCoilNameRef
+        | HeatingCoilsDesuperheaterRef
+        | HeatingCoilsElectricMultiStageRef
+        | UserDefinedCoilRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': [
@@ -1566,7 +1656,9 @@ class AirLoopHVACUnitarySystem(IDFBaseModel):
             'note': 'Enter the type of performance specification object used to describe the multispeed coil.'
         },
     )
-    design_specification_multispeed_object_name: str | None = Field(
+    design_specification_multispeed_object_name: (
+        UnitarySystemPerformanceNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnitarySystemPerformanceNames'],

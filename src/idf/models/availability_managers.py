@@ -12,6 +12,16 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AirPrimaryLoopsRef,
+    HVACTemplateSystemsRef,
+    ScheduleNamesRef,
+    UnivariateFunctionsRef,
+    VentilationNamesRef,
+    ZoneAndZoneListNamesRef,
+    ZoneListNamesRef,
+    ZoneNamesRef,
+)
 
 
 class AvailabilityManagerAssignmentListManagersItem(IDFBaseModel):
@@ -103,21 +113,21 @@ class AvailabilityManagerHybridVentilation(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AvailabilityManager:HybridVentilation'
     name: str = Field(...)
-    hvac_air_loop_name: str | None = Field(
+    hvac_air_loop_name: (AirPrimaryLoopsRef | HVACTemplateSystemsRef) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops', 'HVACTemplateSystems'],
             'note': 'Enter the name of an AirLoopHVAC or HVACTemplate:System:* object. If this field is left blank, hybrid ventilation managers will be simulated for zone equipment control',
         },
     )
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'the zone name should be a zone where a thermostat or humidistat is located served by an air primary loop.',
         },
     )
-    ventilation_control_mode_schedule_name: str = Field(
+    ventilation_control_mode_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -193,35 +203,37 @@ class AvailabilityManagerHybridVentilation(IDFBaseModel):
             'note': 'this is the outdoor dewpoint above which ventilation is shutoff Applicable only if Ventilation Control Mode = 3',
         },
     )
-    minimum_outdoor_ventilation_air_schedule_name: str | None = Field(
+    minimum_outdoor_ventilation_air_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Used only if Ventilation Control Mode = 4',
         },
     )
-    opening_factor_function_of_wind_speed_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'linear curve = a + b*WS quadratic curve = a + b*WS + c*WS**2 WS = wind speed (m/s)',
-        },
+    opening_factor_function_of_wind_speed_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'linear curve = a + b*WS quadratic curve = a + b*WS + c*WS**2 WS = wind speed (m/s)',
+            },
+        )
     )
-    airflownetwork_control_type_schedule_name: str | None = Field(
+    airflownetwork_control_type_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The schedule is used to incorporate operation of AirflowNetwork large opening objects and HVAC system operation.',
         },
     )
-    simple_airflow_control_type_schedule_name: str | None = Field(
+    simple_airflow_control_type_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The schedule is used to incorporate operation of simple airflow objects and HVAC system operation. The simple airflow objects are Ventilation and Mixing only',
         },
     )
-    zoneventilation_object_name: str | None = Field(
+    zoneventilation_object_name: VentilationNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['VentilationNames'],
@@ -253,7 +265,7 @@ class AvailabilityManagerLowTemperatureTurnOff(IDFBaseModel):
     name: str = Field(...)
     sensor_node_name: str = Field(...)
     temperature: float = Field(..., json_schema_extra={'units': 'C'})
-    applicability_schedule_name: str | None = Field(
+    applicability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -278,10 +290,10 @@ class AvailabilityManagerNightCycle(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AvailabilityManager:NightCycle'
     name: str = Field(...)
-    applicability_schedule_name: str = Field(
+    applicability_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    fan_schedule_name: str = Field(
+    fan_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_type: (
@@ -312,21 +324,21 @@ class AvailabilityManagerNightCycle(IDFBaseModel):
     cycling_run_time: float | None = Field(
         default=3600.0, json_schema_extra={'units': 's'}
     )
-    control_zone_or_zone_list_name: str | None = Field(
+    control_zone_or_zone_list_name: ZoneAndZoneListNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneAndZoneListNames'],
             'note': 'When AvailabilityManager:NightCycle is used in the zone component availability manager assignment list, the Control Zone Name should be the name of the zone in which the zone component is.',
         },
     )
-    cooling_control_zone_or_zone_list_name: str | None = Field(
+    cooling_control_zone_or_zone_list_name: ZoneAndZoneListNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneAndZoneListNames']}
     )
-    heating_control_zone_or_zone_list_name: str | None = Field(
+    heating_control_zone_or_zone_list_name: ZoneAndZoneListNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneAndZoneListNames']}
     )
-    heating_zone_fans_only_zone_or_zone_list_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ZoneAndZoneListNames']}
+    heating_zone_fans_only_zone_or_zone_list_name: ZoneAndZoneListNamesRef | None = (
+        Field(default=None, json_schema_extra={'object_list': ['ZoneAndZoneListNames']})
     )
 
 
@@ -336,13 +348,13 @@ class AvailabilityManagerNightVentilation(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AvailabilityManager:NightVentilation'
     name: str = Field(...)
-    applicability_schedule_name: str = Field(
+    applicability_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    fan_schedule_name: str = Field(
+    fan_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    ventilation_temperature_schedule_name: str | None = Field(
+    ventilation_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -370,7 +382,7 @@ class AvailabilityManagerNightVentilation(IDFBaseModel):
             'note': 'the fraction (could be > 1) of the design system Flow Rate at which night ventilation will be done'
         },
     )
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -384,19 +396,19 @@ class AvailabilityManagerOptimumStart(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AvailabilityManager:OptimumStart'
     name: str = Field(...)
-    applicability_schedule_name: str = Field(
+    applicability_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    fan_schedule_name: str = Field(
+    fan_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_type: Literal['', 'ControlZone', 'MaximumofZoneList', 'StayOff'] | None = (
         Field(default='ControlZone')
     )
-    control_zone_name: str | None = Field(
+    control_zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
-    zone_list_name: str | None = Field(
+    zone_list_name: ZoneListNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneListNames']}
     )
     maximum_value_for_optimum_start_time: float | None = Field(
@@ -452,7 +464,7 @@ class AvailabilityManagerScheduled(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AvailabilityManager:Scheduled'
     name: str = Field(...)
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -463,7 +475,7 @@ class AvailabilityManagerScheduledOff(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AvailabilityManager:ScheduledOff'
     name: str = Field(...)
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -474,6 +486,6 @@ class AvailabilityManagerScheduledOn(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AvailabilityManager:ScheduledOn'
     name: str = Field(...)
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )

@@ -12,12 +12,21 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllHeatTranSurfNamesRef,
+    RoomAirflowNetworkNodesRef,
+    RoomAirNodeGainsRef,
+    RoomAirNodeHVACEquipmentRef,
+    RoomAirNodeSurfaceListsRef,
+    ScheduleNamesRef,
+    ZoneNamesRef,
+)
 
 
 class RoomAirNodeAirflowNetworkAdjacentSurfaceListSurfacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    surface_name: str | None = Field(
+    surface_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
 
@@ -150,7 +159,7 @@ class RoomAirNodeAirflowNetworkInternalGainsGainsItem(IDFBaseModel):
 class RoomAirSettingsAirflowNetworkNodesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    roomairflownetwork_node_name: str | None = Field(
+    roomairflownetwork_node_name: RoomAirflowNetworkNodesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['RoomAirflowNetworkNodes']}
     )
 
@@ -167,7 +176,7 @@ class RoomAirTemperaturePatternNondimensionalHeightPairsItem(IDFBaseModel):
 class RoomAirTemperaturePatternSurfaceMappingSurfaceDeltasItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    surface_name_pair: str = Field(
+    surface_name_pair: AllHeatTranSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     delta_adjacent_air_temperature_pair: float = Field(
@@ -182,7 +191,9 @@ class RoomAirModelType(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'RoomAirModelType'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     room_air_modeling_type: (
         Literal[
             '',
@@ -215,71 +226,73 @@ class RoomAirNode(IDFBaseModel):
     node_type: Literal[
         'Ceiling', 'Control', 'Floor', 'Inlet', 'MundtRoom', 'Return'
     ] = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     height_of_nodal_control_volume_center: float = Field(
         ..., json_schema_extra={'units': 'm'}
     )
-    surface_1_name: str | None = Field(
+    surface_1_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_2_name: str | None = Field(
+    surface_2_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_3_name: str | None = Field(
+    surface_3_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_4_name: str | None = Field(
+    surface_4_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_5_name: str | None = Field(
+    surface_5_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_6_name: str | None = Field(
+    surface_6_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_7_name: str | None = Field(
+    surface_7_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_8_name: str | None = Field(
+    surface_8_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_9_name: str | None = Field(
+    surface_9_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_10_name: str | None = Field(
+    surface_10_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_11_name: str | None = Field(
+    surface_11_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_12_name: str | None = Field(
+    surface_12_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_13_name: str | None = Field(
+    surface_13_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_14_name: str | None = Field(
+    surface_14_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_15_name: str | None = Field(
+    surface_15_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_16_name: str | None = Field(
+    surface_16_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_17_name: str | None = Field(
+    surface_17_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_18_name: str | None = Field(
+    surface_18_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_19_name: str | None = Field(
+    surface_19_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_20_name: str | None = Field(
+    surface_20_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    surface_21_name: str | None = Field(
+    surface_21_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
 
@@ -289,15 +302,21 @@ class RoomAirNodeAirflowNetwork(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'RoomAir:Node:AirflowNetwork'
     name: str | None = Field(default=None)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     fraction_of_zone_air_volume: float | None = Field(default=None, ge=0.0, le=1.0)
-    roomair_node_airflownetwork_adjacentsurfacelist_name: str | None = Field(
+    roomair_node_airflownetwork_adjacentsurfacelist_name: (
+        RoomAirNodeSurfaceListsRef | None
+    ) = Field(
         default=None, json_schema_extra={'object_list': ['RoomAirNodeSurfaceLists']}
     )
-    roomair_node_airflownetwork_internalgains_name: str | None = Field(
+    roomair_node_airflownetwork_internalgains_name: RoomAirNodeGainsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['RoomAirNodeGains']}
     )
-    roomair_node_airflownetwork_hvacequipment_name: str | None = Field(
+    roomair_node_airflownetwork_hvacequipment_name: (
+        RoomAirNodeHVACEquipmentRef | None
+    ) = Field(
         default=None, json_schema_extra={'object_list': ['RoomAirNodeHVACEquipment']}
     )
 
@@ -338,15 +357,17 @@ class RoomAirSettingsAirflowNetwork(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'RoomAirSettings:AirflowNetwork'
     name: str = Field(...)
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Name of Zone being described. Any existing zone name',
         },
     )
-    control_point_roomairflownetwork_node_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['RoomAirflowNetworkNodes']}
+    control_point_roomairflownetwork_node_name: RoomAirflowNetworkNodesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['RoomAirflowNetworkNodes']}
+        )
     )
     nodes: list[RoomAirSettingsAirflowNetworkNodesItem] | None = Field(default=None)
 
@@ -359,14 +380,14 @@ class RoomAirSettingsCrossVentilation(IDFBaseModel):
     average air temperatures. Used with RoomAirModelType = CrossVentilation."""
 
     _idf_object_type: ClassVar[str] = 'RoomAirSettings:CrossVentilation'
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Name of Zone being described. Any existing zone name',
         },
     )
-    gain_distribution_schedule_name: str = Field(
+    gain_distribution_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -387,7 +408,9 @@ class RoomAirSettingsOneNodeDisplacementVentilation(IDFBaseModel):
     """The Mundt model for displacement ventilation"""
 
     _idf_object_type: ClassVar[str] = 'RoomAirSettings:OneNodeDisplacementVentilation'
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     fraction_of_convective_internal_loads_added_to_floor_air: float | None = Field(
         default=None, ge=0.0, le=1.0
     )
@@ -400,14 +423,14 @@ class RoomAirSettingsThreeNodeDisplacementVentilation(IDFBaseModel):
     """The UCSD model for Displacement Ventilation"""
 
     _idf_object_type: ClassVar[str] = 'RoomAirSettings:ThreeNodeDisplacementVentilation'
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Name of Zone being described. Any existing zone name',
         },
     )
-    gain_distribution_schedule_name: str = Field(
+    gain_distribution_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -457,7 +480,7 @@ class RoomAirSettingsUnderFloorAirDistributionExterior(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'RoomAirSettings:UnderFloorAirDistributionExterior'
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -567,7 +590,7 @@ class RoomAirSettingsUnderFloorAirDistributionInterior(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'RoomAirSettings:UnderFloorAirDistributionInterior'
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -834,15 +857,17 @@ class RoomAirTemperaturePatternUserDefined(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'RoomAir:TemperaturePattern:UserDefined'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
-    availability_schedule_name: str | None = Field(
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this model. Schedule value > 0 means the model is active. Schedule value = 0 means the model is inactive and the zone will be modeled as fully mixed (Mixing). If this...',
         },
     )
-    pattern_control_schedule_name: str = Field(
+    pattern_control_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],

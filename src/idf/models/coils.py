@@ -12,6 +12,36 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    BivariateFunctionsRef,
+    CoilCoolingDXRef,
+    CoilPerformanceDXRef,
+    CoolingCoilsDXRef,
+    CoolingCoilsDXSingleSpeedRef,
+    CoolingCoilsDXVariableSpeedRef,
+    CoolingCoilsWaterNoHXRef,
+    CoolingCoilsWaterRef,
+    DesuperHeatingCoilSourcesRef,
+    DesuperHeatingWaterOnlySourcesRef,
+    DXCoolingOperatingModeNamesRef,
+    DXCoolingPerformanceNamesRef,
+    DXCoolingSpeedNamesRef,
+    FluidAndGlycolNamesRef,
+    FluidNamesRef,
+    HeatingCoilsDXSingleSpeedRef,
+    HeatingCoilsDXVariableSpeedRef,
+    HeatPumpWaterHeaterDXCoilsVariableSpeedRef,
+    HXAirToAirNamesRef,
+    QuadvariateFunctionsRef,
+    QuintvariateFunctionsRef,
+    ScheduleNamesRef,
+    TrivariateFunctionsRef,
+    UnivariateFunctionsRef,
+    WaterHeaterMixedNamesRef,
+    WaterHeaterStratifiedNamesRef,
+    WaterStorageTankNamesRef,
+    ZoneNamesRef,
+)
 
 
 class CoilCoolingDX(IDFBaseModel):
@@ -25,14 +55,14 @@ class CoilCoolingDX(IDFBaseModel):
     name: str = Field(...)
     evaporator_inlet_node_name: str = Field(...)
     evaporator_outlet_node_name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule value > 0 means the coil is available. If this field is blank, the coil is always available.',
         },
     )
-    condenser_zone_name: str | None = Field(
+    condenser_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -51,13 +81,17 @@ class CoilCoolingDX(IDFBaseModel):
             'note': 'This is the name of an air node in the simulation.'
         },
     )
-    performance_object_name: str = Field(
+    performance_object_name: DXCoolingPerformanceNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DXCoolingPerformanceNames']}
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
-    evaporative_condenser_supply_water_storage_tank_name: str | None = Field(
+    evaporative_condenser_supply_water_storage_tank_name: (
+        WaterStorageTankNamesRef | None
+    ) = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
 
@@ -148,34 +182,34 @@ class CoilCoolingDXCurveFitOperatingMode(IDFBaseModel):
             'note': 'Must be lower than or equal to the highest speed number. If blank, defaults to the highest speed number used.'
         },
     )
-    speed_1_name: str = Field(
+    speed_1_name: DXCoolingSpeedNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_2_name: str | None = Field(
+    speed_2_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_3_name: str | None = Field(
+    speed_3_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_4_name: str | None = Field(
+    speed_4_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_5_name: str | None = Field(
+    speed_5_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_6_name: str | None = Field(
+    speed_6_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_7_name: str | None = Field(
+    speed_7_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_8_name: str | None = Field(
+    speed_8_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_9_name: str | None = Field(
+    speed_9_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
-    speed_10_name: str | None = Field(
+    speed_10_name: DXCoolingSpeedNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['DXCoolingSpeedNames']}
     )
 
@@ -190,7 +224,9 @@ class CoilCoolingDXCurveFitPerformance(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -230,7 +266,9 @@ class CoilCoolingDXCurveFitPerformance(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    evaporative_condenser_basin_heater_operating_schedule_name: str | None = Field(
+    evaporative_condenser_basin_heater_operating_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -252,21 +290,21 @@ class CoilCoolingDXCurveFitPerformance(IDFBaseModel):
         ]
         | None
     ) = Field(default='Electricity')
-    base_operating_mode: str = Field(
+    base_operating_mode: DXCoolingOperatingModeNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['DXCoolingOperatingModeNames'],
             'note': 'Operating Mode 1 is always used as the base design operating mode.',
         },
     )
-    alternative_operating_mode_1: str | None = Field(
+    alternative_operating_mode_1: DXCoolingOperatingModeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DXCoolingOperatingModeNames'],
             'note': 'The alternative operating mode is used for enhanced dehumidification. If this is blank, the coil will always operate in the base operating mode. If an alternate mode is defined here, the coil will ...',
         },
     )
-    alternative_operating_mode_2: str | None = Field(
+    alternative_operating_mode_2: DXCoolingOperatingModeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DXCoolingOperatingModeNames'],
@@ -352,17 +390,17 @@ class CoilCoolingDXCurveFitSpeed(IDFBaseModel):
     evaporative_condenser_effectiveness: float | None = Field(
         default=0.9, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
     )
-    total_cooling_capacity_modifier_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
-                'note': 'biquadratic curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb quadratic curve = a + b*edb + c*edb**2 wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
-            },
-        )
+    total_cooling_capacity_modifier_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
+            'note': 'biquadratic curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb quadratic curve = a + b*edb + c*edb**2 wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
+        },
     )
     total_cooling_capacity_modifier_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -370,23 +408,25 @@ class CoilCoolingDXCurveFitSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = Fraction of the full load flow',
         },
     )
-    energy_input_ratio_modifier_function_of_temperature_curve_name: str | None = Field(
+    energy_input_ratio_modifier_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    energy_input_ratio_modifier_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = Fraction of the full load flow',
-            },
-        )
+    energy_input_ratio_modifier_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = Fraction of the full load flow',
+        },
     )
-    part_load_fraction_correlation_curve_name: str | None = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -402,28 +442,32 @@ class CoilCoolingDXCurveFitSpeed(IDFBaseModel):
             'note': 'Recoverable waste heat at full load and rated conditions',
         },
     )
-    waste_heat_modifier_function_of_temperature_curve_name: str | None = Field(
+    waste_heat_modifier_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*cdb + c*cdb**2 + d*edb + e*edb**2 + f*cdb*edb cdb = entering condenser dry-bulb temperature (C) edb = entering coil dry-bulb temperature (C)',
         },
     )
-    sensible_heat_ratio_modifier_function_of_temperature_curve_name: str | None = Field(
+    sensible_heat_ratio_modifier_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*db + e*db**2 + f*wb*db wb = entering wet-bulb temperature seen by the DX cooling coil (C) db = entering dry-bulb temperature seen by the DX cooling coil (C) entering ...',
         },
     )
-    sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow If this curve is used and the Sensible Heat Ratio Modifier Function of Temperatur...',
-            },
-        )
+    sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow If this curve is used and the Sensible Heat Ratio Modifier Function of Temperatur...',
+        },
     )
 
 
@@ -438,7 +482,7 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:DX:MultiSpeed'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -459,11 +503,13 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
     minimum_outdoor_dry_bulb_temperature_for_compressor_operation: float | None = Field(
         default=-25.0, json_schema_extra={'units': 'C'}
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     apply_part_load_fraction_to_speeds_greater_than_1: (
         Literal['', 'No', 'Yes'] | None
@@ -474,7 +520,9 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -500,7 +548,7 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -572,35 +620,35 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the evaporator fan power per air volume flow rate at the rated test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static pressure ...',
         },
     )
-    speed_1_total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    speed_1_total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    speed_1_total_cooling_capacity_function_of_flow_fraction_curve_name: str = Field(
+    speed_1_total_cooling_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = Fraction of the full load Flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    speed_1_energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_1_part_load_fraction_correlation_curve_name: str = Field(
+    speed_1_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -654,7 +702,9 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_1_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_1_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -728,35 +778,35 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the evaporator fan power per air volume flow rate at the rated test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static pressure ...',
         },
     )
-    speed_2_total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    speed_2_total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    speed_2_total_cooling_capacity_function_of_flow_fraction_curve_name: str = Field(
+    speed_2_total_cooling_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_2_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_2_energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    speed_2_energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    speed_2_energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = Fraction of the full load Flow',
         },
     )
-    speed_2_part_load_fraction_correlation_curve_name: str = Field(
+    speed_2_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -810,7 +860,9 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_2_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_2_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -886,44 +938,50 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the evaporator fan power per air volume flow rate at the rated test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static pressure ...',
         },
     )
-    speed_3_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
-            },
-        )
-    )
-    speed_3_total_cooling_capacity_function_of_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
-            },
-        )
-    )
-    speed_3_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_3_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    speed_3_energy_input_ratio_function_of_flow_fraction_curve_name: str | None = Field(
+    speed_3_total_cooling_capacity_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_3_part_load_fraction_correlation_curve_name: str | None = Field(
+    speed_3_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
+        },
+    )
+    speed_3_energy_input_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
-            'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (Cooling load/steady state capacity)',
+            'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
+    )
+    speed_3_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (Cooling load/steady state capacity)',
+            },
+        )
     )
     speed_3_nominal_time_for_condensate_removal_to_begin: float | None = Field(
         default=0.0,
@@ -972,7 +1030,9 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_3_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_3_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -1048,44 +1108,50 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the evaporator fan power per air volume flow rate at the rated test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static pressure ...',
         },
     )
-    speed_4_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
-            },
-        )
-    )
-    speed_4_total_cooling_capacity_function_of_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
-            },
-        )
-    )
-    speed_4_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_4_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    speed_4_energy_input_ratio_function_of_flow_fraction_curve_name: str | None = Field(
+    speed_4_total_cooling_capacity_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_4_part_load_fraction_correlation_curve_name: str | None = Field(
+    speed_4_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
+        },
+    )
+    speed_4_energy_input_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
-            'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (cooling load/steady state capacity)',
+            'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
+    )
+    speed_4_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (cooling load/steady state capacity)',
+            },
+        )
     )
     speed_4_nominal_time_for_condensate_removal_to_begin: float | None = Field(
         default=0.0,
@@ -1134,7 +1200,9 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': 'Recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_4_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_4_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -1162,7 +1230,7 @@ class CoilCoolingDXMultiSpeed(IDFBaseModel):
             'note': "Rated power consumed by the evaporative condenser's water pump at Speed 4",
         },
     )
-    zone_name_for_condenser_placement: str | None = Field(
+    zone_name_for_condenser_placement: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1179,7 +1247,7 @@ class CoilCoolingDXSingleSpeed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:DX:SingleSpeed'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1234,35 +1302,35 @@ class CoilCoolingDXSingleSpeed(IDFBaseModel):
     )
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    total_cooling_capacity_function_of_flow_fraction_curve_name: str = Field(
+    total_cooling_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = Fraction of the full load flow',
         },
     )
-    energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = Fraction of the full load flow',
         },
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1341,7 +1409,9 @@ class CoilCoolingDXSingleSpeed(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1351,11 +1421,13 @@ class CoilCoolingDXSingleSpeed(IDFBaseModel):
     maximum_outdoor_dry_bulb_temperature_for_crankcase_heater_operation: (
         float | None
     ) = Field(default=10.0, ge=0.0, json_schema_extra={'units': 'C'})
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     basin_heater_capacity: float | None = Field(
         default=0.0,
@@ -1373,21 +1445,25 @@ class CoilCoolingDXSingleSpeed(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Schedule values greater than 0 allow the basin heater to operate whenever the outdoor air dry-bulb temperature is below the basin h...',
         },
     )
-    sensible_heat_ratio_function_of_temperature_curve_name: str | None = Field(
+    sensible_heat_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*db + e*db**2 + f*wb*db wb = entering wet-bulb temperature seen by the DX cooling coil (C) db = entering dry-bulb temperature seen by the DX cooling coil (C) entering ...',
         },
     )
-    sensible_heat_ratio_function_of_flow_fraction_curve_name: str | None = Field(
+    sensible_heat_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1402,7 +1478,7 @@ class CoilCoolingDXSingleSpeed(IDFBaseModel):
             },
         )
     )
-    zone_name_for_condenser_placement: str | None = Field(
+    zone_name_for_condenser_placement: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1418,7 +1494,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:DX:SingleSpeed:ThermalStorage'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1428,7 +1504,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
     operating_mode_control_method: Literal['EMSControlled', 'ScheduledModes'] = Field(
         ...
     )
-    operation_mode_control_schedule_name: str | None = Field(
+    operation_mode_control_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1436,7 +1512,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     storage_type: Literal['Ice', 'UserDefinedFluidType', 'Water'] = Field(...)
-    user_defined_fluid_type: str | None = Field(
+    user_defined_fluid_type: FluidAndGlycolNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FluidAndGlycolNames'],
@@ -1511,7 +1587,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_only_mode_total_evaporator_cooling_capacity_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1520,7 +1596,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_only_mode_total_evaporator_cooling_capacity_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1529,7 +1605,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_only_mode_energy_input_ratio_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1538,7 +1614,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_only_mode_energy_input_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1546,7 +1622,9 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
             'note': 'required field if Cooling Only Mode is available Any curve or table with one independent variable can be used quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 x = ff ...',
         },
     )
-    cooling_only_mode_part_load_fraction_correlation_curve_name: str | None = Field(
+    cooling_only_mode_part_load_fraction_correlation_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1554,7 +1632,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_only_mode_sensible_heat_ratio_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1563,7 +1641,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_only_mode_sensible_heat_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1627,7 +1705,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_total_evaporator_cooling_capacity_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1636,7 +1714,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_total_evaporator_cooling_capacity_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1645,7 +1723,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_evaporator_energy_input_ratio_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1654,7 +1732,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_evaporator_energy_input_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1663,7 +1741,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_evaporator_part_load_fraction_correlation_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1672,7 +1750,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_storage_charge_capacity_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1681,7 +1759,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_storage_charge_capacity_function_of_total_evaporator_plr_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1690,7 +1768,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_storage_energy_input_ratio_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1699,7 +1777,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_storage_energy_input_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1708,7 +1786,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_storage_energy_part_load_fraction_correlation_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1717,8 +1795,8 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_sensible_heat_ratio_function_of_temperature_curve_name: (
-        str | None
-    ) = Field(
+        BivariateFunctionsRef | TrivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'TrivariateFunctions'],
@@ -1726,7 +1804,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_charge_mode_sensible_heat_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1792,7 +1870,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_total_evaporator_cooling_capacity_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1801,7 +1879,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_total_evaporator_cooling_capacity_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1810,7 +1888,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_evaporator_energy_input_ratio_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1819,7 +1897,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_evaporator_energy_input_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1828,7 +1906,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_evaporator_part_load_fraction_correlation_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1837,7 +1915,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_storage_discharge_capacity_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1846,7 +1924,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_storage_discharge_capacity_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1855,7 +1933,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_storage_discharge_capacity_function_of_total_evaporator_plr_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1864,7 +1942,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_storage_energy_input_ratio_function_of_temperature_curve_name: (
-        str | None
+        TrivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1873,7 +1951,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_storage_energy_input_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1882,7 +1960,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_storage_energy_part_load_fraction_correlation_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1891,8 +1969,8 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_sensible_heat_ratio_function_of_temperature_curve_name: (
-        str | None
-    ) = Field(
+        BivariateFunctionsRef | TrivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'TrivariateFunctions'],
@@ -1900,7 +1978,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     cooling_and_discharge_mode_sensible_heat_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1933,7 +2011,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     charge_only_mode_storage_charge_capacity_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1942,7 +2020,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     charge_only_mode_storage_energy_input_ratio_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1983,7 +2061,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     discharge_only_mode_storage_discharge_capacity_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1992,7 +2070,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     discharge_only_mode_storage_discharge_capacity_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2001,7 +2079,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     discharge_only_mode_energy_input_ratio_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2010,7 +2088,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     discharge_only_mode_energy_input_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2018,7 +2096,9 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
             'note': 'required field if Discharge Only Mode is available Any curve or table with one independent variable can be used quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 x = f...',
         },
     )
-    discharge_only_mode_part_load_fraction_correlation_curve_name: str | None = Field(
+    discharge_only_mode_part_load_fraction_correlation_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2026,8 +2106,8 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     discharge_only_mode_sensible_heat_ratio_function_of_temperature_curve_name: (
-        str | None
-    ) = Field(
+        BivariateFunctionsRef | TrivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'TrivariateFunctions'],
@@ -2035,7 +2115,7 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
         },
     )
     discharge_only_mode_sensible_heat_ratio_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2114,18 +2194,20 @@ class CoilCoolingDXSingleSpeedThermalStorage(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    basin_heater_availability_schedule_name: str | None = Field(
+    basin_heater_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Schedule values greater than 0 allow the basin heater to operate whenever the outdoor air dry-bulb temperature is below the basin h...',
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     storage_tank_plant_connection_inlet_node_name: str | None = Field(default=None)
     storage_tank_plant_connection_outlet_node_name: str | None = Field(default=None)
@@ -2160,7 +2242,7 @@ class CoilCoolingDXTwoSpeed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:DX:TwoSpeed'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2227,35 +2309,35 @@ class CoilCoolingDXTwoSpeed(IDFBaseModel):
     )
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    total_cooling_capacity_function_of_flow_fraction_curve_name: str = Field(
+    total_cooling_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2312,14 +2394,14 @@ class CoilCoolingDXTwoSpeed(IDFBaseModel):
             },
         )
     )
-    low_speed_total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    low_speed_total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    low_speed_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    low_speed_energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -2380,11 +2462,13 @@ class CoilCoolingDXTwoSpeed(IDFBaseModel):
             'note': "Rated power consumed by the evaporative condenser's water pump at low speed",
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     basin_heater_capacity: float | None = Field(
         default=0.0,
@@ -2402,46 +2486,50 @@ class CoilCoolingDXTwoSpeed(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Schedule values greater than 0 allow the basin heater to operate whenever the outdoor air dry-bulb temperature is below the basin h...',
         },
     )
-    sensible_heat_ratio_function_of_temperature_curve_name: str | None = Field(
+    sensible_heat_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*db + e*db**2 + f*wb*db wb = entering wet-bulb temperature seen by the DX cooling coil (C) db = entering dry-bulb temperature seen by the DX cooling coil (C) entering ...',
         },
     )
-    sensible_heat_ratio_function_of_flow_fraction_curve_name: str | None = Field(
+    sensible_heat_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    low_speed_sensible_heat_ratio_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*db + e*db**2 + f*wb*db wb = entering wet-bulb temperature seen by the DX cooling coil (C) db = entering dry-bulb temperature seen by the DX cooling coil (C) entering ...',
-            },
-        )
+    low_speed_sensible_heat_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*db + e*db**2 + f*wb*db wb = entering wet-bulb temperature seen by the DX cooling coil (C) db = entering dry-bulb temperature seen by the DX cooling coil (C) entering ...',
+        },
     )
-    low_speed_sensible_heat_ratio_function_of_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
-            },
-        )
+    low_speed_sensible_heat_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
+        },
     )
-    zone_name_for_condenser_placement: str | None = Field(
+    zone_name_for_condenser_placement: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -2460,7 +2548,7 @@ class CoilCoolingDXTwoStageWithHumidityControlMode(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:DX:TwoStageWithHumidityControlMode'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2472,7 +2560,9 @@ class CoilCoolingDXTwoStageWithHumidityControlMode(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2487,32 +2577,34 @@ class CoilCoolingDXTwoStageWithHumidityControlMode(IDFBaseModel):
     normal_mode_stage_1_coil_performance_object_type: Literal[
         'CoilPerformance:DX:Cooling'
     ] = Field(...)
-    normal_mode_stage_1_coil_performance_name: str = Field(
+    normal_mode_stage_1_coil_performance_name: CoilPerformanceDXRef = Field(
         ..., json_schema_extra={'object_list': ['CoilPerformanceDX']}
     )
     normal_mode_stage_1_2_coil_performance_object_type: (
         Literal['CoilPerformance:DX:Cooling'] | None
     ) = Field(default=None)
-    normal_mode_stage_1_2_coil_performance_name: str | None = Field(
+    normal_mode_stage_1_2_coil_performance_name: CoilPerformanceDXRef | None = Field(
         default=None, json_schema_extra={'object_list': ['CoilPerformanceDX']}
     )
     dehumidification_mode_1_stage_1_coil_performance_object_type: (
         Literal['CoilPerformance:DX:Cooling'] | None
     ) = Field(default=None)
-    dehumidification_mode_1_stage_1_coil_performance_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['CoilPerformanceDX']}
-    )
+    dehumidification_mode_1_stage_1_coil_performance_name: (
+        CoilPerformanceDXRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['CoilPerformanceDX']})
     dehumidification_mode_1_stage_1_2_coil_performance_object_type: (
         Literal['CoilPerformance:DX:Cooling'] | None
     ) = Field(default=None)
-    dehumidification_mode_1_stage_1_2_coil_performance_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['CoilPerformanceDX']}
-    )
-    supply_water_storage_tank_name: str | None = Field(
+    dehumidification_mode_1_stage_1_2_coil_performance_name: (
+        CoilPerformanceDXRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['CoilPerformanceDX']})
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     minimum_outdoor_dry_bulb_temperature_for_compressor_operation: float | None = Field(
         default=-25.0, json_schema_extra={'units': 'C'}
@@ -2533,7 +2625,7 @@ class CoilCoolingDXTwoStageWithHumidityControlMode(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2549,7 +2641,7 @@ class CoilCoolingDXVariableRefrigerantFlow(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:DX:VariableRefrigerantFlow'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2574,13 +2666,15 @@ class CoilCoolingDXVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Volume flow rate corresponding to rated total cooling capacity should be between 0.00004027 m3/s and .00006041 m3/s per watt of rated total cooling capacity',
         },
     )
-    cooling_capacity_ratio_modifier_function_of_temperature_curve_name: str = Field(
+    cooling_capacity_ratio_modifier_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions']
         },
     )
-    cooling_capacity_modifier_curve_function_of_flow_fraction_name: str = Field(
+    cooling_capacity_modifier_curve_function_of_flow_fraction_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2589,7 +2683,9 @@ class CoilCoolingDXVariableRefrigerantFlow(IDFBaseModel):
     )
     coil_air_inlet_node: str = Field(...)
     coil_air_outlet_node: str = Field(...)
-    name_of_water_storage_tank_for_condensate_collection: str | None = Field(
+    name_of_water_storage_tank_for_condensate_collection: (
+        WaterStorageTankNamesRef | None
+    ) = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
 
@@ -2606,7 +2702,7 @@ class CoilCoolingDXVariableRefrigerantFlowFluidTemperatureControl(IDFBaseModel):
         'Coil:Cooling:DX:VariableRefrigerantFlow:FluidTemperatureControl'
     )
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2629,10 +2725,12 @@ class CoilCoolingDXVariableRefrigerantFlowFluidTemperatureControl(IDFBaseModel):
     indoor_unit_reference_superheating: float | None = Field(
         default=5.0, ge=0.0, json_schema_extra={'units': 'deltaC'}
     )
-    indoor_unit_evaporating_temperature_function_of_superheating_curve_name: str = (
-        Field(..., json_schema_extra={'object_list': ['UnivariateFunctions']})
+    indoor_unit_evaporating_temperature_function_of_superheating_curve_name: UnivariateFunctionsRef = Field(
+        ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
-    name_of_water_storage_tank_for_condensate_collection: str | None = Field(
+    name_of_water_storage_tank_for_condensate_collection: (
+        WaterStorageTankNamesRef | None
+    ) = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
 
@@ -2702,7 +2800,7 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'Programmed time delay for fan to shut off after compressor cycle off. Enter 0 when fan operating mode is continuous',
         },
     )
-    energy_part_load_fraction_curve_name: str = Field(
+    energy_part_load_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2730,7 +2828,9 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2743,11 +2843,13 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
     minimum_outdoor_dry_bulb_temperature_for_compressor_operation: float | None = Field(
         default=-25.0, json_schema_extra={'units': 'C'}
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     basin_heater_capacity: float | None = Field(
         default=0.0,
@@ -2765,7 +2867,7 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2826,28 +2928,28 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             },
         )
     )
-    speed_1_total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    speed_1_total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_1_total_cooling_capacity_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_total_cooling_capacity_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2897,17 +2999,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
         )
     )
-    speed_2_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_2_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_2_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2915,21 +3017,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_2_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_2_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_3_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -2974,17 +3078,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
         )
     )
-    speed_3_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_3_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_3_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2992,21 +3096,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_3_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_3_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_4_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -3051,17 +3157,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
         )
     )
-    speed_4_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_4_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_4_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3069,21 +3175,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_4_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_4_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_5_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -3128,17 +3236,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
         )
     )
-    speed_5_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_5_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_5_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3146,21 +3254,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_5_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_5_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_6_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -3205,17 +3315,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
         )
     )
-    speed_6_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_6_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_6_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3223,21 +3333,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_6_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_6_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_7_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -3282,17 +3394,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
         )
     )
-    speed_7_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_7_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_7_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3300,21 +3412,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_7_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_7_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_8_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -3359,17 +3473,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
         )
     )
-    speed_8_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_8_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_8_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3377,21 +3491,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_8_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_8_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_9_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -3439,17 +3555,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             json_schema_extra={'units': 'dimensionless', 'note': 'optional'},
         )
     )
-    speed_9_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_9_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_9_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3457,21 +3573,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_9_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_9_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_10_reference_unit_gross_rated_total_cooling_capacity: float | None = Field(
         default=None,
@@ -3523,17 +3641,17 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             json_schema_extra={'units': 'dimensionless', 'note': 'optional'},
         )
     )
-    speed_10_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_10_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
+        },
     )
     speed_10_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -3541,21 +3659,23 @@ class CoilCoolingDXVariableSpeed(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_10_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_10_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*odb + e*odb**2 + f*wb*odb wb = entering wet-bulb temperature (C) odb = air entering temperature seen by the condenser (C)',
         },
     )
-    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
 
 
@@ -3565,7 +3685,7 @@ class CoilCoolingWater(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:Water'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -3603,8 +3723,10 @@ class CoilCoolingWater(IDFBaseModel):
     heat_exchanger_configuration: Literal['', 'CounterFlow', 'CrossFlow'] | None = (
         Field(default='CounterFlow')
     )
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     design_water_temperature_difference: float | None = Field(
         default=None,
@@ -3622,7 +3744,7 @@ class CoilCoolingWaterDetailedGeometry(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Cooling:Water:DetailedGeometry'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -3688,8 +3810,10 @@ class CoilCoolingWaterDetailedGeometry(IDFBaseModel):
     water_outlet_node_name: str = Field(...)
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    condensate_collection_water_storage_tank_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+    condensate_collection_water_storage_tank_name: WaterStorageTankNamesRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
+        )
     )
     design_water_temperature_difference: float | None = Field(
         default=None,
@@ -3769,16 +3893,16 @@ class CoilCoolingWaterToAirHeatPumpEquationFit(IDFBaseModel):
             'note': 'Rated entering air wet-bulb temperature corresponding to the water-to-air application for which this coil is used. For example: for water loop applications, the rated temperature is 19 degree Celsius',
         },
     )
-    total_cooling_capacity_curve_name: str = Field(
+    total_cooling_capacity_curve_name: QuadvariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['QuadvariateFunctions']}
     )
-    sensible_cooling_capacity_curve_name: str = Field(
+    sensible_cooling_capacity_curve_name: QuintvariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['QuintvariateFunctions']}
     )
-    cooling_power_consumption_curve_name: str = Field(
+    cooling_power_consumption_curve_name: QuadvariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['QuadvariateFunctions']}
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -3851,7 +3975,7 @@ class CoilCoolingWaterToAirHeatPumpParameterEstimation(IDFBaseModel):
             'note': 'Parameters 1-5 are as named below. Parameters 6-10 depend on the type of compressor and fluid. Refer to the InputOutputReference on the parameters required'
         },
     )
-    refrigerant_type: str | None = Field(
+    refrigerant_type: FluidNamesRef | None = Field(
         default='R22', json_schema_extra={'object_list': ['FluidNames']}
     )
     design_source_side_flow_rate: float = Field(
@@ -3983,7 +4107,7 @@ class CoilCoolingWaterToAirHeatPumpParameterEstimation(IDFBaseModel):
             'note': 'Use when Source Side Fluid Name is an antifreeze Leave this field blank for Source Side Fluid is Water Previously part of Parameter 10',
         },
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4100,7 +4224,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'Flag for using hot gas reheat, 0 - not used, 1 - used',
         },
     )
-    energy_part_load_fraction_curve_name: str = Field(
+    energy_part_load_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4127,42 +4251,42 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_1_reference_unit_rated_water_flow_rate: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_1_total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    speed_1_total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_1_total_cooling_capacity_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_total_cooling_capacity_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_total_cooling_capacity_function_of_water_flow_fraction_curve_name: str = Field(
+    speed_1_total_cooling_capacity_function_of_water_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_water_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_water_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4172,7 +4296,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_1_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'dimensionless'}
     )
-    speed_1_waste_heat_function_of_temperature_curve_name: str = Field(
+    speed_1_waste_heat_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4199,17 +4323,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_2_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_2_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_2_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_2_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4218,7 +4342,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_2_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4226,24 +4350,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_2_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_2_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_2_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4254,7 +4380,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_2_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_2_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_2_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4281,17 +4409,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_3_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_3_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_3_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_3_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4300,7 +4428,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_3_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4308,24 +4436,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_3_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_3_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_3_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4336,7 +4466,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_3_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_3_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_3_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4363,17 +4495,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_4_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_4_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_4_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_4_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4382,7 +4514,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_4_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4390,24 +4522,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_4_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_4_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_4_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4418,7 +4552,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_4_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_4_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_4_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4445,17 +4581,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_5_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_5_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_5_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_5_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4464,7 +4600,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_5_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4472,24 +4608,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_5_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_5_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_5_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4500,7 +4638,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_5_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_5_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_5_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4527,17 +4667,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_6_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_6_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_6_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_6_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4546,7 +4686,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_6_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4554,24 +4694,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_6_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_6_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_6_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4582,7 +4724,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_6_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_6_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_6_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4609,17 +4753,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_7_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_7_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_7_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_7_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4628,7 +4772,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_7_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4636,24 +4780,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_7_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_7_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_7_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4664,7 +4810,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_7_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_7_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_7_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4691,17 +4839,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_8_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_8_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_8_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_8_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4710,7 +4858,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_8_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4718,24 +4866,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_8_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_8_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_8_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4746,7 +4896,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_8_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_8_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_8_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4773,17 +4925,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_9_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_9_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_9_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_9_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4792,7 +4944,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_9_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4800,24 +4952,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_9_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_9_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_9_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4828,7 +4982,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_9_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_9_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_9_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4855,17 +5011,17 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_10_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_10_total_cooling_capacity_function_of_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
-            },
-        )
+    speed_10_total_cooling_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
+        },
     )
     speed_10_total_cooling_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4874,7 +5030,7 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_10_total_cooling_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4882,24 +5038,26 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_10_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_10_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature (C) ewt = water entering temperature seen by the condenser (C)',
         },
     )
-    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_10_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4910,7 +5068,9 @@ class CoilCoolingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_10_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_10_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_10_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -4927,7 +5087,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:DX:MultiSpeed'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -4949,7 +5109,9 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4959,7 +5121,9 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
     maximum_outdoor_dry_bulb_temperature_for_crankcase_heater_operation: (
         float | None
     ) = Field(default=10.0, ge=0.0, json_schema_extra={'units': 'C'})
-    defrost_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    defrost_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -5057,35 +5221,39 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_1_heating_capacity_function_of_temperature_curve_name: str = Field(
+    speed_1_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_1_heating_capacity_function_of_flow_fraction_curve_name: str = Field(
+    speed_1_heating_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_1_energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_1_part_load_fraction_correlation_curve_name: str = Field(
+    speed_1_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -5101,7 +5269,9 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_1_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_1_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -5148,35 +5318,39 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 2 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_2_heating_capacity_function_of_temperature_curve_name: str = Field(
+    speed_2_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_2_heating_capacity_function_of_flow_fraction_curve_name: str = Field(
+    speed_2_heating_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_2_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_2_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_2_energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    speed_2_energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_2_part_load_fraction_correlation_curve_name: str = Field(
+    speed_2_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -5192,7 +5366,9 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_2_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_2_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -5239,40 +5415,50 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 3 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_3_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_3_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_3_heating_capacity_function_of_flow_fraction_curve_name: str | None = Field(
+    speed_3_heating_capacity_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_3_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_3_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_3_energy_input_ratio_function_of_flow_fraction_curve_name: str | None = Field(
+    speed_3_energy_input_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_3_part_load_fraction_correlation_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (sensible heating load/steady state heating capacity)',
-        },
+    speed_3_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (sensible heating load/steady state heating capacity)',
+            },
+        )
     )
     speed_3_rated_waste_heat_fraction_of_power_input: float | None = Field(
         default=0.2,
@@ -5283,7 +5469,9 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_3_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_3_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -5330,40 +5518,50 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 4 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_4_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_4_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_4_heating_capacity_function_of_flow_fraction_curve_name: str | None = Field(
+    speed_4_heating_capacity_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_4_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_4_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    speed_4_energy_input_ratio_function_of_flow_fraction_curve_name: str | None = Field(
+    speed_4_energy_input_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    speed_4_part_load_fraction_correlation_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (sensible heating load/steady state heating capacity)',
-        },
+    speed_4_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (sensible heating load/steady state heating capacity)',
+            },
+        )
     )
     speed_4_rated_waste_heat_fraction_of_power_input: float | None = Field(
         default=0.2,
@@ -5374,7 +5572,9 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
             'note': 'recoverable waste heat at full load and rated conditions',
         },
     )
-    speed_4_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_4_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -5412,7 +5612,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_1_sensible_heat_ratio_modifier_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5421,7 +5621,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_1_sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5454,7 +5654,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_2_sensible_heat_ratio_modifier_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5463,7 +5663,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_2_sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5496,7 +5696,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_3_sensible_heat_ratio_modifier_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5505,7 +5705,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_3_sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5538,7 +5738,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_4_sensible_heat_ratio_modifier_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5547,7 +5747,7 @@ class CoilHeatingDXMultiSpeed(IDFBaseModel):
         },
     )
     speed_4_sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -5564,7 +5764,7 @@ class CoilHeatingDXSingleSpeed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:DX:SingleSpeed'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5613,42 +5813,48 @@ class CoilHeatingDXSingleSpeed(IDFBaseModel):
     )
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    heating_capacity_function_of_temperature_curve_name: str = Field(
+    heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    heating_capacity_function_of_flow_fraction_curve_name: str = Field(
+    heating_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'quadratic curve = a + b*oat + c*oat**2 cubic curve = a + b*oat + c*oat**2 + d*oat**3 biquadratic curve = a + b*iat + c*iat**2 + d*oat + e*oat**2 + f*iat*oat oat = outdoor air dry-bulb temperature (...',
         },
     )
-    energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (sensible heating load/steady state heating capacity)',
         },
     )
-    defrost_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    defrost_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -5671,7 +5877,9 @@ class CoilHeatingDXSingleSpeed(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -5743,21 +5951,23 @@ class CoilHeatingDXSingleSpeed(IDFBaseModel):
             'note': 'This input value is the nominal sensible heat ratio used to split the heat extracted by a secondary DX coil (evaporator) of a heat pump into sensible and latent components. This is an optional inpu...',
         },
     )
-    sensible_heat_ratio_modifier_function_of_temperature_curve_name: str | None = Field(
+    sensible_heat_ratio_modifier_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*db + e*db**2 + f*wb*db wb = entering wet-bulb temperature seen by the secondary DX coil (C) db = entering dry-bulb temperature seen by the primary DX coil (C) This in...',
         },
     )
-    sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = secondary air flow fraction of the full load flow This input field is name of sensible heat ratio modifier curve...',
-            },
-        )
+    sensible_heat_ratio_modifier_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = secondary air flow fraction of the full load flow This input field is name of sensible heat ratio modifier curve...',
+        },
     )
 
 
@@ -5769,7 +5979,7 @@ class CoilHeatingDXVariableRefrigerantFlow(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:DX:VariableRefrigerantFlow'
     name: str = Field(...)
-    availability_schedule: str | None = Field(
+    availability_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5792,13 +6002,15 @@ class CoilHeatingDXVariableRefrigerantFlow(IDFBaseModel):
     )
     coil_air_inlet_node: str = Field(...)
     coil_air_outlet_node: str = Field(...)
-    heating_capacity_ratio_modifier_function_of_temperature_curve_name: str = Field(
+    heating_capacity_ratio_modifier_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions']
         },
     )
-    heating_capacity_modifier_function_of_flow_fraction_curve_name: str = Field(
+    heating_capacity_modifier_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -5819,7 +6031,7 @@ class CoilHeatingDXVariableRefrigerantFlowFluidTemperatureControl(IDFBaseModel):
         'Coil:Heating:DX:VariableRefrigerantFlow:FluidTemperatureControl'
     )
     name: str = Field(...)
-    availability_schedule: str | None = Field(
+    availability_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5839,7 +6051,7 @@ class CoilHeatingDXVariableRefrigerantFlowFluidTemperatureControl(IDFBaseModel):
     indoor_unit_reference_subcooling: float | None = Field(
         default=5.0, ge=0.0, json_schema_extra={'units': 'deltaC'}
     )
-    indoor_unit_condensing_temperature_function_of_subcooling_curve_name: str = Field(
+    indoor_unit_condensing_temperature_function_of_subcooling_curve_name: UnivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
 
@@ -5870,14 +6082,16 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
     rated_air_flow_rate_at_selected_nominal_speed_level: (
         float | Literal['', 'Autosize'] | None
     ) = Field(default='Autosize', json_schema_extra={'units': 'm3/s'})
-    energy_part_load_fraction_curve_name: str = Field(
+    energy_part_load_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*PLR + c*PLR**2 cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = part load ratio (heating load/steady state capacity)',
         },
     )
-    defrost_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    defrost_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -5900,7 +6114,9 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
     crankcase_heater_capacity: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -5960,28 +6176,28 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_1_heating_capacity_function_of_temperature_curve_name: str = Field(
+    speed_1_heating_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_1_total_heating_capacity_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_total_heating_capacity_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -6020,7 +6236,9 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_2_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_2_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -6028,7 +6246,7 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
         },
     )
     speed_2_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -6036,21 +6254,23 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_2_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_2_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_3_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6084,7 +6304,9 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_3_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_3_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
@@ -6092,7 +6314,7 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
         },
     )
     speed_3_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -6100,21 +6322,23 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_3_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_3_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_4_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6148,37 +6372,41 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_4_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_4_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_4_heating_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_4_heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
-    speed_4_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_4_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_5_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6212,37 +6440,41 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_5_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_5_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_5_heating_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_5_heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
-    speed_5_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_5_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_6_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6276,37 +6508,41 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_6_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_6_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_6_heating_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_6_heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
-    speed_6_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_6_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_7_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6340,37 +6576,41 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_7_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_7_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_7_heating_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_7_heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
-    speed_7_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_7_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_8_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6404,37 +6644,41 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_8_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_8_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_8_heating_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_8_heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
-    speed_8_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_8_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_9_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6468,37 +6712,41 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             'note': 'Enter the supply air fan power per air volume flow rate at the rated speed 1 test conditions as defined in the 2023 version of ANSI/AHRI Standard 210/240. The test conditions vary external static p...',
         },
     )
-    speed_9_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_9_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_9_heating_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_9_heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
-    speed_9_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_9_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_10_reference_unit_gross_rated_heating_capacity: float | None = Field(
         default=None,
@@ -6536,37 +6784,41 @@ class CoilHeatingDXVariableSpeed(IDFBaseModel):
             },
         )
     )
-    speed_10_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_10_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_10_heating_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_10_heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
-    speed_10_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_10_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*oat + e*oat**2 + f*db*oat db = entering air dry-bulb temperature (C) oat = air entering temperature seen by the evaporator (C)',
         },
     )
-    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
 
 
@@ -6582,7 +6834,7 @@ class CoilHeatingDesuperheater(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:Desuperheater'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -6603,7 +6855,7 @@ class CoilHeatingDesuperheater(IDFBaseModel):
         'Refrigeration:Condenser:EvaporativeCooled',
         'Refrigeration:Condenser:WaterCooled',
     ] = Field(...)
-    heating_source_name: str = Field(
+    heating_source_name: DesuperHeatingCoilSourcesRef = Field(
         ..., json_schema_extra={'object_list': ['DesuperHeatingCoilSources']}
     )
     temperature_setpoint_node_name: str | None = Field(
@@ -6632,7 +6884,7 @@ class CoilHeatingElectric(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:Electric'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -6662,7 +6914,7 @@ class CoilHeatingElectricMultiStage(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:Electric:MultiStage'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -6719,7 +6971,7 @@ class CoilHeatingFuel(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:Fuel'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -6760,7 +7012,7 @@ class CoilHeatingFuel(IDFBaseModel):
             'note': 'parasitic electric load associated with the coil operation such as an inducer fan, etc... This will be modified by the part load ratio to reflect the time of operation in a timestep.',
         },
     )
-    part_load_fraction_correlation_curve_name: str | None = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -6786,7 +7038,7 @@ class CoilHeatingGasMultiStage(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:Gas:MultiStage'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -6801,7 +7053,7 @@ class CoilHeatingGasMultiStage(IDFBaseModel):
             'note': 'optional, used if coil is temperature control and not load-base controlled.'
         },
     )
-    part_load_fraction_correlation_curve_name: str | None = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -6883,7 +7135,7 @@ class CoilHeatingSteam(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:Steam'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -6926,7 +7178,7 @@ class CoilHeatingWater(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:Heating:Water'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -7027,13 +7279,13 @@ class CoilHeatingWaterToAirHeatPumpEquationFit(IDFBaseModel):
             'note': 'Ratio of rated heating capacity to rated cooling capacity. This input is used to calculate the heating or cooling capacity when autosizing. This input is only used if a companion cooling coil of th...'
         },
     )
-    heating_capacity_curve_name: str = Field(
+    heating_capacity_curve_name: QuadvariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['QuadvariateFunctions']}
     )
-    heating_power_consumption_curve_name: str = Field(
+    heating_power_consumption_curve_name: QuadvariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['QuadvariateFunctions']}
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -7058,7 +7310,7 @@ class CoilHeatingWaterToAirHeatPumpParameterEstimation(IDFBaseModel):
             'note': 'Parameters 1-4 are as named below. Parameters 5-9 depend on the type of compressor. Refer to the InputOutputReference on the parameters required'
         },
     )
-    refrigerant_type: str | None = Field(
+    refrigerant_type: FluidNamesRef | None = Field(
         default='R22', json_schema_extra={'object_list': ['FluidNames']}
     )
     design_source_side_flow_rate: float = Field(
@@ -7171,7 +7423,7 @@ class CoilHeatingWaterToAirHeatPumpParameterEstimation(IDFBaseModel):
             'note': 'Use when Source Side Fluid Name is an antifreeze Leave this field blank for Source Side Fluid is Water Previously part of Parameter 9',
         },
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -7213,7 +7465,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     rated_water_flow_rate_at_selected_nominal_speed_level: (
         float | Literal['', 'Autosize'] | None
     ) = Field(default='Autosize', json_schema_extra={'units': 'm3/s'})
-    energy_part_load_fraction_curve_name: str = Field(
+    energy_part_load_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -7237,42 +7489,42 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_1_reference_unit_rated_water_flow_rate: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_1_heating_capacity_function_of_temperature_curve_name: str = Field(
+    speed_1_heating_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_1_total_heating_capacity_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_total_heating_capacity_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_heating_capacity_function_of_water_flow_fraction_curve_name: str = Field(
+    speed_1_heating_capacity_function_of_water_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_energy_input_ratio_function_of_water_flow_fraction_curve_name: str = Field(
+    speed_1_energy_input_ratio_function_of_water_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -7282,7 +7534,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_1_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'dimensionless'}
     )
-    speed_1_waste_heat_function_of_temperature_curve_name: str = Field(
+    speed_1_waste_heat_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7306,7 +7558,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_2_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_2_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_2_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7314,7 +7568,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_2_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7322,33 +7576,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_2_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_2_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_2_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_2_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_2_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_2_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7359,7 +7615,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_2_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_2_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_2_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7383,7 +7641,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_3_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_3_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_3_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7391,7 +7651,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_3_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7399,33 +7659,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_3_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_3_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_3_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_3_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_3_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_3_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7436,7 +7698,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_3_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_3_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_3_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7460,7 +7724,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_4_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_4_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_4_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7468,7 +7734,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_4_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7476,33 +7742,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_4_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_4_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_4_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_4_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_4_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_4_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7513,7 +7781,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_4_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_4_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_4_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7537,7 +7807,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_5_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_5_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_5_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7545,7 +7817,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_5_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7553,33 +7825,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_5_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_5_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_5_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_5_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_5_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_5_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7590,7 +7864,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_5_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_5_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_5_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7614,7 +7890,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_6_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_6_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_6_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7622,7 +7900,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_6_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7630,33 +7908,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_6_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_6_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_6_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_6_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_6_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_6_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7667,7 +7947,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_6_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_6_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_6_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7691,7 +7973,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_7_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_7_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_7_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7699,7 +7983,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_7_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7707,33 +7991,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_7_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_7_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_7_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_7_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_7_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_7_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7744,7 +8030,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_7_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_7_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_7_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7768,7 +8056,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_8_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_8_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_8_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7776,7 +8066,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_8_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7784,33 +8074,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_8_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_8_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_8_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_8_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_8_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_8_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7821,7 +8113,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_8_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_8_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_8_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7845,7 +8139,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_9_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_9_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_9_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7853,7 +8149,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_9_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7861,33 +8157,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_9_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_9_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_9_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_9_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_9_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_9_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7898,7 +8196,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_9_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_9_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_9_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7922,7 +8222,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_10_reference_unit_rated_water_flow_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    speed_10_heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_10_heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -7930,7 +8232,7 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
         },
     )
     speed_10_total_heating_capacity_function_of_air_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7938,33 +8240,35 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
             'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_10_heating_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
+    speed_10_heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
     )
-    speed_10_energy_input_ratio_function_of_temperature_curve_name: str | None = Field(
+    speed_10_energy_input_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'optional curve = a + b*db + c*db**2 + d*ewt + e*ewt**2 + f*db*ewt db = entering air dry-bulb temperature (C) ewt = water entering temperature seen by the evaporator (C)',
         },
     )
-    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_10_energy_input_ratio_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'optional quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_10_energy_input_ratio_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -7975,7 +8279,9 @@ class CoilHeatingWaterToAirHeatPumpVariableSpeedEquationFit(IDFBaseModel):
     speed_10_reference_unit_waste_heat_fraction_of_input_power_at_rated_conditions: (
         float | None
     ) = Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
-    speed_10_waste_heat_function_of_temperature_curve_name: str | None = Field(
+    speed_10_waste_heat_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -8031,35 +8337,35 @@ class CoilPerformanceDXCooling(IDFBaseModel):
             'note': 'Fraction of Rated Air Flow Rate which bypasses the cooling coil in this performance mode. The remaining portion of the flow should be between 0.00004027 m3/s and .00006041 m3/s per watt of rated to...'
         },
     )
-    total_cooling_capacity_function_of_temperature_curve_name: str = Field(
+    total_cooling_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    total_cooling_capacity_function_of_flow_fraction_curve_name: str = Field(
+    total_cooling_capacity_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    energy_input_ratio_function_of_temperature_curve_name: str = Field(
+    energy_input_ratio_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*edb + e*edb**2 + f*wb*edb wb = entering wet-bulb temperature (C) edb = dry-bulb temperature seen by the condenser (C)',
         },
     )
-    energy_input_ratio_function_of_flow_fraction_curve_name: str = Field(
+    energy_input_ratio_function_of_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'quadratic curve = a + b*ff + c*ff**2 cubic curve = a + b*ff + c*ff**2 + d*ff**3 ff = fraction of the full load flow',
         },
     )
-    part_load_fraction_correlation_curve_name: str = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -8132,14 +8438,18 @@ class CoilPerformanceDXCooling(IDFBaseModel):
             'note': "Rated power consumed by the evaporative condenser's water pump",
         },
     )
-    sensible_heat_ratio_function_of_temperature_curve_name: str | None = Field(
+    sensible_heat_ratio_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*wb + c*wb**2 + d*db + e*db**2 + f*wb*db wb = entering wet-bulb temperature seen by the DX cooling coil (C) db = entering dry-bulb temperature seen by the DX cooling coil (C) entering ...',
         },
     )
-    sensible_heat_ratio_function_of_flow_fraction_curve_name: str | None = Field(
+    sensible_heat_ratio_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -8156,7 +8466,7 @@ class CoilSystemCoolingDX(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'CoilSystem:Cooling:DX'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -8175,7 +8485,9 @@ class CoilSystemCoolingDX(IDFBaseModel):
         'Coil:Cooling:DX:VariableSpeed',
         'CoilSystem:Cooling:DX:HeatExchangerAssisted',
     ] = Field(...)
-    cooling_coil_name: str = Field(
+    cooling_coil_name: (
+        CoilCoolingDXRef | CoolingCoilsDXRef | CoolingCoilsDXVariableSpeedRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -8236,7 +8548,7 @@ class CoilSystemCoolingDXHeatExchangerAssisted(IDFBaseModel):
         'HeatExchanger:AirToAir:SensibleAndLatent',
         'HeatExchanger:Desiccant:BalancedFlow',
     ] = Field(...)
-    heat_exchanger_name: str = Field(
+    heat_exchanger_name: HXAirToAirNamesRef = Field(
         ..., json_schema_extra={'object_list': ['HXAirToAirNames']}
     )
     cooling_coil_object_type: Literal[
@@ -8244,7 +8556,9 @@ class CoilSystemCoolingDXHeatExchangerAssisted(IDFBaseModel):
         'Coil:Cooling:DX:SingleSpeed',
         'Coil:Cooling:DX:VariableSpeed',
     ] = Field(...)
-    cooling_coil_name: str = Field(
+    cooling_coil_name: (
+        CoilCoolingDXRef | CoolingCoilsDXSingleSpeedRef | CoolingCoilsDXVariableSpeedRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -8266,7 +8580,7 @@ class CoilSystemCoolingWater(IDFBaseModel):
     name: str = Field(...)
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -8278,7 +8592,7 @@ class CoilSystemCoolingWater(IDFBaseModel):
         'Coil:Cooling:Water:DetailedGeometry',
         'CoilSystem:Cooling:Water:HeatExchangerAssisted',
     ] = Field(...)
-    cooling_coil_name: str = Field(
+    cooling_coil_name: CoolingCoilsWaterRef = Field(
         ..., json_schema_extra={'object_list': ['CoolingCoilsWater']}
     )
     dehumidification_control_type: (
@@ -8322,7 +8636,7 @@ class CoilSystemCoolingWater(IDFBaseModel):
             'note': 'Only used for heat recovery loops. Loop will turn off below this temperature.',
         },
     )
-    companion_coil_used_for_heat_recovery: str | None = Field(
+    companion_coil_used_for_heat_recovery: CoolingCoilsWaterRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['CoolingCoilsWater'],
@@ -8347,7 +8661,7 @@ class CoilSystemCoolingWaterHeatExchangerAssisted(IDFBaseModel):
     cooling_coil_object_type: Literal[
         'Coil:Cooling:Water', 'Coil:Cooling:Water:DetailedGeometry'
     ] = Field(...)
-    cooling_coil_name: str = Field(
+    cooling_coil_name: CoolingCoilsWaterNoHXRef = Field(
         ..., json_schema_extra={'object_list': ['CoolingCoilsWaterNoHX']}
     )
 
@@ -8360,7 +8674,7 @@ class CoilSystemHeatingDX(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'CoilSystem:Heating:DX'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -8370,11 +8684,16 @@ class CoilSystemHeatingDX(IDFBaseModel):
     heating_coil_object_type: Literal[
         'Coil:Heating:DX:SingleSpeed', 'Coil:Heating:DX:VariableSpeed'
     ] = Field(...)
-    heating_coil_name: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['HeatingCoilsDXSingleSpeed', 'HeatingCoilsDXVariableSpeed']
-        },
+    heating_coil_name: HeatingCoilsDXSingleSpeedRef | HeatingCoilsDXVariableSpeedRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': [
+                    'HeatingCoilsDXSingleSpeed',
+                    'HeatingCoilsDXVariableSpeed',
+                ]
+            },
+        )
     )
 
 
@@ -8390,61 +8709,67 @@ class CoilSystemIntegratedHeatPumpAirSource(IDFBaseModel):
         },
     )
     supply_hot_water_flow_sensor_node_name: str = Field(...)
-    space_cooling_coil_name: str = Field(
+    space_cooling_coil_name: CoolingCoilsDXVariableSpeedRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['CoolingCoilsDXVariableSpeed'],
             'note': 'Must match the name used in the corresponding Coil:Cooling:DX:VariableSpeed object.',
         },
     )
-    space_heating_coil_name: str | None = Field(
+    space_heating_coil_name: HeatingCoilsDXVariableSpeedRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatingCoilsDXVariableSpeed'],
             'note': 'Must match the name used in the corresponding Coil:Heating:DX:VariableSpeed object.',
         },
     )
-    dedicated_water_heating_coil_name: str | None = Field(
+    dedicated_water_heating_coil_name: (
+        HeatPumpWaterHeaterDXCoilsVariableSpeedRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatPumpWaterHeaterDXCoilsVariableSpeed'],
             'note': 'Must match the name used in the corresponding Coil:WaterHeating:AirToWaterHeatPump:VariableSpeed object.',
         },
     )
-    scwh_coil_name: str | None = Field(
+    scwh_coil_name: HeatPumpWaterHeaterDXCoilsVariableSpeedRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatPumpWaterHeaterDXCoilsVariableSpeed'],
             'note': 'Must match the name used in the corresponding Coil:WaterHeating:AirToWaterHeatPump:VariableSpeed object.',
         },
     )
-    scdwh_cooling_coil_name: str | None = Field(
+    scdwh_cooling_coil_name: CoolingCoilsDXVariableSpeedRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['CoolingCoilsDXVariableSpeed'],
             'note': 'Must match the name used in the corresponding Coil:Cooling:DX:VariableSpeed object.',
         },
     )
-    scdwh_water_heating_coil_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['HeatPumpWaterHeaterDXCoilsVariableSpeed'],
-            'note': 'Must match the name used in the corresponding Coil:WaterHeating:AirToWaterHeatPump:VariableSpeed object.',
-        },
+    scdwh_water_heating_coil_name: HeatPumpWaterHeaterDXCoilsVariableSpeedRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['HeatPumpWaterHeaterDXCoilsVariableSpeed'],
+                'note': 'Must match the name used in the corresponding Coil:WaterHeating:AirToWaterHeatPump:VariableSpeed object.',
+            },
+        )
     )
-    shdwh_heating_coil_name: str | None = Field(
+    shdwh_heating_coil_name: HeatingCoilsDXVariableSpeedRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatingCoilsDXVariableSpeed'],
             'note': 'Must match the name used in the corresponding Coil:Heating:DX:VariableSpeed object.',
         },
     )
-    shdwh_water_heating_coil_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['HeatPumpWaterHeaterDXCoilsVariableSpeed'],
-            'note': 'Must match the name used in the corresponding Coil:WaterHeating:AirToWaterHeatPump:VariableSpeed object.',
-        },
+    shdwh_water_heating_coil_name: HeatPumpWaterHeaterDXCoilsVariableSpeedRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['HeatPumpWaterHeaterDXCoilsVariableSpeed'],
+                'note': 'Must match the name used in the corresponding Coil:WaterHeating:AirToWaterHeatPump:VariableSpeed object.',
+            },
+        )
     )
     indoor_temperature_limit_for_scwh_mode: float | None = Field(
         default=20.0,
@@ -8645,7 +8970,9 @@ class CoilWaterHeatingAirToWaterHeatPumpPumped(IDFBaseModel):
             'note': 'The compressor crankcase heater only operates when the dry-bulb temperature of air surrounding the compressor is below the Maximum Ambient Temperature for Crankcase Heater Operation and the DX coil...',
         },
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -8668,49 +8995,61 @@ class CoilWaterHeatingAirToWaterHeatPumpPumped(IDFBaseModel):
             'note': 'Determines temperature type for heating capacity curves and heating COP curves. This input determines whether the inlet air dry-bulb or wet-bulb temperature is used to evaluate these curves.'
         },
     )
-    heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'Heating capacity modifier curve (function of temperature) should be biquadratic or cubic. Biquadratic curve = a + b(ta) + c(ta)^2 + d(tw) + e(tw)^2 + f(ta)(tw). Cubic curve = a + b(ta) + c(ta)^2 + ...',
         },
     )
-    heating_capacity_function_of_air_flow_fraction_curve_name: str | None = Field(
+    heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Heating capacity modifier curve (function of air flow fraction) should be quadratic or cubic. Quadratic curve = a + b(ff) + c(ff)^2. Cubic curve = a + b(ff) + c(ff)^2 + d(ff)^3. ff = fraction of th...',
         },
     )
-    heating_capacity_function_of_water_flow_fraction_curve_name: str | None = Field(
+    heating_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Heating capacity modifier curve (function of water flow fraction) should be quadratic or cubic. Quadratic curve = a + b(ff) + c(ff)^2. Cubic curve = a + b(ff) + c(ff)^2 + d(ff)^3. ff = fraction of ...',
         },
     )
-    heating_cop_function_of_temperature_curve_name: str | None = Field(
+    heating_cop_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'Heating COP modifier curve (function of temperature) should be biquadratic or cubic. Biquadratic curve = a + b(ta) + c(ta)^2 + d(tw) + e(tw)^2 + f(ta)(tw). Cubic curve = a + b(ta) + c(ta)^2 + d(ta)...',
         },
     )
-    heating_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    heating_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Heating COP modifier curve (function of air flow fraction) should be quadratic or cubic. Quadratic curve = a + b(ff) + c(ff)^2. Cubic curve = a + b(ff) + c(ff)^2 + d(ff)^3. ff = fraction of the rat...',
         },
     )
-    heating_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    heating_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Heating COP modifier curve (function of water flow fraction) should be quadratic or cubic. Quadratic curve = a + b(ff) + c(ff)^2. Cubic curve = a + b(ff) + c(ff)^2 + d(ff)^3. ff = fraction of the r...',
         },
     )
-    part_load_fraction_correlation_curve_name: str | None = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -8850,7 +9189,9 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
             'note': 'The compressor crankcase heater only operates when the dry-bulb temperature of air surrounding the compressor is below the Maximum Ambient Temperature for Crankcase Heater Operation and the DX coil...',
         },
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -8873,7 +9214,7 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
             'note': 'Determines temperature type for heating capacity curves and heating COP curves. This input determines whether the inlet air dry-bulb or wet-bulb temperature is used to evaluate these curves.'
         },
     )
-    part_load_fraction_correlation_curve_name: str | None = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -8913,42 +9254,42 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_1_reference_unit_water_pump_input_power_at_rated_conditions: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'W'}
     )
-    speed_1_total_wh_capacity_function_of_temperature_curve_name: str = Field(
+    speed_1_total_wh_capacity_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_1_total_wh_capacity_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_total_wh_capacity_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_total_wh_capacity_function_of_water_flow_fraction_curve_name: str = Field(
+    speed_1_total_wh_capacity_function_of_water_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_1_cop_function_of_temperature_curve_name: str = Field(
+    speed_1_cop_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_1_cop_function_of_air_flow_fraction_curve_name: str = Field(
+    speed_1_cop_function_of_air_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_1_cop_function_of_water_flow_fraction_curve_name: str = Field(
+    speed_1_cop_function_of_water_flow_fraction_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -8988,46 +9329,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_2_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_2_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_2_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_2_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_2_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_2_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_2_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_2_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_2_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_2_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_2_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_2_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_2_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9067,46 +9416,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_3_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_3_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_3_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_3_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_3_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_3_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_3_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_3_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_3_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_3_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_3_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_3_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_3_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9146,46 +9503,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_4_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_4_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_4_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_4_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_4_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_4_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_4_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_4_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_4_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_4_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_4_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_4_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_4_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9225,46 +9590,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_5_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_5_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_5_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_5_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_5_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_5_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_5_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_5_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_5_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_5_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_5_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_5_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_5_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9304,46 +9677,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_6_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_6_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_6_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_6_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_6_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_6_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_6_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_6_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_6_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_6_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_6_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_6_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_6_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9383,46 +9764,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_7_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_7_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_7_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_7_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_7_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_7_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_7_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_7_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_7_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_7_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_7_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_7_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_7_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9462,46 +9851,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_8_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_8_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_8_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_8_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_8_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_8_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_8_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_8_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_8_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_8_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_8_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_8_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_8_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9541,46 +9938,54 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_9_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_9_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_9_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_9_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
-    )
-    speed_9_total_wh_capacity_function_of_water_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
-            },
-        )
-    )
-    speed_9_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
-    )
-    speed_9_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_9_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_9_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_9_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
+        },
+    )
+    speed_9_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
+    )
+    speed_9_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
+    )
+    speed_9_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9620,24 +10025,26 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
     speed_10_reference_unit_water_pump_input_power_at_rated_conditions: float | None = (
         Field(default=None, ge=0.0, json_schema_extra={'units': 'dimensionless'})
     )
-    speed_10_total_wh_capacity_function_of_temperature_curve_name: str | None = Field(
+    speed_10_total_wh_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
         },
     )
-    speed_10_total_wh_capacity_function_of_air_flow_fraction_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
-            },
-        )
+    speed_10_total_wh_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
+        },
     )
     speed_10_total_wh_capacity_function_of_water_flow_fraction_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -9645,21 +10052,27 @@ class CoilWaterHeatingAirToWaterHeatPumpVariableSpeed(IDFBaseModel):
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffw + c*ffw**2 cubic curve = a + b*ffw + c*ffw**2 + d*ffw**3 ffw = Fraction of the full load Water Flow',
         },
     )
-    speed_10_cop_function_of_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
-        },
+    speed_10_cop_function_of_temperature_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Table:Lookup object can also be used curve = a + b*wb + c*wb**2 + d*ewt + e*ewt**2 + f*wb*ewt wb = entering wet-bulb temperature or dry bulb temperature upon selection (C) ewt = water entering temp...',
+            },
+        )
     )
-    speed_10_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    speed_10_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Table:Lookup object can also be used quadratic curve = a + b*ffa + c*ffa**2 cubic curve = a + b*ffa + c*ffa**2 + d*ffa**3 ffa = Fraction of the full load Air Flow',
         },
     )
-    speed_10_cop_function_of_water_flow_fraction_curve_name: str | None = Field(
+    speed_10_cop_function_of_water_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9762,7 +10175,9 @@ class CoilWaterHeatingAirToWaterHeatPumpWrapped(IDFBaseModel):
             'note': 'The compressor crankcase heater only operates when the dry-bulb temperature of air surrounding the compressor is below the Maximum Ambient Temperature for Crankcase Heater Operation and the DX coil...',
         },
     )
-    crankcase_heater_capacity_function_of_temperature_curve_name: str | None = Field(
+    crankcase_heater_capacity_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9785,35 +10200,43 @@ class CoilWaterHeatingAirToWaterHeatPumpWrapped(IDFBaseModel):
             'note': 'Determines temperature type for heating capacity curves and heating COP curves. This input determines whether the inlet air dry-bulb or wet-bulb temperature is used to evaluate these curves.'
         },
     )
-    heating_capacity_function_of_temperature_curve_name: str | None = Field(
+    heating_capacity_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'Heating capacity modifier curve (function of temperature) should be biquadratic or cubic. Biquadratic curve = a + b(ta) + c(ta)^2 + d(tw) + e(tw)^2 + f(ta)(tw). Cubic curve = a + b(ta) + c(ta)^2 + ...',
         },
     )
-    heating_capacity_function_of_air_flow_fraction_curve_name: str | None = Field(
+    heating_capacity_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Heating capacity modifier curve (function of air flow fraction) should be quadratic or cubic. Quadratic curve = a + b(ff) + c(ff)^2. Cubic curve = a + b(ff) + c(ff)^2 + d(ff)^3. ff = fraction of th...',
         },
     )
-    heating_cop_function_of_temperature_curve_name: str | None = Field(
+    heating_cop_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
             'note': 'Heating COP modifier curve (function of temperature) should be biquadratic or cubic. Biquadratic curve = a + b(ta) + c(ta)^2 + d(tw) + e(tw)^2 + f(ta)(tw). Cubic curve = a + b(ta) + c(ta)^2 + d(ta)...',
         },
     )
-    heating_cop_function_of_air_flow_fraction_curve_name: str | None = Field(
+    heating_cop_function_of_air_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Heating COP modifier curve (function of air flow fraction) should be quadratic or cubic. Quadratic curve = a + b(ff) + c(ff)^2. Cubic curve = a + b(ff) + c(ff)^2 + d(ff)^3. ff = fraction of the rat...',
         },
     )
-    part_load_fraction_correlation_curve_name: str | None = Field(
+    part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -9835,14 +10258,14 @@ class CoilWaterHeatingDesuperheater(IDFBaseModel):
             'note': 'Unique name for this instance of a desuperheater water heating coil.'
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available. Schedule values of 0 denote the desuperheater h...',
         },
     )
-    setpoint_temperature_schedule_name: str = Field(
+    setpoint_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -9886,7 +10309,9 @@ class CoilWaterHeatingDesuperheater(IDFBaseModel):
             'note': 'The desuperheater water heating coil is off when the inlet water temperature is above the maximum inlet water temperature for heat reclaim.',
         },
     )
-    heat_reclaim_efficiency_function_of_temperature_curve_name: str | None = Field(
+    heat_reclaim_efficiency_function_of_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -9913,7 +10338,7 @@ class CoilWaterHeatingDesuperheater(IDFBaseModel):
             'note': 'Specify the type of water heater tank used by this desuperheater water heating coil.'
         },
     )
-    tank_name: str = Field(
+    tank_name: WaterHeaterMixedNamesRef | WaterHeaterStratifiedNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['WaterHeaterMixedNames', 'WaterHeaterStratifiedNames'],
@@ -9939,7 +10364,11 @@ class CoilWaterHeatingDesuperheater(IDFBaseModel):
             'note': 'The type of DX system that is providing waste heat for reclaim.'
         },
     )
-    heating_source_name: str = Field(
+    heating_source_name: (
+        CoilCoolingDXRef
+        | DesuperHeatingCoilSourcesRef
+        | DesuperHeatingWaterOnlySourcesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [

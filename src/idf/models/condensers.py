@@ -12,6 +12,17 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ConstructionNamesRef,
+    GroundHeatExchangerVerticalArrayNamesRef,
+    GroundHeatExchangerVerticalPropertiesNamesRef,
+    GroundHeatExchangerVerticalResponseFactorNamesRef,
+    ScheduleNamesRef,
+    UndisturbedGroundTempModelsRef,
+    UnivariateFunctionsRef,
+    VariableSpeedTowerCoefficientRef,
+    WaterStorageTankNamesRef,
+)
 
 
 class GroundHeatExchangerResponseFactorsGFunctionsItem(IDFBaseModel):
@@ -366,7 +377,7 @@ class CoolingTowerSingleSpeed(IDFBaseModel):
             'note': 'Enter the outdoor dry-bulb temperature when the basin heater turns on',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -400,14 +411,14 @@ class CoolingTowerSingleSpeed(IDFBaseModel):
             'note': 'Characterizes the rate of blowdown in the cooling tower. Blowdown is water intentionally drained from the tower in order to offset the build up of solids in the water that would otherwise occur bec...'
         },
     )
-    blowdown_makeup_water_usage_schedule_name: str | None = Field(
+    blowdown_makeup_water_usage_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Makeup water usage due to blowdown results from occasionally draining a small amount of water in the tower basin to purge scale or other contaminants to reduce their concentration in order to maint...',
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     outdoor_air_inlet_node_name: str | None = Field(
@@ -660,7 +671,7 @@ class CoolingTowerTwoSpeed(IDFBaseModel):
             'note': 'Enter the outdoor dry-bulb temperature when the basin heater turns on',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -694,14 +705,14 @@ class CoolingTowerTwoSpeed(IDFBaseModel):
             'note': 'Characterizes the rate of blowdown in the cooling tower. Blowdown is water intentionally drained from the tower in order to offset the build up of solids in the water that would otherwise occur bec...'
         },
     )
-    blowdown_makeup_water_usage_schedule_name: str | None = Field(
+    blowdown_makeup_water_usage_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Makeup water usage due to blowdown results from occasionally draining some amount of water in the tower basin to purge scale or other contaminants to reduce their concentration in order to maintain...',
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     outdoor_air_inlet_node_name: str | None = Field(
@@ -771,7 +782,7 @@ class CoolingTowerVariableSpeed(IDFBaseModel):
             'note': 'Determines the coefficients and form of the equation for calculating approach temperature'
         },
     )
-    model_coefficient_name: str | None = Field(
+    model_coefficient_name: VariableSpeedTowerCoefficientRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['VariableSpeedTowerCoefficient'],
@@ -823,7 +834,9 @@ class CoolingTowerVariableSpeed(IDFBaseModel):
             'note': 'Enter the fan motor electric input power at design (max) air flow through the tower Standard conversion for horsepower is 1 HP = 745.7 W',
         },
     )
-    fan_power_ratio_function_of_air_flow_rate_ratio_curve_name: str | None = Field(
+    fan_power_ratio_function_of_air_flow_rate_ratio_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -862,7 +875,7 @@ class CoolingTowerVariableSpeed(IDFBaseModel):
             'note': 'Enter the outdoor dry-bulb temperature when the basin heater turns on',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -896,14 +909,14 @@ class CoolingTowerVariableSpeed(IDFBaseModel):
             'note': 'Characterizes the rate of blowdown in the cooling tower. Blowdown is water intentionally drained from the tower in order to offset the build up of solids in the water that would otherwise occur bec...'
         },
     )
-    blowdown_makeup_water_usage_schedule_name: str | None = Field(
+    blowdown_makeup_water_usage_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Makeup water usage due to blowdown results from occasionally draining a small amount of water in the tower basin to purge scale or other contaminants to reduce their concentration in order to maint...',
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     outdoor_air_inlet_node_name: str | None = Field(
@@ -1036,7 +1049,7 @@ class CoolingTowerVariableSpeedMerkel(IDFBaseModel):
             'note': 'This field is only used if the previous is set to autocalculate [W/W] Watts of fan power per Watt of tower nominal capacity',
         },
     )
-    fan_power_modifier_function_of_air_flow_rate_ratio_curve_name: str = Field(
+    fan_power_modifier_function_of_air_flow_rate_ratio_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1080,21 +1093,21 @@ class CoolingTowerVariableSpeedMerkel(IDFBaseModel):
             'note': 'required field when performance input method is UFactorTimesAreaAndDesignWaterFlowRate This field is only used if the previous field is set to autocalculate and the performance input method is UFac...'
         },
     )
-    u_factor_times_area_modifier_function_of_air_flow_ratio_curve_name: str = Field(
+    u_factor_times_area_modifier_function_of_air_flow_ratio_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': "This curve describes how tower's design UA changes with variable air flow rate Any curve or table with one independent variable can be used cubic curve = a + b*AFR + c*AFR**2 + d*AFR**3 quartic cur...",
         },
     )
-    u_factor_times_area_modifier_function_of_wetbulb_temperature_difference_curve_name: str = Field(
+    u_factor_times_area_modifier_function_of_wetbulb_temperature_difference_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve describes how tower UA changes with outdoor air wet-bulb temperature difference from design wet-bulb Any curve or table with one independent variable can be used cubic curve = a + b*DeltaWB +...',
         },
     )
-    u_factor_times_area_modifier_function_of_water_flow_ratio_curve_name: str = Field(
+    u_factor_times_area_modifier_function_of_water_flow_ratio_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1147,7 +1160,7 @@ class CoolingTowerVariableSpeedMerkel(IDFBaseModel):
             'note': 'Enter the outdoor dry-bulb temperature when the basin heater turns on',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1181,14 +1194,14 @@ class CoolingTowerVariableSpeedMerkel(IDFBaseModel):
             'note': 'Characterizes the rate of blowdown in the cooling tower. Blowdown is water intentionally drained from the tower in order to offset the build up of solids in the water that would otherwise occur bec...'
         },
     )
-    blowdown_makeup_water_usage_schedule_name: str | None = Field(
+    blowdown_makeup_water_usage_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Makeup water usage due to blowdown results from occasionally draining some amount of water in the tower basin to purge scale or other contaminants to reduce their concentration in order to maintain...',
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     outdoor_air_inlet_node_name: str | None = Field(
@@ -1361,14 +1374,14 @@ class EvaporativeFluidCoolerSingleSpeed(IDFBaseModel):
             'note': 'Characterizes the rate of blowdown in the Evaporative Fluid Cooler. Blowdown is water intentionally drained from the basin in order to offset the build up of solids in the water that would otherwis...'
         },
     )
-    blowdown_makeup_water_usage_schedule_name: str | None = Field(
+    blowdown_makeup_water_usage_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Makeup water usage due to blowdown results from occasionally draining a small amount of water in the Fluid Cooler basin to purge scale or other contaminants to reduce their concentration in order t...',
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
 
@@ -1573,14 +1586,14 @@ class EvaporativeFluidCoolerTwoSpeed(IDFBaseModel):
             'note': 'Characterizes the rate of blowdown in the Evaporative Fluid Cooler. Blowdown is water intentionally drained from the Evaporative Fluid Cooler in order to offset the build up of solids in the water ...'
         },
     )
-    blowdown_makeup_water_usage_schedule_name: str | None = Field(
+    blowdown_makeup_water_usage_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Makeup water usage due to blowdown results from occasionally draining some amount of water in the Evaporative Fluid Cooler basin to purge scale or other contaminants to reduce their concentration i...',
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
 
@@ -1873,7 +1886,7 @@ class GroundHeatExchangerHorizontalTrench(IDFBaseModel):
         'Site:GroundTemperature:Undisturbed:KusudaAchenbach',
         'Site:GroundTemperature:Undisturbed:Xing',
     ] = Field(...)
-    undisturbed_ground_temperature_model_name: str = Field(
+    undisturbed_ground_temperature_model_name: UndisturbedGroundTempModelsRef = Field(
         ..., json_schema_extra={'object_list': ['UndisturbedGroundTempModels']}
     )
     evapotranspiration_ground_cover_parameter: float | None = Field(
@@ -1921,7 +1934,7 @@ class GroundHeatExchangerResponseFactors(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'GroundHeatExchanger:ResponseFactors'
     name: str = Field(...)
-    ghe_vertical_properties_object_name: str = Field(
+    ghe_vertical_properties_object_name: GroundHeatExchangerVerticalPropertiesNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['GroundHeatExchangerVerticalPropertiesNames']
@@ -2029,7 +2042,7 @@ class GroundHeatExchangerSlinky(IDFBaseModel):
         'Site:GroundTemperature:Undisturbed:KusudaAchenbach',
         'Site:GroundTemperature:Undisturbed:Xing',
     ] = Field(...)
-    undisturbed_ground_temperature_model_name: str = Field(
+    undisturbed_ground_temperature_model_name: UndisturbedGroundTempModelsRef = Field(
         ..., json_schema_extra={'object_list': ['UndisturbedGroundTempModels']}
     )
     maximum_length_of_simulation: float | None = Field(
@@ -2046,7 +2059,7 @@ class GroundHeatExchangerSurface(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'GroundHeatExchanger:Surface'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
     fluid_inlet_node_name: str = Field(...)
@@ -2086,7 +2099,7 @@ class GroundHeatExchangerSystem(IDFBaseModel):
         'Site:GroundTemperature:Undisturbed:KusudaAchenbach',
         'Site:GroundTemperature:Undisturbed:Xing',
     ] = Field(...)
-    undisturbed_ground_temperature_model_name: str = Field(
+    undisturbed_ground_temperature_model_name: UndisturbedGroundTempModelsRef = Field(
         ..., json_schema_extra={'object_list': ['UndisturbedGroundTempModels']}
     )
     ground_thermal_conductivity: float = Field(
@@ -2095,7 +2108,9 @@ class GroundHeatExchangerSystem(IDFBaseModel):
     ground_thermal_heat_capacity: float = Field(
         ..., gt=0.0, json_schema_extra={'units': 'J/m3-K'}
     )
-    ghe_vertical_responsefactors_object_name: str | None = Field(
+    ghe_vertical_responsefactors_object_name: (
+        GroundHeatExchangerVerticalResponseFactorNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['GroundHeatExchangerVerticalResponseFactorNames']
@@ -2104,9 +2119,13 @@ class GroundHeatExchangerSystem(IDFBaseModel):
     g_function_calculation_method: Literal['', 'UBHWTcalc', 'UHFcalc'] | None = Field(
         default='UHFcalc'
     )
-    ghe_vertical_array_object_name: str | None = Field(
-        default=None,
-        json_schema_extra={'object_list': ['GroundHeatExchangerVerticalArrayNames']},
+    ghe_vertical_array_object_name: GroundHeatExchangerVerticalArrayNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['GroundHeatExchangerVerticalArrayNames']
+            },
+        )
     )
     vertical_well_locations: (
         list[GroundHeatExchangerSystemVerticalWellLocationsItem] | None
@@ -2118,7 +2137,7 @@ class GroundHeatExchangerVerticalArray(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'GroundHeatExchanger:Vertical:Array'
     name: str = Field(...)
-    ghe_vertical_properties_object_name: str = Field(
+    ghe_vertical_properties_object_name: GroundHeatExchangerVerticalPropertiesNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['GroundHeatExchangerVerticalPropertiesNames']
@@ -2161,7 +2180,7 @@ class GroundHeatExchangerVerticalSingle(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'GroundHeatExchanger:Vertical:Single'
     name: str = Field(...)
-    ghe_vertical_properties_object_name: str = Field(
+    ghe_vertical_properties_object_name: GroundHeatExchangerVerticalPropertiesNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['GroundHeatExchangerVerticalPropertiesNames']
@@ -2178,7 +2197,7 @@ class HeatExchangerFluidToFluid(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'HeatExchanger:FluidToFluid'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],

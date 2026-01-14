@@ -12,6 +12,21 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllHeatTranAngFacNamesRef,
+    AllHeatTranSurfNamesRef,
+    BivariateFunctionsRef,
+    FloorSurfaceNamesRef,
+    RoomAirNodesRef,
+    ScheduleNamesRef,
+    SpaceAndSpaceListNamesRef,
+    SpaceNamesRef,
+    SurfaceNamesRef,
+    SurfAndSubSurfNamesRef,
+    UnivariateFunctionsRef,
+    ZoneAndZoneListNamesRef,
+    ZoneNamesRef,
+)
 
 
 class ComfortViewFactorAngles(IDFBaseModel):
@@ -21,403 +36,403 @@ class ComfortViewFactorAngles(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ComfortViewFactorAngles'
     name: str | None = Field(default=None)
-    surface_1_name: str | None = Field(
+    surface_1_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_1: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_2_name: str | None = Field(
+    surface_2_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_2: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_3_name: str | None = Field(
+    surface_3_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_3: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_4_name: str | None = Field(
+    surface_4_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_4: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_5_name: str | None = Field(
+    surface_5_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_5: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_6_name: str | None = Field(
+    surface_6_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_6: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_7_name: str | None = Field(
+    surface_7_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_7: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_8_name: str | None = Field(
+    surface_8_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_8: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_9_name: str | None = Field(
+    surface_9_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_9: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_10_name: str | None = Field(
+    surface_10_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_10: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_11_name: str | None = Field(
+    surface_11_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_11: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_12_name: str | None = Field(
+    surface_12_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_12: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_13_name: str | None = Field(
+    surface_13_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_13: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_14_name: str | None = Field(
+    surface_14_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_14: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_15_name: str | None = Field(
+    surface_15_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_15: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_16_name: str | None = Field(
+    surface_16_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_16: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_17_name: str | None = Field(
+    surface_17_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_17: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_18_name: str | None = Field(
+    surface_18_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_18: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_19_name: str | None = Field(
+    surface_19_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_19: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_20_name: str | None = Field(
+    surface_20_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_20: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_21_name: str | None = Field(
+    surface_21_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_21: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_22_name: str | None = Field(
+    surface_22_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_22: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_23_name: str | None = Field(
+    surface_23_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_23: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_24_name: str | None = Field(
+    surface_24_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_24: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_25_name: str | None = Field(
+    surface_25_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_25: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_26_name: str | None = Field(
+    surface_26_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_26: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_27_name: str | None = Field(
+    surface_27_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_27: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_28_name: str | None = Field(
+    surface_28_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_28: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_29_name: str | None = Field(
+    surface_29_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_29: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_30_name: str | None = Field(
+    surface_30_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_30: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_31_name: str | None = Field(
+    surface_31_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_31: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_32_name: str | None = Field(
+    surface_32_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_32: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_33_name: str | None = Field(
+    surface_33_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_33: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_34_name: str | None = Field(
+    surface_34_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_34: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_35_name: str | None = Field(
+    surface_35_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_35: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_36_name: str | None = Field(
+    surface_36_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_36: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_37_name: str | None = Field(
+    surface_37_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_37: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_38_name: str | None = Field(
+    surface_38_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_38: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_39_name: str | None = Field(
+    surface_39_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_39: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_40_name: str | None = Field(
+    surface_40_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_40: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_41_name: str | None = Field(
+    surface_41_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_41: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_42_name: str | None = Field(
+    surface_42_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_42: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_43_name: str | None = Field(
+    surface_43_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_43: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_44_name: str | None = Field(
+    surface_44_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_44: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_45_name: str | None = Field(
+    surface_45_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_45: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_46_name: str | None = Field(
+    surface_46_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_46: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_47_name: str | None = Field(
+    surface_47_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_47: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_48_name: str | None = Field(
+    surface_48_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_48: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_49_name: str | None = Field(
+    surface_49_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_49: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_50_name: str | None = Field(
+    surface_50_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_50: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_51_name: str | None = Field(
+    surface_51_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_51: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_52_name: str | None = Field(
+    surface_52_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_52: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_53_name: str | None = Field(
+    surface_53_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_53: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_54_name: str | None = Field(
+    surface_54_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_54: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_55_name: str | None = Field(
+    surface_55_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_55: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_56_name: str | None = Field(
+    surface_56_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_56: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_57_name: str | None = Field(
+    surface_57_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_57: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_58_name: str | None = Field(
+    surface_58_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_58: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_59_name: str | None = Field(
+    surface_59_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_59: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_60_name: str | None = Field(
+    surface_60_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_60: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_61_name: str | None = Field(
+    surface_61_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_61: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_62_name: str | None = Field(
+    surface_62_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_62: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_63_name: str | None = Field(
+    surface_63_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_63: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_64_name: str | None = Field(
+    surface_64_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_64: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_65_name: str | None = Field(
+    surface_65_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_65: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_66_name: str | None = Field(
+    surface_66_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_66: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_67_name: str | None = Field(
+    surface_67_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_67: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_68_name: str | None = Field(
+    surface_68_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_68: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_69_name: str | None = Field(
+    surface_69_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_69: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_70_name: str | None = Field(
+    surface_70_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_70: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_71_name: str | None = Field(
+    surface_71_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_71: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_72_name: str | None = Field(
+    surface_72_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_72: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_73_name: str | None = Field(
+    surface_73_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_73: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_74_name: str | None = Field(
+    surface_74_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_74: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_75_name: str | None = Field(
+    surface_75_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_75: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_76_name: str | None = Field(
+    surface_76_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_76: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_77_name: str | None = Field(
+    surface_77_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_77: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_78_name: str | None = Field(
+    surface_78_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_78: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_79_name: str | None = Field(
+    surface_79_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_79: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_80_name: str | None = Field(
+    surface_80_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_80: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_81_name: str | None = Field(
+    surface_81_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_81: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_82_name: str | None = Field(
+    surface_82_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_82: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_83_name: str | None = Field(
+    surface_83_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_83: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_84_name: str | None = Field(
+    surface_84_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_84: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_85_name: str | None = Field(
+    surface_85_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_85: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_86_name: str | None = Field(
+    surface_86_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_86: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_87_name: str | None = Field(
+    surface_87_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_87: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_88_name: str | None = Field(
+    surface_88_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_88: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_89_name: str | None = Field(
+    surface_89_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_89: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_90_name: str | None = Field(
+    surface_90_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_90: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_91_name: str | None = Field(
+    surface_91_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_91: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_92_name: str | None = Field(
+    surface_92_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_92: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_93_name: str | None = Field(
+    surface_93_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_93: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_94_name: str | None = Field(
+    surface_94_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_94: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_95_name: str | None = Field(
+    surface_95_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_95: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_96_name: str | None = Field(
+    surface_96_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_96: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_97_name: str | None = Field(
+    surface_97_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_97: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_98_name: str | None = Field(
+    surface_98_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_98: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_99_name: str | None = Field(
+    surface_99_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_99: float | None = Field(default=None, ge=0.0, le=1.0)
-    surface_100_name: str | None = Field(
+    surface_100_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     angle_factor_100: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -431,13 +446,15 @@ class ElectricEquipment(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricEquipment'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -481,7 +498,7 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricEquipment:ITE:AirCooled'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
@@ -511,21 +528,21 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
     watts_per_floor_area: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W/m2'}
     )
-    design_power_input_schedule_name: str | None = Field(
+    design_power_input_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Operating schedule for this equipment, fraction applied to the design power input, generally (0.0 - 1.0) If this field is blank, the schedule is assumed to always be 1.0.',
         },
     )
-    cpu_loading_schedule_name: str | None = Field(
+    cpu_loading_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'CPU loading schedule for this equipment as a fraction from 0.0 (idle) to 1.0 (full load). If this field is blank, the schedule is assumed to always be 1.0.',
         },
     )
-    cpu_power_input_function_of_loading_and_air_temperature_curve_name: str = Field(
+    cpu_power_input_function_of_loading_and_air_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
@@ -548,14 +565,14 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
             'note': 'The cooling fan air flow rate per total electric power input at design conditions',
         },
     )
-    air_flow_function_of_loading_and_air_temperature_curve_name: str = Field(
+    air_flow_function_of_loading_and_air_temperature_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'The name of a two-variable curve or table lookup object which modifies the cooling air flow rate as a function of CPU loading (x) and air inlet node temperature (y). This curve (table) should equal...',
         },
     )
-    fan_power_input_function_of_flow_curve_name: str = Field(
+    fan_power_input_function_of_flow_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -585,14 +602,14 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
             'note': 'Specifies the type of connection between the zone and the ITE air inlet node. AdjustedSupply = ITE inlet temperature will be the current Supply Air Node temperature adjusted by the current recircul...'
         },
     )
-    air_inlet_room_air_model_node_name: str | None = Field(
+    air_inlet_room_air_model_node_name: RoomAirNodesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RoomAirNodes'],
             'note': 'Name of a RoomAir:Node object which is connected to the ITE air inlet.',
         },
     )
-    air_outlet_room_air_model_node_name: str | None = Field(
+    air_outlet_room_air_model_node_name: RoomAirNodesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RoomAirNodes'],
@@ -613,14 +630,14 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
             'note': 'The recirculation fraction for this equipment at design conditions. This field is used only if the Air Node Connection Type = AdjustedSupply. The default is 0.0 (no recirculation). This field is on...'
         },
     )
-    recirculation_function_of_loading_and_supply_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'The name of a two-variable curve or table lookup object which modifies the recirculation fraction as a function of CPU loading (x) and supply air node temperature (y). This curve (table) should equ...',
-            },
-        )
+    recirculation_function_of_loading_and_supply_temperature_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'The name of a two-variable curve or table lookup object which modifies the recirculation fraction as a function of CPU loading (x) and supply air node temperature (y). This curve (table) should equ...',
+        },
     )
     design_electric_power_supply_efficiency: float | None = Field(
         default=1.0,
@@ -631,7 +648,7 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
         },
     )
     electric_power_supply_efficiency_function_of_part_load_ratio_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -672,7 +689,7 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
             'note': 'The difference of the IT inlet temperature from the AHU supply air temperature. Either Supply Temperature Difference or Supply Temperature Difference Schedule is required if Air Flow Calculation Me...',
         },
     )
-    supply_temperature_difference_schedule: str | None = Field(
+    supply_temperature_difference_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -686,7 +703,7 @@ class ElectricEquipmentITEAirCooled(IDFBaseModel):
             'note': 'The difference of the the actual AHU return air temperature to the IT equipment outlet temperature. Either Return Temperature Difference or Return Temperature Difference Schedule is required if Air...',
         },
     )
-    return_temperature_difference_schedule: str | None = Field(
+    return_temperature_difference_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -703,13 +720,15 @@ class GasEquipment(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'GasEquipment'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -769,13 +788,15 @@ class HotWaterEquipment(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'HotWaterEquipment'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -827,14 +848,14 @@ class IndoorLivingWall(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'IndoorLivingWall'
     name: str = Field(...)
-    surface_name: str = Field(
+    surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'Name of the wall partition where indoor green is located.',
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -855,7 +876,7 @@ class IndoorLivingWall(IDFBaseModel):
             'note': 'Three different methods are provided here (LED; Daylight; LED-Daylight)'
         },
     )
-    led_intensity_schedule_name: str | None = Field(
+    led_intensity_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     daylighting_control_name: str | None = Field(
@@ -864,12 +885,14 @@ class IndoorLivingWall(IDFBaseModel):
             'note': 'If daylighting is used in the selected lighting methods (Daylight or LED-Daylight), users should define an object of Daylighting:Control to obtain the daylighting illuminance level and an object fo...'
         },
     )
-    led_daylight_targeted_lighting_intensity_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'This field defines targeted LED intensity level for indoor living wall systems. The schedule values can be any positive number representing targeted photosynthetic photon flux density (PPFD). Based...',
-        },
+    led_daylight_targeted_lighting_intensity_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'This field defines targeted LED intensity level for indoor living wall systems. The schedule values can be any positive number representing targeted photosynthetic photon flux density (PPFD). Based...',
+            },
+        )
     )
     total_leaf_area: float | None = Field(
         default=None,
@@ -910,13 +933,15 @@ class Lights(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Lights'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1028,13 +1053,15 @@ class OtherEquipment(IDFBaseModel):
         ]
         | None
     ) = Field(default='None')
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1092,13 +1119,15 @@ class People(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'People'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    number_of_people_schedule_name: str = Field(
+    number_of_people_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1134,7 +1163,7 @@ class People(IDFBaseModel):
             'note': 'if input, overrides program calculated sensible/latent split'
         },
     )
-    activity_level_schedule_name: str = Field(
+    activity_level_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1159,14 +1188,14 @@ class People(IDFBaseModel):
         default='EnclosureAveraged',
         json_schema_extra={'note': 'optional (only required for thermal comfort runs)'},
     )
-    surface_name_angle_factor_list_name: str | None = Field(
+    surface_name_angle_factor_list_name: AllHeatTranAngFacNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AllHeatTranAngFacNames'],
             'note': 'optional (only required for runs of thermal comfort models: Fanger, Pierce, KSU, CoolingEffectASH55 and AnkleDraftASH55)',
         },
     )
-    work_efficiency_schedule_name: str | None = Field(
+    work_efficiency_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1182,21 +1211,23 @@ class People(IDFBaseModel):
         ]
         | None
     ) = Field(default='ClothingInsulationSchedule')
-    clothing_insulation_calculation_method_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'a schedule value of 1 for the Scheduled method, and 2 for the DynamicClothingModelASHRAE55 method',
-        },
+    clothing_insulation_calculation_method_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'a schedule value of 1 for the Scheduled method, and 2 for the DynamicClothingModelASHRAE55 method',
+            },
+        )
     )
-    clothing_insulation_schedule_name: str | None = Field(
+    clothing_insulation_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'use "Clo" from ASHRAE or Thermal Comfort guides optional (only required for runs of thermal comfort models: Fanger, Pierce, KSU, CoolingEffectASH55 and AnkleDraftASH55)',
         },
     )
-    air_velocity_schedule_name: str | None = Field(
+    air_velocity_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1322,7 +1353,7 @@ class People(IDFBaseModel):
             'note': 'optional (seventh thermal comfort model and report type)'
         },
     )
-    ankle_level_air_velocity_schedule_name: str | None = Field(
+    ankle_level_air_velocity_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1353,13 +1384,15 @@ class SteamEquipment(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SteamEquipment'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1410,11 +1443,13 @@ class SurfaceContaminantSourceAndSinkGenericBoundaryLayerDiffusion(IDFBaseModel)
         'SurfaceContaminantSourceAndSink:Generic:BoundaryLayerDiffusion'
     )
     name: str = Field(...)
-    surface_name: str = Field(..., json_schema_extra={'object_list': ['SurfaceNames']})
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
+    )
     mass_transfer_coefficient: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm/s'}
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1434,11 +1469,13 @@ class SurfaceContaminantSourceAndSinkGenericDepositionVelocitySink(IDFBaseModel)
         'SurfaceContaminantSourceAndSink:Generic:DepositionVelocitySink'
     )
     name: str = Field(...)
-    surface_name: str = Field(..., json_schema_extra={'object_list': ['SurfaceNames']})
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
+    )
     deposition_velocity: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm/s'}
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1455,13 +1492,13 @@ class SurfaceContaminantSourceAndSinkGenericPressureDriven(IDFBaseModel):
         'SurfaceContaminantSourceAndSink:Generic:PressureDriven'
     )
     name: str = Field(...)
-    surface_name: str = Field(
+    surface_name: SurfAndSubSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SurfAndSubSurfNames']}
     )
     design_generation_rate_coefficient: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    generation_schedule_name: str = Field(
+    generation_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1479,7 +1516,7 @@ class SwimmingPoolIndoor(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SwimmingPool:Indoor'
     name: str = Field(...)
-    surface_name: str = Field(
+    surface_name: FloorSurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FloorSurfaceNames'],
@@ -1487,13 +1524,13 @@ class SwimmingPoolIndoor(IDFBaseModel):
         },
     )
     average_depth: float = Field(..., json_schema_extra={'units': 'm'})
-    activity_factor_schedule_name: str = Field(
+    activity_factor_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    make_up_water_supply_schedule_name: str | None = Field(
+    make_up_water_supply_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    cover_schedule_name: str = Field(
+    cover_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     cover_evaporation_factor: float | None = Field(default=0.0, ge=0.0, le=1.0)
@@ -1517,14 +1554,14 @@ class SwimmingPoolIndoor(IDFBaseModel):
             'note': 'Power input per pool water flow rate',
         },
     )
-    setpoint_temperature_schedule: str = Field(
+    setpoint_temperature_schedule: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     maximum_number_of_people: float = Field(..., ge=0.0)
-    people_schedule: str | None = Field(
+    people_schedule: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    people_heat_gain_schedule: str | None = Field(
+    people_heat_gain_schedule: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -1537,13 +1574,15 @@ class ZoneBaseboardOutdoorTemperatureControlled(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneBaseboard:OutdoorTemperatureControlled'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1572,7 +1611,9 @@ class ZoneContaminantSourceAndSinkCarbonDioxide(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneContaminantSourceAndSink:CarbonDioxide'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     design_generation_rate: float | None = Field(
         default=None,
         json_schema_extra={
@@ -1580,7 +1621,7 @@ class ZoneContaminantSourceAndSinkCarbonDioxide(IDFBaseModel):
             'note': 'Positive values represent sources and negative values represent sinks.',
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1595,13 +1636,15 @@ class ZoneContaminantSourceAndSinkGenericConstant(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneContaminantSourceAndSink:Generic:Constant'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     design_generation_rate: float | None = Field(
         default=None,
         ge=0.0,
         json_schema_extra={'units': 'm3/s', 'note': 'The values represent source.'},
     )
-    generation_schedule_name: str = Field(
+    generation_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1613,7 +1656,7 @@ class ZoneContaminantSourceAndSinkGenericConstant(IDFBaseModel):
         ge=0.0,
         json_schema_extra={'units': 'm3/s', 'note': 'The value represent sink.'},
     )
-    removal_schedule_name: str = Field(
+    removal_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1628,11 +1671,13 @@ class ZoneContaminantSourceAndSinkGenericCutoffModel(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneContaminantSourceAndSink:Generic:CutoffModel'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     design_generation_rate_coefficient: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1655,11 +1700,13 @@ class ZoneContaminantSourceAndSinkGenericDecaySource(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneContaminantSourceAndSink:Generic:DecaySource'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     initial_emission_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1679,11 +1726,13 @@ class ZoneContaminantSourceAndSinkGenericDepositionRateSink(IDFBaseModel):
         'ZoneContaminantSourceAndSink:Generic:DepositionRateSink'
     )
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     deposition_rate: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm/s'}
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],

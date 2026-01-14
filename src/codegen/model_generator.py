@@ -6,6 +6,7 @@ object specifications. Models are organized by EnergyPlus group categories.
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from pathlib import Path
 from typing import ClassVar
@@ -14,7 +15,12 @@ from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 
 from .schema_parser import ObjectSpec
-from .template_filters import TEMPLATE_FILTERS, extract_nested_classes
+from .template_filters import (
+    TEMPLATE_FILTERS,
+    collect_used_ref_types,
+    extract_nested_classes,
+    set_object_list_ref_types,
+)
 
 
 class ModelGenerator:
@@ -182,6 +188,16 @@ class ModelGenerator:
         """
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
+        # Collect all object_lists and generate _refs.py
+        object_lists = self._collect_object_lists(specs)
+        self._generate_refs_file(object_lists, schema_version)
+
+        # Build and set object_list -> ref type mapping for template filters
+        self._object_list_to_ref_type = {
+            ol: self._object_list_to_type_name(ol) for ol in object_lists
+        }
+        set_object_list_ref_types(self._object_list_to_ref_type)
+
         # Group objects by output file
         file_groups = self._group_objects_by_file(specs)
 
@@ -334,6 +350,10 @@ class ModelGenerator:
         # Extract nested classes from array fields
         nested_classes = extract_nested_classes(objects, deduplicate=True)
 
+        # Collect reference types used by this file's objects
+        used_ref_types = collect_used_ref_types(objects)
+        has_refs = len(used_ref_types) > 0
+
         # Render template
         content = template.render(
             schema_version=schema_version,
@@ -341,6 +361,8 @@ class ModelGenerator:
             file_name=file_name,
             objects=objects,
             nested_classes=nested_classes,
+            has_refs=has_refs,
+            used_ref_types=used_ref_types,
         )
 
         # Write file
@@ -528,3 +550,145 @@ class ModelGenerator:
             self._env.filters[name] = func
 
         return self._env
+
+    def _collect_object_lists(self, specs: dict[str, ObjectSpec]) -> set[str]:
+        """Collect all unique object_list names from specifications.
+
+        Args:
+            specs: Dictionary of object specifications.
+
+        Returns:
+            Set of unique object_list names.
+        """
+        object_lists: set[str] = set()
+
+        for spec in specs.values():
+            for field in spec.fields:
+                if field.object_list:
+                    object_lists.update(field.object_list)
+                # Check anyof_specs for nested object_lists
+                if field.anyof_specs:
+                    for anyof in field.anyof_specs:
+                        if hasattr(anyof, 'object_list') and anyof.object_list:
+                            object_lists.update(anyof.object_list)
+
+        return object_lists
+
+    def _object_list_to_type_name(self, object_list: str) -> str:
+        """Convert object_list name to type alias name.
+
+        Args:
+            object_list: Object list name (e.g., "ZoneNames").
+
+        Returns:
+            Type alias name (e.g., "ZoneNamesRef").
+        """
+        # Remove special characters, ensure valid Python identifier
+        name = re.sub(r'[^a-zA-Z0-9]', '', object_list)
+        # Ensure PascalCase (first letter uppercase)
+        if name and name[0].islower():
+            name = name[0].upper() + name[1:]
+        return f'{name}Ref'
+
+    def _generate_refs_file(
+        self,
+        object_lists: set[str],
+        schema_version: str,
+    ) -> None:
+        """Generate _refs.py with reference type aliases.
+
+        Args:
+            object_lists: Set of object list names.
+            schema_version: Schema version for documentation.
+        """
+        lines = [
+            '"""Auto-generated reference types for EnergyPlus object validation.',
+            '',
+            'DO NOT EDIT MANUALLY.',
+            f'Generated from Energy+.schema.epJSON version {schema_version}.',
+            '',
+            'This module provides type aliases with runtime validation for object',
+            'references. Use with validation context for reference checking.',
+            '"""',
+            'from __future__ import annotations',
+            '',
+            'from typing import Annotated, Any',
+            '',
+            'from pydantic import BeforeValidator',
+            'from pydantic_core import core_schema',
+            '',
+            '',
+        ]
+
+        # Add RefValidator class
+        lines.extend(self._get_ref_validator_code())
+
+        lines.append('')
+        lines.append('')
+        lines.append('# ' + '=' * 60)
+        lines.append('# Reference type aliases')
+        lines.append('# ' + '=' * 60)
+        lines.append('')
+
+        # Generate type aliases for each object_list
+        for obj_list in sorted(object_lists):
+            type_name = self._object_list_to_type_name(obj_list)
+            lines.append(
+                f'{type_name} = Annotated[str, BeforeValidator(RefValidator("{obj_list}"))]'
+            )
+
+        lines.append('')
+
+        # Generate __all__
+        all_exports = ['RefValidator']
+        all_exports.extend(
+            self._object_list_to_type_name(ol) for ol in sorted(object_lists)
+        )
+
+        lines.append('__all__ = [')
+        for name in all_exports:
+            lines.append(f'    "{name}",')
+        lines.append(']')
+        lines.append('')
+
+        output_path = self.output_dir / '_refs.py'
+        output_path.write_text('\n'.join(lines), encoding='utf-8')
+        logger.info(f'Generated _refs.py with {len(object_lists)} reference types')
+
+    def _get_ref_validator_code(self) -> list[str]:
+        """Get RefValidator class code.
+
+        Returns:
+            List of code lines for RefValidator class.
+        """
+        return [
+            'class RefValidator:',
+            '    """Reference validator for EnergyPlus object lists.',
+            '',
+            '    When used with validation context containing an IDF instance,',
+            '    validates that referenced object names exist in the registry.',
+            '    """',
+            '',
+            '    def __init__(self, object_list: str):',
+            '        self.object_list = object_list',
+            '',
+            '    def __call__(self, v: Any) -> str:',
+            '        """Validate reference value.',
+            '',
+            '        Note: Context-based validation happens in IDF.add().',
+            '        This basic validator just ensures string conversion.',
+            '        """',
+            '        if v is None:',
+            '            return v',
+            '        return str(v)',
+            '',
+            '    def __get_pydantic_core_schema__(self, source_type, handler):',
+            '        """Generate Pydantic core schema for this validator."""',
+            '        return core_schema.no_info_before_validator_function(',
+            '            self,',
+            '            core_schema.str_schema(),',
+            '        )',
+            '',
+            '    def __repr__(self) -> str:',
+            '        return f"RefValidator({self.object_list!r})"',
+        ]

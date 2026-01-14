@@ -12,6 +12,20 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    BivariateFunctionsRef,
+    FansOnOffRef,
+    FansSystemModelRef,
+    HeatPumpWaterHeaterDXCoilsPumpedRef,
+    HeatPumpWaterHeaterDXCoilsVariableSpeedRef,
+    HeatPumpWaterHeaterDXCoilsWrappedRef,
+    IntegratedHeatPumpsRef,
+    ScheduleNamesRef,
+    UnivariateFunctionsRef,
+    WaterHeaterNamesRef,
+    WaterHeaterStratifiedNamesRef,
+    ZoneNamesRef,
+)
 
 
 class ThermalStorageChilledWaterMixed(IDFBaseModel):
@@ -25,7 +39,7 @@ class ThermalStorageChilledWaterMixed(IDFBaseModel):
     tank_volume: float | None = Field(
         default=0.1, gt=0.0, json_schema_extra={'units': 'm3'}
     )
-    setpoint_temperature_schedule_name: str | None = Field(
+    setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     deadband_temperature_difference: float | None = Field(
@@ -38,10 +52,10 @@ class ThermalStorageChilledWaterMixed(IDFBaseModel):
         default=None, json_schema_extra={'units': 'W'}
     )
     ambient_temperature_indicator: Literal['Outdoors', 'Schedule', 'Zone'] = Field(...)
-    ambient_temperature_schedule_name: str | None = Field(
+    ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    ambient_temperature_zone_name: str | None = Field(
+    ambient_temperature_zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     ambient_temperature_outdoor_air_node_name: str | None = Field(
@@ -58,7 +72,7 @@ class ThermalStorageChilledWaterMixed(IDFBaseModel):
     use_side_heat_transfer_effectiveness: float | None = Field(
         default=1.0, ge=0.0, le=1.0
     )
-    use_side_availability_schedule_name: str | None = Field(
+    use_side_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -73,7 +87,7 @@ class ThermalStorageChilledWaterMixed(IDFBaseModel):
     source_side_heat_transfer_effectiveness: float | None = Field(
         default=1.0, le=1.0, gt=0.0
     )
-    source_side_availability_schedule_name: str | None = Field(
+    source_side_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -118,7 +132,7 @@ class ThermalStorageChilledWaterStratified(IDFBaseModel):
         ge=0.0,
         json_schema_extra={'units': 'm', 'note': 'Only used if Tank Shape is Other'},
     )
-    setpoint_temperature_schedule_name: str | None = Field(
+    setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     deadband_temperature_difference: float | None = Field(
@@ -134,10 +148,10 @@ class ThermalStorageChilledWaterStratified(IDFBaseModel):
         default=None, json_schema_extra={'units': 'W'}
     )
     ambient_temperature_indicator: Literal['Outdoors', 'Schedule', 'Zone'] = Field(...)
-    ambient_temperature_schedule_name: str | None = Field(
+    ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    ambient_temperature_zone_name: str | None = Field(
+    ambient_temperature_zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     ambient_temperature_outdoor_air_node_name: str | None = Field(
@@ -159,7 +173,7 @@ class ThermalStorageChilledWaterStratified(IDFBaseModel):
             'note': "The use side effectiveness in the stratified tank model is a simplified analogy of a heat exchanger's effectiveness. This effectiveness is equal to the fraction of use mass flow rate that directly ..."
         },
     )
-    use_side_availability_schedule_name: str | None = Field(
+    use_side_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -188,7 +202,7 @@ class ThermalStorageChilledWaterStratified(IDFBaseModel):
             'note': "The source side effectiveness in the stratified tank model is a simplified analogy of a heat exchanger's effectiveness. This effectiveness is equal to the fraction of source mass flow rate that dir..."
         },
     )
-    source_side_availability_schedule_name: str | None = Field(
+    source_side_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -260,7 +274,7 @@ class ThermalStorageIceDetailed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ThermalStorage:Ice:Detailed'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -282,7 +296,7 @@ class ThermalStorageIceDetailed(IDFBaseModel):
         'LMTDFractionCharged',
         'LMTDMassFlow',
     ] = Field(...)
-    discharging_curve_name: str = Field(
+    discharging_curve_name: BivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['BivariateFunctions']}
     )
     charging_curve_variable_specifications: Literal[
@@ -291,7 +305,7 @@ class ThermalStorageIceDetailed(IDFBaseModel):
         'LMTDFractionCharged',
         'LMTDMassFlow',
     ] = Field(...)
-    charging_curve_name: str = Field(
+    charging_curve_name: BivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['BivariateFunctions']}
     )
     timestep_of_the_curve_data: float | None = Field(
@@ -359,14 +373,14 @@ class WaterHeaterHeatPumpPumpedCondenser(IDFBaseModel):
             'note': 'Unique name for this instance of a heat pump water heater.'
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available. Schedule values of 0 denote the heat pump compr...',
         },
     )
-    compressor_setpoint_temperature_schedule_name: str = Field(
+    compressor_setpoint_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -440,21 +454,21 @@ class WaterHeaterHeatPumpPumpedCondenser(IDFBaseModel):
             'note': 'Simply a unique Node Name if Inlet Air Configuration is ZoneAndOutdoorAir or OutdoorAirOnly, otherwise leave field blank.'
         },
     )
-    inlet_air_temperature_schedule_name: str | None = Field(
+    inlet_air_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Used only if Inlet Air Configuration is Schedule, otherwise leave blank. Schedule values should be degrees C.',
         },
     )
-    inlet_air_humidity_schedule_name: str | None = Field(
+    inlet_air_humidity_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Used only if Inlet Air Configuration is Schedule, otherwise leave blank. Schedule values are entered as a fraction (e.g. 0.5 is equal to 50%RH)',
         },
     )
-    inlet_air_zone_name: str | None = Field(
+    inlet_air_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -469,7 +483,7 @@ class WaterHeaterHeatPumpPumpedCondenser(IDFBaseModel):
             'note': 'Specify the type of water heater tank used by this heat pump water heater.'
         },
     )
-    tank_name: str = Field(
+    tank_name: WaterHeaterNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['WaterHeaterNames'],
@@ -502,7 +516,11 @@ class WaterHeaterHeatPumpPumpedCondenser(IDFBaseModel):
             'note': 'Specify the type of DX coil used by this heat pump water heater. The only valid choice is Coil:WaterHeating:AirToWaterHeatPump:Pumped and Coil:WaterHeating:AirToWaterHeatPump:VariableSpeed, and Coi...'
         },
     )
-    dx_coil_name: str = Field(
+    dx_coil_name: (
+        HeatPumpWaterHeaterDXCoilsPumpedRef
+        | HeatPumpWaterHeaterDXCoilsVariableSpeedRef
+        | IntegratedHeatPumpsRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -535,7 +553,7 @@ class WaterHeaterHeatPumpPumpedCondenser(IDFBaseModel):
             'note': 'If Zone is selected, Inlet Air Configuration must be ZoneAirOnly or ZoneAndOutdoorAir. If Schedule is selected, then you must provide a Compressor Ambient Temperature Schedule Name below.'
         },
     )
-    compressor_ambient_temperature_schedule_name: str | None = Field(
+    compressor_ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -548,7 +566,7 @@ class WaterHeaterHeatPumpPumpedCondenser(IDFBaseModel):
             'note': 'Specify the type of fan used by this heat pump water heater. The only valid choices are Fan:SystemModel or Fan:OnOff.'
         },
     )
-    fan_name: str = Field(
+    fan_name: FansOnOffRef | FansSystemModelRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansOnOff', 'FansSystemModel'],
@@ -595,7 +613,7 @@ class WaterHeaterHeatPumpPumpedCondenser(IDFBaseModel):
             'note': 'Required only if Inlet Air Configuration is ZoneAndOutdoorAir, otherwise leave field blank.'
         },
     )
-    inlet_air_mixer_schedule_name: str | None = Field(
+    inlet_air_mixer_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -652,14 +670,14 @@ class WaterHeaterHeatPumpWrappedCondenser(IDFBaseModel):
             'note': 'Unique name for this instance of a heat pump water heater.'
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available. Schedule values of 0 denote the heat pump compr...',
         },
     )
-    compressor_setpoint_temperature_schedule_name: str = Field(
+    compressor_setpoint_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -730,21 +748,21 @@ class WaterHeaterHeatPumpWrappedCondenser(IDFBaseModel):
             'note': 'Simply a unique Node Name if Inlet Air Configuration is ZoneAndOutdoorAir or OutdoorAirOnly, otherwise leave field blank.'
         },
     )
-    inlet_air_temperature_schedule_name: str | None = Field(
+    inlet_air_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Used only if Inlet Air Configuration is Schedule, otherwise leave blank. Schedule values should be degrees C.',
         },
     )
-    inlet_air_humidity_schedule_name: str | None = Field(
+    inlet_air_humidity_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Used only if Inlet Air Configuration is Schedule, otherwise leave blank. Schedule values are entered as a fraction (e.g. 0.5 is equal to 50%RH)',
         },
     )
-    inlet_air_zone_name: str | None = Field(
+    inlet_air_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -757,7 +775,7 @@ class WaterHeaterHeatPumpWrappedCondenser(IDFBaseModel):
             'note': 'Specify the type of water heater tank used by this heat pump water heater.'
         },
     )
-    tank_name: str = Field(
+    tank_name: WaterHeaterStratifiedNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['WaterHeaterStratifiedNames'],
@@ -784,7 +802,7 @@ class WaterHeaterHeatPumpWrappedCondenser(IDFBaseModel):
             'note': 'Specify the type of DX coil used by this heat pump water heater. The only valid choice is Coil:WaterHeating:AirToWaterHeatPump:Wrapped'
         },
     )
-    dx_coil_name: str = Field(
+    dx_coil_name: HeatPumpWaterHeaterDXCoilsWrappedRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['HeatPumpWaterHeaterDXCoilsWrapped'],
@@ -813,7 +831,7 @@ class WaterHeaterHeatPumpWrappedCondenser(IDFBaseModel):
             'note': 'If Zone is selected, Inlet Air Configuration must be ZoneAirOnly or ZoneAndOutdoorAir. If Schedule is selected, then you must provide a Compressor Ambient Temperature Schedule Name below.'
         },
     )
-    compressor_ambient_temperature_schedule_name: str | None = Field(
+    compressor_ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -826,7 +844,7 @@ class WaterHeaterHeatPumpWrappedCondenser(IDFBaseModel):
             'note': 'Specify the type of fan used by this heat pump water heater. The only valid choices are Fan:SystemModel or Fan:OnOff.'
         },
     )
-    fan_name: str = Field(
+    fan_name: FansOnOffRef | FansSystemModelRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansOnOff', 'FansSystemModel'],
@@ -873,7 +891,7 @@ class WaterHeaterHeatPumpWrappedCondenser(IDFBaseModel):
             'note': 'Required only if Inlet Air Configuration is ZoneAndOutdoorAir, otherwise leave field blank.'
         },
     )
-    inlet_air_mixer_schedule_name: str | None = Field(
+    inlet_air_mixer_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -926,7 +944,7 @@ class WaterHeaterMixed(IDFBaseModel):
     tank_volume: float | Literal['', 'Autosize'] | None = Field(
         default=0.0, json_schema_extra={'units': 'm3'}
     )
-    setpoint_temperature_schedule_name: str = Field(
+    setpoint_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     deadband_temperature_difference: float | None = Field(
@@ -974,7 +992,7 @@ class WaterHeaterMixed(IDFBaseModel):
         'Propane',
     ] = Field(...)
     heater_thermal_efficiency: float = Field(..., gt=0.0)
-    part_load_factor_curve_name: str | None = Field(
+    part_load_factor_curve_name: UnivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     off_cycle_parasitic_fuel_consumption_rate: float | None = Field(
@@ -1024,10 +1042,10 @@ class WaterHeaterMixed(IDFBaseModel):
         default=0.0, ge=0.0, le=1.0
     )
     ambient_temperature_indicator: Literal['Outdoors', 'Schedule', 'Zone'] = Field(...)
-    ambient_temperature_schedule_name: str | None = Field(
+    ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    ambient_temperature_zone_name: str | None = Field(
+    ambient_temperature_zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     ambient_temperature_outdoor_air_node_name: str | None = Field(
@@ -1052,14 +1070,14 @@ class WaterHeaterMixed(IDFBaseModel):
             'note': 'Only used if Use Side Node connections are blank',
         },
     )
-    use_flow_rate_fraction_schedule_name: str | None = Field(
+    use_flow_rate_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Only used if Use Side Node connections are blank',
         },
     )
-    cold_water_supply_temperature_schedule_name: str | None = Field(
+    cold_water_supply_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1100,12 +1118,14 @@ class WaterHeaterMixed(IDFBaseModel):
             'note': 'StorageTank mode always requests flow unless tank is at its Maximum Temperature Limit IndirectHeatPrimarySetpoint mode requests flow whenever primary setpoint calls for heat IndirectHeatAlternateSe...'
         },
     )
-    indirect_alternate_setpoint_temperature_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'This field is only used if the previous is set to IndirectHeatAlternateSetpoint',
-        },
+    indirect_alternate_setpoint_temperature_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'This field is only used if the previous is set to IndirectHeatAlternateSetpoint',
+            },
+        )
     )
     end_use_subcategory: str | None = Field(
         default='General',
@@ -1121,7 +1141,7 @@ class WaterHeaterSizing(IDFBaseModel):
     object is not needed if water heaters are not autosized."""
 
     _idf_object_type: ClassVar[str] = 'WaterHeater:Sizing'
-    waterheater_name: str = Field(
+    waterheater_name: WaterHeaterNamesRef = Field(
         ..., json_schema_extra={'object_list': ['WaterHeaterNames']}
     )
     design_mode: (
@@ -1275,7 +1295,7 @@ class WaterHeaterStratified(IDFBaseModel):
     heater_priority_control: Literal['', 'MasterSlave', 'Simultaneous'] | None = Field(
         default='MasterSlave'
     )
-    heater_1_setpoint_temperature_schedule_name: str = Field(
+    heater_1_setpoint_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     heater_1_deadband_temperature_difference: float | None = Field(
@@ -1287,7 +1307,7 @@ class WaterHeaterStratified(IDFBaseModel):
     heater_1_height: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm'}
     )
-    heater_2_setpoint_temperature_schedule_name: str = Field(
+    heater_2_setpoint_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     heater_2_deadband_temperature_difference: float | None = Field(
@@ -1367,10 +1387,10 @@ class WaterHeaterStratified(IDFBaseModel):
         default=0.0, ge=0.0, json_schema_extra={'units': 'm'}
     )
     ambient_temperature_indicator: Literal['Outdoors', 'Schedule', 'Zone'] = Field(...)
-    ambient_temperature_schedule_name: str | None = Field(
+    ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    ambient_temperature_zone_name: str | None = Field(
+    ambient_temperature_zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     ambient_temperature_outdoor_air_node_name: str | None = Field(
@@ -1397,14 +1417,14 @@ class WaterHeaterStratified(IDFBaseModel):
             'note': 'Only used if Use Side Node connections are blank',
         },
     )
-    use_flow_rate_fraction_schedule_name: str | None = Field(
+    use_flow_rate_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'If blank, defaults to 1.0 at all times Only used if use side node connections are blank',
         },
     )
-    cold_water_supply_temperature_schedule_name: str | None = Field(
+    cold_water_supply_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1518,10 +1538,12 @@ class WaterHeaterStratified(IDFBaseModel):
             'note': 'StorageTank mode always requests flow unless tank is at its Maximum Temperature Limit IndirectHeatPrimarySetpoint mode requests flow whenever primary setpoint for heater 1 calls for heat IndirectHe...'
         },
     )
-    indirect_alternate_setpoint_temperature_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'This field is only used if the previous is set to IndirectHeatAlternateSetpoint',
-        },
+    indirect_alternate_setpoint_temperature_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'This field is only used if the previous is set to IndirectHeatAlternateSetpoint',
+            },
+        )
     )

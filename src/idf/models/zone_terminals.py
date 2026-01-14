@@ -12,6 +12,22 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AirTerminalUnitNamesRef,
+    CoolingCoilNameRef,
+    DesignSpecificationAirTerminalSizingNameRef,
+    DesignSpecificationOutdoorAirNamesRef,
+    DOAToZonalUnitRef,
+    DSOASpaceListNamesRef,
+    FansCVRef,
+    FansSystemModelRef,
+    FansVAVRef,
+    HeatingCoilNameRef,
+    ScheduleNamesRef,
+    UnivariateFunctionsRef,
+    ZoneMixersRef,
+    ZoneNamesRef,
+)
 
 
 class AirTerminalDualDuctConstantVolume(IDFBaseModel):
@@ -19,7 +35,7 @@ class AirTerminalDualDuctConstantVolume(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:DualDuct:ConstantVolume'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -44,7 +60,7 @@ class AirTerminalDualDuctVAV(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:DualDuct:VAV'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -68,14 +84,16 @@ class AirTerminalDualDuctVAV(IDFBaseModel):
         le=1.0,
         json_schema_extra={'note': 'fraction of maximum air flow'},
     )
-    design_specification_outdoor_air_object_name: str | None = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
             'note': 'When the name of a DesignSpecification:OutdoorAir object is entered, the terminal unit will increase flow as needed to meet this outdoor air requirement. If Outdoor Air Flow per Person is non-zero,...',
         },
     )
-    minimum_air_flow_turndown_schedule_name: str | None = Field(
+    minimum_air_flow_turndown_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -91,7 +109,7 @@ class AirTerminalDualDuctVAVOutdoorAir(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:DualDuct:VAV:OutdoorAir'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -113,7 +131,9 @@ class AirTerminalDualDuctVAVOutdoorAir(IDFBaseModel):
             'note': 'If autosized this is the sum of flow needed for cooling and maximum required outdoor air',
         },
     )
-    design_specification_outdoor_air_object_name: str = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
@@ -136,7 +156,7 @@ class AirTerminalSingleDuctConstantVolumeCooledBeam(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:ConstantVolume:CooledBeam'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -203,21 +223,21 @@ class AirTerminalSingleDuctConstantVolumeFourPipeBeam(IDFBaseModel):
         'AirTerminal:SingleDuct:ConstantVolume:FourPipeBeam'
     )
     name: str = Field(...)
-    primary_air_availability_schedule_name: str | None = Field(
+    primary_air_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Primary air is supplied by central air handling unit and must be on for heating or cooling. Schedule value > 0 means the primary air supply is available. If this field is blank, the primary air sup...',
         },
     )
-    cooling_availability_schedule_name: str | None = Field(
+    cooling_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Cooling operation can be controlled separately using this availability schedule. Schedule value > 0 means beam cooling is available. If this field is blank, the beam cooling is always available (as...',
         },
     )
-    heating_availability_schedule_name: str | None = Field(
+    heating_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -311,7 +331,7 @@ class AirTerminalSingleDuctConstantVolumeFourPipeBeam(IDFBaseModel):
         },
     )
     beam_cooling_capacity_temperature_difference_modification_factor_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -319,7 +339,9 @@ class AirTerminalSingleDuctConstantVolumeFourPipeBeam(IDFBaseModel):
             'note': 'Adjusts beam cooling capacity when the temperature difference between entering water and zone air is different than at the rating point. Single independent variable is the ratio of the current temp...',
         },
     )
-    beam_cooling_capacity_air_flow_modification_factor_curve_name: str | None = Field(
+    beam_cooling_capacity_air_flow_modification_factor_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -327,7 +349,7 @@ class AirTerminalSingleDuctConstantVolumeFourPipeBeam(IDFBaseModel):
         },
     )
     beam_cooling_capacity_chilled_water_flow_modification_factor_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -360,7 +382,7 @@ class AirTerminalSingleDuctConstantVolumeFourPipeBeam(IDFBaseModel):
         },
     )
     beam_heating_capacity_temperature_difference_modification_factor_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -368,21 +390,23 @@ class AirTerminalSingleDuctConstantVolumeFourPipeBeam(IDFBaseModel):
             'note': 'Adjusts beam heating capacity when the temperature difference between entering water and zone air is different than at the rating point. Single independent variable is the ratio of the current temp...',
         },
     )
-    beam_heating_capacity_air_flow_modification_factor_curve_name: str | None = Field(
+    beam_heating_capacity_air_flow_modification_factor_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Adjusts beam heating capacity when the primary air supply flow rate is different than at the rating point. The single independent variable is the current normalized air flow rate divided by the nor...',
         },
     )
-    beam_heating_capacity_hot_water_flow_modification_factor_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Adjusts beam heating capacity when the normalized hot water flow rate is different than at the rating point. The single independent variable is the current normalized hot water flow rate divided by...',
-            },
-        )
+    beam_heating_capacity_hot_water_flow_modification_factor_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Adjusts beam heating capacity when the normalized hot water flow rate is different than at the rating point. The single independent variable is the current normalized hot water flow rate divided by...',
+        },
     )
 
 
@@ -394,7 +418,7 @@ class AirTerminalSingleDuctConstantVolumeFourPipeInduction(IDFBaseModel):
         'AirTerminal:SingleDuct:ConstantVolume:FourPipeInduction'
     )
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -422,7 +446,7 @@ class AirTerminalSingleDuctConstantVolumeFourPipeInduction(IDFBaseModel):
         ..., json_schema_extra={'note': 'should be a zone inlet node'}
     )
     heating_coil_object_type: Literal['Coil:Heating:Water'] = Field(...)
-    heating_coil_name: str = Field(
+    heating_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     maximum_hot_water_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -444,7 +468,7 @@ class AirTerminalSingleDuctConstantVolumeFourPipeInduction(IDFBaseModel):
     cooling_coil_object_type: (
         Literal['Coil:Cooling:Water', 'Coil:Cooling:Water:DetailedGeometry'] | None
     ) = Field(default=None)
-    cooling_coil_name: str | None = Field(
+    cooling_coil_name: CoolingCoilNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['CoolingCoilName']}
     )
     maximum_cold_water_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -454,7 +478,9 @@ class AirTerminalSingleDuctConstantVolumeFourPipeInduction(IDFBaseModel):
         default=0.0, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
     cooling_convergence_tolerance: float | None = Field(default=0.001, gt=0.0)
-    zone_mixer_name: str = Field(..., json_schema_extra={'object_list': ['ZoneMixers']})
+    zone_mixer_name: ZoneMixersRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneMixers']}
+    )
 
 
 class AirTerminalSingleDuctConstantVolumeNoReheat(IDFBaseModel):
@@ -463,7 +489,7 @@ class AirTerminalSingleDuctConstantVolumeNoReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:ConstantVolume:NoReheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -485,7 +511,9 @@ class AirTerminalSingleDuctConstantVolumeNoReheat(IDFBaseModel):
     maximum_air_flow_rate: float | Literal['Autosize'] = Field(
         ..., json_schema_extra={'units': 'm3/s'}
     )
-    design_specification_outdoor_air_object_name: str | None = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
@@ -508,7 +536,7 @@ class AirTerminalSingleDuctConstantVolumeReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:ConstantVolume:Reheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -526,7 +554,7 @@ class AirTerminalSingleDuctConstantVolumeReheat(IDFBaseModel):
         'Coil:Heating:Steam',
         'Coil:Heating:Water',
     ] = Field(...)
-    reheat_coil_name: str = Field(
+    reheat_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     maximum_hot_water_or_steam_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -577,7 +605,7 @@ class AirTerminalSingleDuctMixer(IDFBaseModel):
             'note': 'The type of ZoneHVAC equipment to which this terminal mixer will be connected.'
         },
     )
-    zonehvac_unit_object_name: str = Field(
+    zonehvac_unit_object_name: DOAToZonalUnitRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['DOAToZonalUnit'],
@@ -608,7 +636,9 @@ class AirTerminalSingleDuctMixer(IDFBaseModel):
             'note': 'This input field allows user to specify the mixer connection type. Valid choices are InletSide or SupplySide. This is a required input field. If the mixer connection type selected is InletSide, the...'
         },
     )
-    design_specification_outdoor_air_object_name: str | None = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
@@ -632,7 +662,7 @@ class AirTerminalSingleDuctParallelPIUReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:ParallelPIU:Reheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -663,10 +693,10 @@ class AirTerminalSingleDuctParallelPIUReheat(IDFBaseModel):
     reheat_coil_air_inlet_node_name: str | None = Field(
         default=None, json_schema_extra={'note': 'mixer outlet node'}
     )
-    zone_mixer_name: str | None = Field(
+    zone_mixer_name: ZoneMixersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneMixers']}
     )
-    fan_name: str | None = Field(
+    fan_name: (FansCVRef | FansSystemModelRef) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FansCV', 'FansSystemModel'],
@@ -679,7 +709,7 @@ class AirTerminalSingleDuctParallelPIUReheat(IDFBaseModel):
         'Coil:Heating:Steam',
         'Coil:Heating:Water',
     ] = Field(...)
-    reheat_coil_name: str = Field(
+    reheat_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     maximum_hot_water_or_steam_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -737,7 +767,7 @@ class AirTerminalSingleDuctSeriesPIUReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:SeriesPIU:Reheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -760,10 +790,10 @@ class AirTerminalSingleDuctSeriesPIUReheat(IDFBaseModel):
     secondary_air_inlet_node_name: str | None = Field(default=None)
     outlet_node_name: str | None = Field(default=None)
     reheat_coil_air_inlet_node_name: str | None = Field(default=None)
-    zone_mixer_name: str | None = Field(
+    zone_mixer_name: ZoneMixersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneMixers']}
     )
-    fan_name: str | None = Field(
+    fan_name: (FansCVRef | FansSystemModelRef) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FansCV', 'FansSystemModel'],
@@ -776,7 +806,7 @@ class AirTerminalSingleDuctSeriesPIUReheat(IDFBaseModel):
         'Coil:Heating:Steam',
         'Coil:Heating:Water',
     ] = Field(...)
-    reheat_coil_name: str = Field(
+    reheat_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     maximum_hot_water_or_steam_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -833,7 +863,7 @@ class AirTerminalSingleDuctVAVHeatAndCoolNoReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:VAV:HeatAndCool:NoReheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -853,7 +883,7 @@ class AirTerminalSingleDuctVAVHeatAndCoolNoReheat(IDFBaseModel):
     zone_minimum_air_flow_fraction: float = Field(
         ..., ge=0.0, le=1.0, json_schema_extra={'note': 'fraction of maximum air flow'}
     )
-    minimum_air_flow_turndown_schedule_name: str | None = Field(
+    minimum_air_flow_turndown_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -868,7 +898,7 @@ class AirTerminalSingleDuctVAVHeatAndCoolReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:VAV:HeatAndCool:Reheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -899,7 +929,7 @@ class AirTerminalSingleDuctVAVHeatAndCoolReheat(IDFBaseModel):
         'Coil:Heating:Steam',
         'Coil:Heating:Water',
     ] = Field(...)
-    reheat_coil_name: str = Field(
+    reheat_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     maximum_hot_water_or_steam_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -932,7 +962,7 @@ class AirTerminalSingleDuctVAVHeatAndCoolReheat(IDFBaseModel):
             'note': 'Specifies the maximum allowable supply air temperature leaving the reheat coil. If left blank, there is no limit and no default. If unknown, 35C (95F) is recommended.',
         },
     )
-    minimum_air_flow_turndown_schedule_name: str | None = Field(
+    minimum_air_flow_turndown_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -947,7 +977,7 @@ class AirTerminalSingleDuctVAVNoReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:VAV:NoReheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -980,21 +1010,23 @@ class AirTerminalSingleDuctVAVNoReheat(IDFBaseModel):
             'note': 'This field is used if the field Zone Minimum Air Flow Input Method is FixedFlowRate. If the field Zone Minimum Air Flow Input Method is Scheduled, then this field is optional; if a value is entered...',
         },
     )
-    minimum_air_flow_fraction_schedule_name: str | None = Field(
+    minimum_air_flow_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This field is used if the field Zone Minimum Air Flow Input Method is Scheduled Schedule values are fractions, 0.0 to 1.0. If the field Constant Minimum Air Flow Fraction is blank, then the average...',
         },
     )
-    design_specification_outdoor_air_object_name: str | None = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
             'note': 'When the name of a DesignSpecification:OutdoorAir object is entered, the terminal unit will increase flow as needed to meet this outdoor air requirement. If Outdoor Air Flow per Person is non-zero,...',
         },
     )
-    minimum_air_flow_turndown_schedule_name: str | None = Field(
+    minimum_air_flow_turndown_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1009,7 +1041,7 @@ class AirTerminalSingleDuctVAVReheat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirTerminal:SingleDuct:VAV:Reheat'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1052,7 +1084,7 @@ class AirTerminalSingleDuctVAVReheat(IDFBaseModel):
             'note': 'This field is used if the field Zone Minimum Air Flow Input Method is FixedFlowRate. If the field Zone Minimum Air Flow Input Method is Scheduled, then this field is optional; if a value is entered...',
         },
     )
-    minimum_air_flow_fraction_schedule_name: str | None = Field(
+    minimum_air_flow_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1065,7 +1097,7 @@ class AirTerminalSingleDuctVAVReheat(IDFBaseModel):
         'Coil:Heating:Steam',
         'Coil:Heating:Water',
     ] = Field(...)
-    reheat_coil_name: str = Field(
+    reheat_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     maximum_hot_water_or_steam_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -1121,14 +1153,16 @@ class AirTerminalSingleDuctVAVReheat(IDFBaseModel):
             'note': 'Specifies the maximum allowable supply air temperature leaving the reheat coil. If left blank, there is no limit and no default. If unknown, 35C (95F) is recommended.',
         },
     )
-    design_specification_outdoor_air_object_name: str | None = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
             'note': 'When the name of a DesignSpecification:OutdoorAir object is entered, the terminal unit will increase flow as needed to meet this outdoor air requirement. If Outdoor Air Flow per Person is non-zero,...',
         },
     )
-    minimum_air_flow_turndown_schedule_name: str | None = Field(
+    minimum_air_flow_turndown_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1149,7 +1183,7 @@ class AirTerminalSingleDuctVAVReheatVariableSpeedFan(IDFBaseModel):
         'AirTerminal:SingleDuct:VAV:Reheat:VariableSpeedFan'
     )
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1181,7 +1215,7 @@ class AirTerminalSingleDuctVAVReheatVariableSpeedFan(IDFBaseModel):
         },
     )
     fan_object_type: Literal['Fan:SystemModel', 'Fan:VariableVolume'] = Field(...)
-    fan_name: str = Field(
+    fan_name: FansSystemModelRef | FansVAVRef = Field(
         ..., json_schema_extra={'object_list': ['FansSystemModel', 'FansVAV']}
     )
     heating_coil_object_type: Literal[
@@ -1190,7 +1224,7 @@ class AirTerminalSingleDuctVAVReheatVariableSpeedFan(IDFBaseModel):
         'Coil:Heating:Steam',
         'Coil:Heating:Water',
     ] = Field(...)
-    heating_coil_name: str = Field(
+    heating_coil_name: HeatingCoilNameRef = Field(
         ..., json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     maximum_hot_water_or_steam_flow_rate: float | Literal['Autosize'] | None = Field(
@@ -1209,7 +1243,7 @@ class AirTerminalSingleDuctVAVReheatVariableSpeedFan(IDFBaseModel):
         },
     )
     heating_convergence_tolerance: float | None = Field(default=0.001, gt=0.0)
-    minimum_air_flow_turndown_schedule_name: str | None = Field(
+    minimum_air_flow_turndown_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1245,7 +1279,7 @@ class ZoneHVACAirDistributionUnit(IDFBaseModel):
         'AirTerminal:SingleDuct:VAV:Reheat',
         'AirTerminal:SingleDuct:VAV:Reheat:VariableSpeedFan',
     ] = Field(...)
-    air_terminal_name: str = Field(
+    air_terminal_name: AirTerminalUnitNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AirTerminalUnitNames']}
     )
     nominal_upstream_leakage_fraction: float | None = Field(
@@ -1259,7 +1293,9 @@ class ZoneHVACAirDistributionUnit(IDFBaseModel):
     constant_downstream_leakage_fraction: float | None = Field(
         default=0.0, ge=0.0, le=0.3
     )
-    design_specification_air_terminal_sizing_object_name: str | None = Field(
+    design_specification_air_terminal_sizing_object_name: (
+        DesignSpecificationAirTerminalSizingNameRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DesignSpecificationAirTerminalSizingName'],
@@ -1275,14 +1311,14 @@ class ZoneHVACExhaustControl(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:ExhaustControl'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this exhaust system. Schedule value > 0 means it is available. If this field is blank, the exhaust system is always available. If the attached AirLoopHVAC:ExhaustSyst...',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -1305,7 +1341,7 @@ class ZoneHVACExhaustControl(IDFBaseModel):
         default='Scheduled',
         json_schema_extra={'note': 'Control type of the zone exhaust flow'},
     )
-    exhaust_flow_fraction_schedule_name: str | None = Field(
+    exhaust_flow_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1316,21 +1352,21 @@ class ZoneHVACExhaustControl(IDFBaseModel):
         default=None,
         json_schema_extra={'note': 'Used only with FollowSupply control type.'},
     )
-    minimum_zone_temperature_limit_schedule_name: str | None = Field(
+    minimum_zone_temperature_limit_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule name of the Minimum Zone Temperature Limit in degree Celsius If this field is blank, there is no limit.',
         },
     )
-    minimum_exhaust_flow_fraction_schedule_name: str | None = Field(
+    minimum_exhaust_flow_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule name of the minimum exhaust flow fraction. Applied when the zone temperature falls below the Minimum Zone Temperature Limit.',
         },
     )
-    balanced_exhaust_fraction_schedule_name: str | None = Field(
+    balanced_exhaust_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],

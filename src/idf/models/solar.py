@@ -12,12 +12,22 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllShadingAndHTSurfNamesRef,
+    CollectorStoragePerformanceRef,
+    FlatPlatePVTParametersRef,
+    FlatPlateSolarCollectorParametersRef,
+    OSCMNamesRef,
+    PVGeneratorNamesRef,
+    ScheduleNamesRef,
+    UTSCNamesRef,
+)
 
 
 class SolarCollectorUnglazedTranspiredSurfacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    surface_name: str = Field(
+    surface_name: AllShadingAndHTSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
 
@@ -38,13 +48,15 @@ class SolarCollectorFlatPlatePhotovoltaicThermal(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SolarCollector:FlatPlate:PhotovoltaicThermal'
     name: str | None = Field(default=None)
-    surface_name: str = Field(
+    surface_name: AllShadingAndHTSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
-    photovoltaic_thermal_model_performance_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['FlatPlatePVTParameters']}
+    photovoltaic_thermal_model_performance_name: FlatPlatePVTParametersRef | None = (
+        Field(
+            default=None, json_schema_extra={'object_list': ['FlatPlatePVTParameters']}
+        )
     )
-    photovoltaic_name: str | None = Field(
+    photovoltaic_name: PVGeneratorNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['PVGeneratorNames'],
@@ -71,10 +83,10 @@ class SolarCollectorFlatPlateWater(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SolarCollector:FlatPlate:Water'
     name: str = Field(...)
-    solarcollectorperformance_name: str = Field(
+    solarcollectorperformance_name: FlatPlateSolarCollectorParametersRef = Field(
         ..., json_schema_extra={'object_list': ['FlatPlateSolarCollectorParameters']}
     )
-    surface_name: str = Field(
+    surface_name: AllShadingAndHTSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
     inlet_node_name: str = Field(...)
@@ -94,10 +106,10 @@ class SolarCollectorIntegralCollectorStorage(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SolarCollector:IntegralCollectorStorage'
     name: str = Field(...)
-    integralcollectorstorageparameters_name: str = Field(
+    integralcollectorstorageparameters_name: CollectorStoragePerformanceRef = Field(
         ..., json_schema_extra={'object_list': ['CollectorStoragePerformance']}
     )
-    surface_name: str = Field(
+    surface_name: AllShadingAndHTSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
     bottom_surface_boundary_conditions_type: (
@@ -305,14 +317,14 @@ class SolarCollectorPerformancePhotovoltaicThermalBIPVT(IDFBaseModel):
         'SolarCollectorPerformance:PhotovoltaicThermal:BIPVT'
     )
     name: str | None = Field(default=None)
-    boundary_conditions_model_name: str = Field(
+    boundary_conditions_model_name: OSCMNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OSCMNames'],
             'note': 'Enter the name of a SurfaceProperty:OtherSideConditionsModel object',
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -380,7 +392,7 @@ class SolarCollectorPerformancePhotovoltaicThermalSimple(IDFBaseModel):
             'note': 'Efficiency = (thermal power generated [W])/(incident solar[W])'
         },
     )
-    thermal_conversion_efficiency_schedule_name: str | None = Field(
+    thermal_conversion_efficiency_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     front_surface_emittance: float | None = Field(default=0.84, gt=0.0, lt=1.0)
@@ -396,14 +408,14 @@ class SolarCollectorUnglazedTranspired(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SolarCollector:UnglazedTranspired'
     name: str = Field(...)
-    boundary_conditions_model_name: str = Field(
+    boundary_conditions_model_name: OSCMNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OSCMNames'],
             'note': 'Enter the name of a SurfaceProperty:OtherSideConditionsModel object',
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -434,7 +446,7 @@ class SolarCollectorUnglazedTranspired(IDFBaseModel):
             'note': 'This node is used to identify the affected zone required field if no SolarCollector:UnglazedTranspired:Multisystem'
         },
     )
-    free_heating_setpoint_schedule_name: str | None = Field(
+    free_heating_setpoint_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     diameter_of_perforations_in_collector: float = Field(
@@ -513,7 +525,7 @@ class SolarCollectorUnglazedTranspiredMultisystem(IDFBaseModel):
     outdoor air systems attached to same collector"""
 
     _idf_object_type: ClassVar[str] = 'SolarCollector:UnglazedTranspired:Multisystem'
-    solar_collector_name: str = Field(
+    solar_collector_name: UTSCNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UTSCNames'],

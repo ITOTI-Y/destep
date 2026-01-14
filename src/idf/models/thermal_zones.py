@@ -12,6 +12,24 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllShadingSurfNamesRef,
+    ComplexFenestrationStatesRef,
+    ConstructionNamesRef,
+    DaylightingControlNamesRef,
+    GlazingMaterialNameRef,
+    OutFaceEnvNamesRef,
+    ScheduleNamesRef,
+    SpaceAndSpaceListNamesRef,
+    SpaceNamesRef,
+    SubSurfNamesRef,
+    SurfaceNamesRef,
+    WindowFrameAndDividerNamesRef,
+    WindowShadesScreensAndBlindsRef,
+    ZoneAndZoneListNamesRef,
+    ZoneListNamesRef,
+    ZoneNamesRef,
+)
 
 
 class BuildingSurfaceDetailedVerticesItem(IDFBaseModel):
@@ -33,7 +51,9 @@ class SpaceTagsItem(IDFBaseModel):
 class SpaceListSpacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    space_name: str = Field(..., json_schema_extra={'object_list': ['SpaceNames']})
+    space_name: SpaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SpaceNames']}
+    )
 
 
 class WindowShadingControlFenestrationSurfacesItem(IDFBaseModel):
@@ -51,7 +71,9 @@ class WindowShadingControlFenestrationSurfacesItem(IDFBaseModel):
 class ZoneListZonesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
 
 
 class BuildingSurfaceDetailed(IDFBaseModel):
@@ -61,21 +83,21 @@ class BuildingSurfaceDetailed(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'BuildingSurface:Detailed'
     name: str = Field(...)
     surface_type: Literal['Ceiling', 'Floor', 'Roof', 'Wall'] = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -101,7 +123,7 @@ class BuildingSurfaceDetailed(IDFBaseModel):
         'Surface',
         'Zone',
     ] = Field(...)
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -134,21 +156,21 @@ class CeilingAdiabatic(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Ceiling:Adiabatic'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -200,28 +222,28 @@ class CeilingInterzone(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Ceiling:Interzone'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
             'note': 'Space the surface is a part of (optional, see description of Space object for more details).',
         },
     )
-    outside_boundary_condition_object: str = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -272,14 +294,14 @@ class Door(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Door'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
@@ -317,21 +339,21 @@ class DoorInterzone(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Door:Interzone'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'Name of Surface (Wall, usually) the Door is on (i.e., Base Surface) Door assumes the azimuth and tilt angles of the surface it is on.',
         },
     )
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -372,17 +394,17 @@ class FenestrationSurfaceDetailed(IDFBaseModel):
     surface_type: Literal[
         'Door', 'GlassDoor', 'TubularDaylightDiffuser', 'TubularDaylightDome', 'Window'
     ] = Field(...)
-    construction_name: str = Field(
+    construction_name: ComplexFenestrationStatesRef | ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ComplexFenestrationStates', 'ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SurfaceNames']}
     )
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -395,7 +417,7 @@ class FenestrationSurfaceDetailed(IDFBaseModel):
             'note': 'From the exterior of the surface Unused if one uses the "reflections" options in Solar Distribution in Building input unless a DaylightingDevice:Shelf or DaylightingDevice:Tubular object has been s...'
         },
     )
-    frame_and_divider_name: str | None = Field(
+    frame_and_divider_name: WindowFrameAndDividerNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WindowFrameAndDividerNames'],
@@ -441,21 +463,21 @@ class FloorAdiabatic(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Floor:Adiabatic'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -500,21 +522,21 @@ class FloorDetailed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Floor:Detailed'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -540,7 +562,7 @@ class FloorDetailed(IDFBaseModel):
         'Surface',
         'Zone',
     ] = Field(...)
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -574,21 +596,21 @@ class FloorGroundContact(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Floor:GroundContact'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file If the construction is type "Construction:FfactorGroundFloor", then the GroundFCfactorMethod will be used.',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -634,28 +656,28 @@ class FloorInterzone(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Floor:Interzone'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone for the inside face of the surface.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
             'note': 'Space for the inside face of the surface (optional, see description of Space object for more details).',
         },
     )
-    outside_boundary_condition_object: str = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -721,21 +743,21 @@ class GlazedDoor(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'GlazedDoor'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'Name of Surface (Wall, usually) the Door is on (i.e., Base Surface) Door assumes the azimuth and tilt angles of the surface it is on.',
         },
     )
-    frame_and_divider_name: str | None = Field(
+    frame_and_divider_name: WindowFrameAndDividerNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WindowFrameAndDividerNames'],
@@ -773,21 +795,21 @@ class GlazedDoorInterzone(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'GlazedDoor:Interzone'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'Name of Surface (Wall, usually) the Door is on (i.e., Base Surface) Door assumes the azimuth and tilt angles of the surface it is on.',
         },
     )
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -866,21 +888,21 @@ class InternalMass(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'InternalMass'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_or_zonelist_name: str | None = Field(
+    zone_or_zonelist_name: ZoneAndZoneListNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneAndZoneListNames'],
             'note': 'Zone(s) the surface is a part of.  This field is ignored when a Space or SpaceList Name is specified.',
         },
     )
-    space_or_spacelist_name: str | None = Field(
+    space_or_spacelist_name: SpaceAndSpaceListNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames'],
@@ -896,21 +918,21 @@ class Roof(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Roof'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -958,21 +980,21 @@ class RoofCeilingDetailed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'RoofCeiling:Detailed'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -996,7 +1018,7 @@ class RoofCeilingDetailed(IDFBaseModel):
         'Surface',
         'Zone',
     ] = Field(...)
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -1067,7 +1089,7 @@ class ShadingBuildingDetailed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Shading:Building:Detailed'
     name: str = Field(...)
-    transmittance_schedule_name: str | None = Field(
+    transmittance_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1089,7 +1111,7 @@ class ShadingFin(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Shading:Fin'
     name: str = Field(...)
-    window_or_door_name: str = Field(
+    window_or_door_name: SubSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SubSurfNames']}
     )
     left_extension_from_window_door: float | None = Field(
@@ -1138,7 +1160,7 @@ class ShadingFinProjection(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Shading:Fin:Projection'
     name: str = Field(...)
-    window_or_door_name: str = Field(
+    window_or_door_name: SubSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SubSurfNames']}
     )
     left_extension_from_window_door: float | None = Field(
@@ -1186,7 +1208,7 @@ class ShadingOverhang(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Shading:Overhang'
     name: str = Field(...)
-    window_or_door_name: str = Field(
+    window_or_door_name: SubSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SubSurfNames']}
     )
     height_above_window_or_door: float | None = Field(
@@ -1214,7 +1236,7 @@ class ShadingOverhangProjection(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Shading:Overhang:Projection'
     name: str = Field(...)
-    window_or_door_name: str = Field(
+    window_or_door_name: SubSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SubSurfNames']}
     )
     height_above_window_or_door: float | None = Field(
@@ -1243,7 +1265,7 @@ class ShadingPropertyReflectance(IDFBaseModel):
     listed in following fields will be used in the solar reflection calculation."""
 
     _idf_object_type: ClassVar[str] = 'ShadingProperty:Reflectance'
-    shading_surface_name: str = Field(
+    shading_surface_name: AllShadingSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingSurfNames']}
     )
     diffuse_solar_reflectance_of_unglazed_part_of_shading_surface: float | None = Field(
@@ -1304,7 +1326,7 @@ class ShadingSiteDetailed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Shading:Site:Detailed'
     name: str = Field(...)
-    transmittance_schedule_name: str | None = Field(
+    transmittance_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1326,10 +1348,10 @@ class ShadingZoneDetailed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Shading:Zone:Detailed'
     name: str = Field(...)
-    base_surface_name: str = Field(
+    base_surface_name: SurfaceNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SurfaceNames']}
     )
-    transmittance_schedule_name: str | None = Field(
+    transmittance_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1361,7 +1383,9 @@ class Space(IDFBaseModel):
             'note': 'Name of the Space. This name must be unique across Zone, Space, ZoneList, and SpaceList names.'
         },
     )
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     ceiling_height: float | Literal['', 'Autocalculate'] | None = Field(
         default='Autocalculate',
         json_schema_extra={
@@ -1414,21 +1438,21 @@ class WallAdiabatic(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Wall:Adiabatic'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -1475,21 +1499,21 @@ class WallDetailed(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Wall:Detailed'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -1515,7 +1539,7 @@ class WallDetailed(IDFBaseModel):
         'Surface',
         'Zone',
     ] = Field(...)
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -1549,21 +1573,21 @@ class WallExterior(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Wall:Exterior'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -1610,28 +1634,28 @@ class WallInterzone(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Wall:Interzone'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone for the inside face of the surface.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
             'note': 'Space for the inside face of the surface (optional, see description of Space object for more details).',
         },
     )
-    outside_boundary_condition_object: str = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -1678,21 +1702,21 @@ class WallUnderground(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Wall:Underground'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file. If the construction is type "Construction:CfactorUndergroundWall", then the GroundFCfactorMethod will be used.',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Zone the surface is a part of.',
         },
     )
-    space_name: str | None = Field(
+    space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -1739,21 +1763,21 @@ class Window(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Window'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'Name of Surface (Wall, usually) the Window is on (i.e., Base Surface) Window assumes the azimuth and tilt angles of the surface it is on.',
         },
     )
-    frame_and_divider_name: str | None = Field(
+    frame_and_divider_name: WindowFrameAndDividerNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WindowFrameAndDividerNames'],
@@ -1790,21 +1814,21 @@ class WindowInterzone(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Window:Interzone'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'To be matched with a construction in this input file',
         },
     )
-    building_surface_name: str = Field(
+    building_surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'Name of Surface (Wall, usually) the Window is on (i.e., Base Surface) Window assumes the azimuth and tilt angles of the surface it is on.',
         },
     )
-    outside_boundary_condition_object: str | None = Field(
+    outside_boundary_condition_object: OutFaceEnvNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutFaceEnvNames'],
@@ -1840,7 +1864,7 @@ class WindowPropertyAirflowControl(IDFBaseModel):
     """Used to control forced airflow through a gap between glass layers"""
 
     _idf_object_type: ClassVar[str] = 'WindowProperty:AirflowControl'
-    name: str = Field(
+    name: SubSurfNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SubSurfNames'],
@@ -1880,7 +1904,7 @@ class WindowPropertyAirflowControl(IDFBaseModel):
             'note': 'If Yes, then Airflow Multiplier Schedule Name must be specified'
         },
     )
-    airflow_multiplier_schedule_name: str | None = Field(
+    airflow_multiplier_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2102,14 +2126,14 @@ class WindowPropertyStormWindow(IDFBaseModel):
     and removed in the summer."""
 
     _idf_object_type: ClassVar[str] = 'WindowProperty:StormWindow'
-    window_name: str = Field(
+    window_name: SubSurfNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SubSurfNames'],
             'note': 'Must be the name of a FenestrationSurface:Detailed object with Surface Type = WINDOW. The WindowProperty:StormWindow object can only be used with exterior windows.',
         },
     )
-    storm_glass_layer_name: str = Field(
+    storm_glass_layer_name: GlazingMaterialNameRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['GlazingMaterialName'],
@@ -2137,7 +2161,9 @@ class WindowShadingControl(IDFBaseModel):
             'note': 'Referenced by surfaces that are exterior windows Not used by interzone windows'
         },
     )
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     shading_control_sequence_number: int | None = Field(
         default=1,
         ge=1,
@@ -2155,7 +2181,7 @@ class WindowShadingControl(IDFBaseModel):
         'InteriorShade',
         'SwitchableGlazing',
     ] = Field(...)
-    construction_with_shading_name: str | None = Field(
+    construction_with_shading_name: ConstructionNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
@@ -2193,7 +2219,7 @@ class WindowShadingControl(IDFBaseModel):
             'note': 'OnIfScheduleAllows requires that Schedule Name be specified and Shading Control Is Scheduled = Yes. AlwaysOn, AlwaysOff and OnIfScheduleAllows are the only valid control types for ExteriorScreen. T...'
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2219,7 +2245,7 @@ class WindowShadingControl(IDFBaseModel):
             'note': "If Yes and window is in a daylit zone, shading is on if zone's discomfort glare index exceeds the maximum discomfort glare index specified in the Daylighting object referenced by the zone. The glar..."
         },
     )
-    shading_device_material_name: str | None = Field(
+    shading_device_material_name: WindowShadesScreensAndBlindsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WindowShadesScreensAndBlinds'],
@@ -2234,7 +2260,7 @@ class WindowShadingControl(IDFBaseModel):
             'note': 'Used only if Shading Type = InteriorBlind, ExteriorBlind or BetweenGlassBlind. If choice is ScheduledSlatAngle then Slat Angle Schedule Name is required.'
         },
     )
-    slat_angle_schedule_name: str | None = Field(
+    slat_angle_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2248,7 +2274,7 @@ class WindowShadingControl(IDFBaseModel):
             'note': 'W/m2 for solar-based controls, deg C for temperature-based controls, cd/m2 for luminance based controls. Used only as the second setpoint for the following two-setpoint control types: OnIfHighOutdo...',
         },
     )
-    daylighting_control_object_name: str | None = Field(
+    daylighting_control_object_name: DaylightingControlNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DaylightingControlNames'],
@@ -2354,7 +2380,7 @@ class ZoneGroup(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneGroup'
     name: str = Field(..., json_schema_extra={'note': 'Name of the Zone Group'})
-    zone_list_name: str = Field(
+    zone_list_name: ZoneListNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneListNames']}
     )
     zone_list_multiplier: int | None = Field(default=1, ge=1)

@@ -12,13 +12,18 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    FluidAndGlycolNamesRef,
+    FluidNamesRef,
+    FluidPropertyTemperaturesRef,
+)
 
 
 class FluidPropertiesConcentration(IDFBaseModel):
     """fluid properties for water/other fluid mixtures"""
 
     _idf_object_type: ClassVar[str] = 'FluidProperties:Concentration'
-    fluid_name: str | None = Field(
+    fluid_name: FluidNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FluidNames'],
@@ -33,7 +38,7 @@ class FluidPropertiesConcentration(IDFBaseModel):
             'note': 'Density Units are kg/m3 SpecificHeat Units are J/kg-K Conductivity Units are W/m-K Viscosity Units are N-s/m2'
         },
     )
-    temperature_values_name: str | None = Field(
+    temperature_values_name: FluidPropertyTemperaturesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FluidPropertyTemperatures'],
@@ -314,7 +319,7 @@ class FluidPropertiesGlycolConcentration(IDFBaseModel):
             'note': 'or UserDefined Fluid (must show up as a glycol in FluidProperties:Name object)'
         },
     )
-    user_defined_glycol_name: str | None = Field(
+    user_defined_glycol_name: FluidAndGlycolNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['FluidAndGlycolNames']}
     )
     glycol_concentration: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -333,7 +338,7 @@ class FluidPropertiesSaturated(IDFBaseModel):
     """fluid properties for the saturated region"""
 
     _idf_object_type: ClassVar[str] = 'FluidProperties:Saturated'
-    fluid_name: str | None = Field(
+    fluid_name: FluidNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['FluidNames']}
     )
     fluid_property_type: (
@@ -348,7 +353,7 @@ class FluidPropertiesSaturated(IDFBaseModel):
         default=None,
         json_schema_extra={'note': 'Fluid=saturated fluid FluidGas=saturated vapor'},
     )
-    temperature_values_name: str | None = Field(
+    temperature_values_name: FluidPropertyTemperaturesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FluidPropertyTemperatures'],
@@ -611,14 +616,14 @@ class FluidPropertiesSuperheated(IDFBaseModel):
     """fluid properties for the superheated region"""
 
     _idf_object_type: ClassVar[str] = 'FluidProperties:Superheated'
-    fluid_name: str | None = Field(
+    fluid_name: FluidNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['FluidNames']}
     )
     fluid_property_type: Literal['Density', 'Enthalpy'] | None = Field(
         default=None,
         json_schema_extra={'note': 'Enthalpy Units are J/kg Density Units are kg/m3'},
     )
-    temperature_values_name: str | None = Field(
+    temperature_values_name: FluidPropertyTemperaturesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FluidPropertyTemperatures'],

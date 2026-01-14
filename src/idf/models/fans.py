@@ -12,6 +12,14 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    BivariateFunctionsRef,
+    FansComponentModelRef,
+    FansCVandVAVRef,
+    ScheduleNamesRef,
+    UnivariateFunctionsRef,
+    ZoneNamesRef,
+)
 
 
 class FanSystemModelSpeedFractionsItem(IDFBaseModel):
@@ -38,7 +46,7 @@ class FanComponentModel(IDFBaseModel):
     name: str = Field(...)
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -169,91 +177,101 @@ class FanComponentModel(IDFBaseModel):
             'note': 'Applied to specified or autosized VFD output power'
         },
     )
-    fan_pressure_rise_curve_name: str = Field(
+    fan_pressure_rise_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'Pressure rise depends on volumetric flow, system resistances, system leakage, and duct static pressure set point',
         },
     )
-    duct_static_pressure_reset_curve_name: str = Field(
+    duct_static_pressure_reset_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Function of fan volumetric flow Minimum and maximum fan airflows correspond respectively to minimum and maximum duct static pressure set points',
         },
     )
-    normalized_fan_static_efficiency_curve_name_non_stall_region: str = Field(
+    normalized_fan_static_efficiency_curve_name_non_stall_region: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'xfan <= 0 Curve should have maximum of 1.0',
         },
     )
-    normalized_fan_static_efficiency_curve_name_stall_region: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'xfan > 0 Curve should have maximum of 1.0',
-        },
+    normalized_fan_static_efficiency_curve_name_stall_region: UnivariateFunctionsRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'xfan > 0 Curve should have maximum of 1.0',
+            },
+        )
     )
-    normalized_dimensionless_airflow_curve_name_non_stall_region: str = Field(
+    normalized_dimensionless_airflow_curve_name_non_stall_region: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'xspd <= 0 Curve should have maximum of 1.0',
         },
     )
-    normalized_dimensionless_airflow_curve_name_stall_region: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'xspd > 0 Curve should have maximum of 1.0',
-        },
+    normalized_dimensionless_airflow_curve_name_stall_region: UnivariateFunctionsRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'xspd > 0 Curve should have maximum of 1.0',
+            },
+        )
     )
-    maximum_belt_efficiency_curve_name: str | None = Field(
+    maximum_belt_efficiency_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Determines maximum fan drive belt efficiency in log space as function of xbelt,max Curve should have minimum of -4.6 and maximum of 0.0 If field blank, assumes output of curve is always 1.0',
         },
     )
-    normalized_belt_efficiency_curve_name_region_1: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'Region 1 (0 <= xbelt < xbelt,trans) Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0 in Region 1',
-        },
+    normalized_belt_efficiency_curve_name_region_1: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'Region 1 (0 <= xbelt < xbelt,trans) Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0 in Region 1',
+            },
+        )
     )
-    normalized_belt_efficiency_curve_name_region_2: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'Region 2 (xbelt,trans <= xbelt <= 1) Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0 in Region 2',
-        },
+    normalized_belt_efficiency_curve_name_region_2: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'Region 2 (xbelt,trans <= xbelt <= 1) Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0 in Region 2',
+            },
+        )
     )
-    normalized_belt_efficiency_curve_name_region_3: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'Determines normalized drive belt efficiency Region 3 (xbelt > 1) Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0 in Region 3',
-        },
+    normalized_belt_efficiency_curve_name_region_3: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'Determines normalized drive belt efficiency Region 3 (xbelt > 1) Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0 in Region 3',
+            },
+        )
     )
-    maximum_motor_efficiency_curve_name: str | None = Field(
+    maximum_motor_efficiency_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0',
         },
     )
-    normalized_motor_efficiency_curve_name: str | None = Field(
+    normalized_motor_efficiency_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Curve should have minimum > 0.0 and maximum of 1.0 If field blank, assumes output of curve is always 1.0',
         },
     )
-    vfd_efficiency_curve_name: str | None = Field(
+    vfd_efficiency_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -275,7 +293,7 @@ class FanConstantVolume(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Fan:ConstantVolume'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -313,7 +331,7 @@ class FanOnOff(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Fan:OnOff'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -336,12 +354,12 @@ class FanOnOff(IDFBaseModel):
     )
     air_inlet_node_name: str = Field(...)
     air_outlet_node_name: str = Field(...)
-    fan_power_ratio_function_of_speed_ratio_curve_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
-    )
-    fan_efficiency_ratio_function_of_speed_ratio_curve_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
-    )
+    fan_power_ratio_function_of_speed_ratio_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['UnivariateFunctions']})
+    fan_efficiency_ratio_function_of_speed_ratio_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['UnivariateFunctions']})
     end_use_subcategory: str | None = Field(
         default='General',
         json_schema_extra={
@@ -360,7 +378,7 @@ class FanPerformanceNightVentilation(IDFBaseModel):
     fixed speed in the alternate mode."""
 
     _idf_object_type: ClassVar[str] = 'FanPerformance:NightVentilation'
-    fan_name: str = Field(
+    fan_name: FansCVandVAVRef | FansComponentModelRef = Field(
         ..., json_schema_extra={'object_list': ['FansCVandVAV', 'FansComponentModel']}
     )
     fan_total_efficiency: float = Field(..., le=1.0, gt=0.0)
@@ -388,7 +406,7 @@ class FanSystemModel(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Fan:SystemModel'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -436,7 +454,9 @@ class FanSystemModel(IDFBaseModel):
         default=1.66667, json_schema_extra={'units': 'W/((m3/s)-Pa)'}
     )
     fan_total_efficiency: float | None = Field(default=0.7, le=1.0, gt=0.0)
-    electric_power_function_of_flow_fraction_curve_name: str | None = Field(
+    electric_power_function_of_flow_fraction_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -458,7 +478,7 @@ class FanSystemModel(IDFBaseModel):
             'note': 'Fraction of Design Maximum Air Flow Rate to use when in night mode using AvailabilityManager:NightVentilation'
         },
     )
-    motor_loss_zone_name: str | None = Field(
+    motor_loss_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -494,7 +514,7 @@ class FanVariableVolume(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Fan:VariableVolume'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -547,7 +567,7 @@ class FanZoneExhaust(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Fan:ZoneExhaust'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -567,7 +587,7 @@ class FanZoneExhaust(IDFBaseModel):
             'note': 'Any text may be used here to categorize the end-uses in the ABUPS End Uses by Subcategory table.'
         },
     )
-    flow_fraction_schedule_name: str | None = Field(
+    flow_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -582,14 +602,14 @@ class FanZoneExhaust(IDFBaseModel):
             'note': 'Control if fan is to be interlocked with HVAC system Availability Managers or not.'
         },
     )
-    minimum_zone_temperature_limit_schedule_name: str | None = Field(
+    minimum_zone_temperature_limit_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'If field is used, the exhaust fan will not run if the zone temperature is lower than this limit',
         },
     )
-    balanced_exhaust_fraction_schedule_name: str | None = Field(
+    balanced_exhaust_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],

@@ -12,13 +12,25 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AirPrimaryLoopsRef,
+    DesignSpecificationOutdoorAirNamesRef,
+    DesignSpecificationZoneAirDistributionNamesRef,
+    DSOASpaceListNamesRef,
+    PlantLoopsRef,
+    ScheduleNamesRef,
+    SpaceNamesRef,
+    ZoneAndZoneListNamesRef,
+)
 
 
 class DesignSpecificationOutdoorAirSpaceListSpaceSpecsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    space_name: str = Field(..., json_schema_extra={'object_list': ['SpaceNames']})
-    space_design_specification_outdoor_air_object_name: str = Field(
+    space_name: SpaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SpaceNames']}
+    )
+    space_design_specification_outdoor_air_object_name: DesignSpecificationOutdoorAirNamesRef = Field(
         ..., json_schema_extra={'object_list': ['DesignSpecificationOutdoorAirNames']}
     )
 
@@ -133,21 +145,21 @@ class DesignSpecificationOutdoorAir(IDFBaseModel):
             'note': 'This input is only used if the field Outdoor Air Method is AirChanges/Hour, Sum, or Maximum',
         },
     )
-    outdoor_air_schedule_name: str | None = Field(
+    outdoor_air_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values are multiplied by the Outdoor Air Flow rate calculated using the previous four inputs. Schedule values are limited to 0 to 1. If left blank, the schedule defaults to 1.0. This sched...',
         },
     )
-    proportional_control_minimum_outdoor_air_flow_rate_schedule_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['ScheduleNames'],
-                'note': 'This input is only used to calculate the minimum outdoor air flow rate when the field System Outdoor Air Method = ProportionalControlBasedOnDesignOARate in Controller:MechanicalVentilation.',
-            },
-        )
+    proportional_control_minimum_outdoor_air_flow_rate_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['ScheduleNames'],
+            'note': 'This input is only used to calculate the minimum outdoor air flow rate when the field System Outdoor Air Method = ProportionalControlBasedOnDesignOARate in Controller:MechanicalVentilation.',
+        },
     )
 
 
@@ -178,7 +190,7 @@ class DesignSpecificationZoneAirDistribution(IDFBaseModel):
     zone_air_distribution_effectiveness_in_heating_mode: float | None = Field(
         default=1.0, gt=0.0, json_schema_extra={'units': 'dimensionless'}
     )
-    zone_air_distribution_effectiveness_schedule_name: str | None = Field(
+    zone_air_distribution_effectiveness_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -451,7 +463,7 @@ class SizingPlant(IDFBaseModel):
     calculating the Plant Loop flow rates."""
 
     _idf_object_type: ClassVar[str] = 'Sizing:Plant'
-    plant_or_condenser_loop_name: str = Field(
+    plant_or_condenser_loop_name: PlantLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['PlantLoops'],
@@ -498,7 +510,7 @@ class SizingSystem(IDFBaseModel):
     capacity will be calculated using this input data."""
 
     _idf_object_type: ClassVar[str] = 'Sizing:System'
-    airloop_name: str = Field(
+    airloop_name: AirPrimaryLoopsRef = Field(
         ..., json_schema_extra={'object_list': ['AirPrimaryLoops']}
     )
     type_of_load_to_size_on: (
@@ -734,7 +746,7 @@ class SizingZone(IDFBaseModel):
     calculations."""
 
     _idf_object_type: ClassVar[str] = 'Sizing:Zone'
-    zone_or_zonelist_name: str = Field(
+    zone_or_zonelist_name: ZoneAndZoneListNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneAndZoneListNames']}
     )
     zone_cooling_design_supply_air_temperature_input_method: (
@@ -777,7 +789,9 @@ class SizingZone(IDFBaseModel):
     zone_heating_design_supply_air_humidity_ratio: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'kgWater/kgDryAir'}
     )
-    design_specification_outdoor_air_object_name: str | None = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
@@ -866,7 +880,9 @@ class SizingZone(IDFBaseModel):
             'note': 'fraction of the Heating Design Air Flow Rate This input is used for autosizing components when Heating Design Air Flow Method = DesignDayWithLimit.'
         },
     )
-    design_specification_zone_air_distribution_object_name: str | None = Field(
+    design_specification_zone_air_distribution_object_name: (
+        DesignSpecificationZoneAirDistributionNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DesignSpecificationZoneAirDistributionNames']

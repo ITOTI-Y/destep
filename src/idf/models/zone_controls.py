@@ -12,6 +12,15 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ControlTypeNamesRef,
+    PeopleNamesRef,
+    ScheduleNamesRef,
+    ThermalComfortControlTypeNamesRef,
+    ZoneAndZoneListNamesRef,
+    ZoneControlThermostaticNamesRef,
+    ZoneNamesRef,
+)
 
 
 class ThermostatSetpointDualSetpoint(IDFBaseModel):
@@ -21,10 +30,10 @@ class ThermostatSetpointDualSetpoint(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ThermostatSetpoint:DualSetpoint'
     name: str = Field(...)
-    heating_setpoint_temperature_schedule_name: str | None = Field(
+    heating_setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    cooling_setpoint_temperature_schedule_name: str | None = Field(
+    cooling_setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -35,7 +44,7 @@ class ThermostatSetpointSingleCooling(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ThermostatSetpoint:SingleCooling'
     name: str = Field(...)
-    setpoint_temperature_schedule_name: str | None = Field(
+    setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -47,7 +56,7 @@ class ThermostatSetpointSingleHeating(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ThermostatSetpoint:SingleHeating'
     name: str = Field(...)
-    setpoint_temperature_schedule_name: str | None = Field(
+    setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -59,7 +68,7 @@ class ThermostatSetpointSingleHeatingOrCooling(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ThermostatSetpoint:SingleHeatingOrCooling'
     name: str = Field(...)
-    setpoint_temperature_schedule_name: str | None = Field(
+    setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -73,14 +82,14 @@ class ThermostatSetpointThermalComfortFangerDualSetpoint(IDFBaseModel):
         'ThermostatSetpoint:ThermalComfort:Fanger:DualSetpoint'
     )
     name: str = Field(...)
-    fanger_thermal_comfort_heating_schedule_name: str = Field(
+    fanger_thermal_comfort_heating_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values should be Predicted Mean Vote (PMV)',
         },
     )
-    fanger_thermal_comfort_cooling_schedule_name: str = Field(
+    fanger_thermal_comfort_cooling_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -98,7 +107,7 @@ class ThermostatSetpointThermalComfortFangerSingleCooling(IDFBaseModel):
         'ThermostatSetpoint:ThermalComfort:Fanger:SingleCooling'
     )
     name: str = Field(...)
-    fanger_thermal_comfort_schedule_name: str = Field(
+    fanger_thermal_comfort_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -116,7 +125,7 @@ class ThermostatSetpointThermalComfortFangerSingleHeating(IDFBaseModel):
         'ThermostatSetpoint:ThermalComfort:Fanger:SingleHeating'
     )
     name: str = Field(...)
-    fanger_thermal_comfort_schedule_name: str = Field(
+    fanger_thermal_comfort_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -134,7 +143,7 @@ class ThermostatSetpointThermalComfortFangerSingleHeatingOrCooling(IDFBaseModel)
         'ThermostatSetpoint:ThermalComfort:Fanger:SingleHeatingOrCooling'
     )
     name: str = Field(...)
-    fanger_thermal_comfort_schedule_name: str = Field(
+    fanger_thermal_comfort_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -150,43 +159,47 @@ class ZoneControlContaminantController(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneControl:ContaminantController'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
-    carbon_dioxide_control_availability_schedule_name: str | None = Field(
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
+    carbon_dioxide_control_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for CO2 controller. Schedule value > 0 means the CO2 controller is enabled. If this field is blank, then CO2 controller is always enabled.',
         },
     )
-    carbon_dioxide_setpoint_schedule_name: str | None = Field(
+    carbon_dioxide_setpoint_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values should be carbon dioxide concentration in parts per million (ppm)',
         },
     )
-    minimum_carbon_dioxide_concentration_schedule_name: str | None = Field(
+    minimum_carbon_dioxide_concentration_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values should be carbon dioxide concentration in parts per million (ppm) This field is used when the field System Outdoor Air Method = ProportionalControlBasedOnOccupancySchedule or Propor...',
         },
     )
-    maximum_carbon_dioxide_concentration_schedule_name: str | None = Field(
+    maximum_carbon_dioxide_concentration_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values should be carbon dioxide concentration in parts per million (ppm) This field is used when the field System Outdoor Air Method = ProportionalControlBasedOnOccupancySchedule or Propor...',
         },
     )
-    generic_contaminant_control_availability_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'Availability schedule name for generic contaminant controller. Schedule value > 0 means the generic contaminant controller is enabled. If this field is blank, then generic contaminant controller is...',
-        },
+    generic_contaminant_control_availability_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'Availability schedule name for generic contaminant controller. Schedule value > 0 means the generic contaminant controller is enabled. If this field is blank, then generic contaminant controller is...',
+            },
+        )
     )
-    generic_contaminant_setpoint_schedule_name: str | None = Field(
+    generic_contaminant_setpoint_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -201,20 +214,24 @@ class ZoneControlHumidistat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneControl:Humidistat'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
-    humidifying_relative_humidity_setpoint_schedule_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
+    humidifying_relative_humidity_setpoint_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'hourly schedule values should be in Relative Humidity (percent)',
         },
     )
-    dehumidifying_relative_humidity_setpoint_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'hourly schedule values should be in Relative Humidity (percent)',
-        },
+    dehumidifying_relative_humidity_setpoint_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'hourly schedule values should be in Relative Humidity (percent)',
+            },
+        )
     )
 
 
@@ -225,10 +242,10 @@ class ZoneControlThermostat(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneControl:Thermostat'
     name: str = Field(...)
-    zone_or_zonelist_name: str = Field(
+    zone_or_zonelist_name: ZoneAndZoneListNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneAndZoneListNames']}
     )
-    control_type_schedule_name: str = Field(
+    control_type_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -241,7 +258,7 @@ class ZoneControlThermostat(IDFBaseModel):
         'ThermostatSetpoint:SingleHeating',
         'ThermostatSetpoint:SingleHeatingOrCooling',
     ] = Field(...)
-    control_1_name: str = Field(
+    control_1_name: ControlTypeNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ControlTypeNames'],
@@ -257,7 +274,7 @@ class ZoneControlThermostat(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_2_name: str | None = Field(
+    control_2_name: ControlTypeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ControlTypeNames'],
@@ -273,7 +290,7 @@ class ZoneControlThermostat(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_3_name: str | None = Field(
+    control_3_name: ControlTypeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ControlTypeNames'],
@@ -289,7 +306,7 @@ class ZoneControlThermostat(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_4_name: str | None = Field(
+    control_4_name: ControlTypeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ControlTypeNames'],
@@ -313,7 +330,7 @@ class ZoneControlThermostatOperativeTemperature(IDFBaseModel):
     Thermostat name> internally."""
 
     _idf_object_type: ClassVar[str] = 'ZoneControl:Thermostat:OperativeTemperature'
-    thermostat_name: str = Field(
+    thermostat_name: ZoneControlThermostaticNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneControlThermostaticNames'],
@@ -322,7 +339,7 @@ class ZoneControlThermostatOperativeTemperature(IDFBaseModel):
     )
     radiative_fraction_input_mode: Literal['Constant', 'Scheduled'] = Field(...)
     fixed_radiative_fraction: float | None = Field(default=None, ge=0.0, lt=0.9)
-    radiative_fraction_schedule_name: str | None = Field(
+    radiative_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -357,7 +374,7 @@ class ZoneControlThermostatStagedDualSetpoint(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneControl:Thermostat:StagedDualSetpoint'
     name: str = Field(...)
-    zone_or_zonelist_name: str = Field(
+    zone_or_zonelist_name: ZoneAndZoneListNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneAndZoneListNames']}
     )
     number_of_heating_stages: int = Field(
@@ -368,7 +385,7 @@ class ZoneControlThermostatStagedDualSetpoint(IDFBaseModel):
             'note': 'Enter the number of the following sets of data for heating temperature offset'
         },
     )
-    heating_temperature_setpoint_schedule_name: str | None = Field(
+    heating_temperature_setpoint_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     heating_throttling_temperature_range: float | None = Field(
@@ -414,7 +431,7 @@ class ZoneControlThermostatStagedDualSetpoint(IDFBaseModel):
             'note': 'Enter the number of the following sets of data for cooling temperature offset'
         },
     )
-    cooling_temperature_setpoint_base_schedule_name: str | None = Field(
+    cooling_temperature_setpoint_base_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     cooling_throttling_temperature_range: float | None = Field(
@@ -459,14 +476,14 @@ class ZoneControlThermostatTemperatureAndHumidity(IDFBaseModel):
     control based on zone air humidity conditions."""
 
     _idf_object_type: ClassVar[str] = 'ZoneControl:Thermostat:TemperatureAndHumidity'
-    thermostat_name: str = Field(
+    thermostat_name: ZoneControlThermostaticNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneControlThermostaticNames'],
             'note': 'Enter the name of a ZoneControl:Thermostat object whose operation is to be modified to effect temperature control based on zone air humidity conditions. If the ZoneControl: Thermostat object refere...',
         },
     )
-    dehumidifying_relative_humidity_setpoint_schedule_name: str = Field(
+    dehumidifying_relative_humidity_setpoint_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -488,7 +505,7 @@ class ZoneControlThermostatTemperatureAndHumidity(IDFBaseModel):
             'note': 'Maximum Overcool temperature range for cooling setpoint reduction. Used with Dehumidification Control Type = Overcool. A value of 0.0 indicates no zone temperature overcooling will be provided to g...',
         },
     )
-    overcool_range_schedule_name: str | None = Field(
+    overcool_range_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -511,7 +528,7 @@ class ZoneControlThermostatThermalComfort(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneControl:Thermostat:ThermalComfort'
     name: str = Field(...)
-    zone_or_zonelist_name: str = Field(
+    zone_or_zonelist_name: ZoneAndZoneListNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneAndZoneListNames']}
     )
     averaging_method: (
@@ -522,7 +539,7 @@ class ZoneControlThermostatThermalComfort(IDFBaseModel):
             'note': 'The method used to calculate thermal comfort dry-bulb temperature setpoint for multiple people objects in a zone'
         },
     )
-    specific_people_name: str | None = Field(
+    specific_people_name: PeopleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['PeopleNames'],
@@ -535,7 +552,7 @@ class ZoneControlThermostatThermalComfort(IDFBaseModel):
     maximum_dry_bulb_temperature_setpoint: float | None = Field(
         default=50.0, ge=0.0, le=50.0, json_schema_extra={'units': 'C'}
     )
-    thermal_comfort_control_type_schedule_name: str = Field(
+    thermal_comfort_control_type_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -548,7 +565,7 @@ class ZoneControlThermostatThermalComfort(IDFBaseModel):
         'ThermostatSetpoint:ThermalComfort:Fanger:SingleHeating',
         'ThermostatSetpoint:ThermalComfort:Fanger:SingleHeatingOrCooling',
     ] = Field(...)
-    thermal_comfort_control_1_name: str = Field(
+    thermal_comfort_control_1_name: ThermalComfortControlTypeNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ThermalComfortControlTypeNames'],
@@ -564,7 +581,7 @@ class ZoneControlThermostatThermalComfort(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    thermal_comfort_control_2_name: str | None = Field(
+    thermal_comfort_control_2_name: ThermalComfortControlTypeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ThermalComfortControlTypeNames'],
@@ -580,7 +597,7 @@ class ZoneControlThermostatThermalComfort(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    thermal_comfort_control_3_name: str | None = Field(
+    thermal_comfort_control_3_name: ThermalComfortControlTypeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ThermalComfortControlTypeNames'],
@@ -596,7 +613,7 @@ class ZoneControlThermostatThermalComfort(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    thermal_comfort_control_4_name: str | None = Field(
+    thermal_comfort_control_4_name: ThermalComfortControlTypeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ThermalComfortControlTypeNames'],

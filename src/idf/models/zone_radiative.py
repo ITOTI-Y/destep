@@ -12,12 +12,28 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllHeatTranSurfNamesRef,
+    BaseboardDesignObjectRef,
+    CoolingCoilsWaterRef,
+    DesignSpecificationZoneHVACSizingNameRef,
+    FansCVRef,
+    FansSystemModelRef,
+    HeatingCoilNameRef,
+    RadiantDesignObjectRef,
+    RadiantGroupNamesRef,
+    RadiantSurfaceNamesRef,
+    ScheduleNamesRef,
+    SystemAvailabilityManagerListsRef,
+    VentSlabGroupNamesRef,
+    ZoneNamesRef,
+)
 
 
 class ZoneHVACBaseboardRadiantConvectiveElectricSurfaceFractionsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    surface_name: str | None = Field(
+    surface_name: AllHeatTranSurfNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AllHeatTranSurfNames'],
@@ -32,7 +48,7 @@ class ZoneHVACBaseboardRadiantConvectiveElectricSurfaceFractionsItem(IDFBaseMode
 class ZoneHVACLowTemperatureRadiantSurfaceGroupSurfaceFractionsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    surface_name: str = Field(
+    surface_name: RadiantSurfaceNamesRef = Field(
         ..., json_schema_extra={'object_list': ['RadiantSurfaceNames']}
     )
     flow_fraction_for_surface: float = Field(..., ge=0.0)
@@ -41,8 +57,10 @@ class ZoneHVACLowTemperatureRadiantSurfaceGroupSurfaceFractionsItem(IDFBaseModel
 class ZoneHVACVentilatedSlabSlabGroupDataItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
-    surface_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
+    surface_name: RadiantSurfaceNamesRef = Field(
         ..., json_schema_extra={'object_list': ['RadiantSurfaceNames']}
     )
     core_diameter_for_surface: float = Field(
@@ -62,7 +80,7 @@ class ZoneHVACBaseboardConvectiveElectric(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:Baseboard:Convective:Electric'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -114,7 +132,7 @@ class ZoneHVACBaseboardConvectiveWater(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:Baseboard:Convective:Water'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -174,7 +192,7 @@ class ZoneHVACBaseboardRadiantConvectiveElectric(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:Baseboard:RadiantConvective:Electric'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -233,10 +251,10 @@ class ZoneHVACBaseboardRadiantConvectiveSteam(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:Baseboard:RadiantConvective:Steam'
     name: str = Field(...)
-    design_object: str | None = Field(
+    design_object: RadiantDesignObjectRef | None = Field(
         default=None, json_schema_extra={'object_list': ['RadiantDesignObject']}
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -312,10 +330,10 @@ class ZoneHVACBaseboardRadiantConvectiveWater(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:Baseboard:RadiantConvective:Water'
     name: str = Field(...)
-    design_object: str | None = Field(
+    design_object: BaseboardDesignObjectRef | None = Field(
         default=None, json_schema_extra={'object_list': ['BaseboardDesignObject']}
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -406,7 +424,7 @@ class ZoneHVACCoolingPanelRadiantConvectiveWater(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:CoolingPanel:RadiantConvective:Water'
     name: str = Field(...)
-    availability_schedule_name: str = Field(
+    availability_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     water_inlet_node_name: str = Field(...)
@@ -479,7 +497,7 @@ class ZoneHVACCoolingPanelRadiantConvectiveWater(IDFBaseModel):
     cooling_control_throttling_range: float | None = Field(
         default=0.5, ge=0.5, json_schema_extra={'units': 'deltaC'}
     )
-    cooling_control_temperature_schedule_name: str | None = Field(
+    cooling_control_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     condensation_control_type: Literal['', 'Off', 'SimpleOff', 'VariableOff'] | None = (
@@ -503,14 +521,14 @@ class ZoneHVACHighTemperatureRadiant(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:HighTemperatureRadiant'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -597,7 +615,7 @@ class ZoneHVACHighTemperatureRadiant(IDFBaseModel):
     heating_throttling_range: float | None = Field(
         default=2.0, ge=0.0, json_schema_extra={'units': 'deltaC'}
     )
-    heating_setpoint_temperature_schedule_name: str | None = Field(
+    heating_setpoint_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -624,24 +642,26 @@ class ZoneHVACLowTemperatureRadiantConstantFlow(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:LowTemperatureRadiant:ConstantFlow'
     name: str = Field(...)
-    design_object: str | None = Field(
+    design_object: RadiantDesignObjectRef | None = Field(
         default=None, json_schema_extra={'object_list': ['RadiantDesignObject']}
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Name of zone system is serving',
         },
     )
-    surface_name_or_radiant_surface_group_name: str | None = Field(
+    surface_name_or_radiant_surface_group_name: (
+        RadiantGroupNamesRef | RadiantSurfaceNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RadiantGroupNames', 'RadiantSurfaceNames'],
@@ -658,7 +678,7 @@ class ZoneHVACLowTemperatureRadiantConstantFlow(IDFBaseModel):
     rated_flow_rate: float | Literal['Autosize'] | None = Field(
         default=None, json_schema_extra={'units': 'm3/s'}
     )
-    pump_flow_rate_schedule_name: str | None = Field(
+    pump_flow_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -674,38 +694,38 @@ class ZoneHVACLowTemperatureRadiantConstantFlow(IDFBaseModel):
     )
     heating_water_inlet_node_name: str | None = Field(default=None)
     heating_water_outlet_node_name: str | None = Field(default=None)
-    heating_high_water_temperature_schedule_name: str | None = Field(
+    heating_high_water_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Water and control temperatures for heating work together to provide a linear function that determines the water temperature sent to the radiant system. The current control temperature (see Temperat...',
         },
     )
-    heating_low_water_temperature_schedule_name: str | None = Field(
+    heating_low_water_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    heating_high_control_temperature_schedule_name: str | None = Field(
+    heating_high_control_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    heating_low_control_temperature_schedule_name: str | None = Field(
+    heating_low_control_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     cooling_water_inlet_node_name: str | None = Field(default=None)
     cooling_water_outlet_node_name: str | None = Field(default=None)
-    cooling_high_water_temperature_schedule_name: str | None = Field(
+    cooling_high_water_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'See note for Heating High Water Temperature Schedule above for interpretation information (or see the Input/Output Reference).',
         },
     )
-    cooling_low_water_temperature_schedule_name: str | None = Field(
+    cooling_low_water_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    cooling_high_control_temperature_schedule_name: str | None = Field(
+    cooling_high_control_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    cooling_low_control_temperature_schedule_name: str | None = Field(
+    cooling_low_control_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     number_of_circuits: (
@@ -780,7 +800,7 @@ class ZoneHVACLowTemperatureRadiantConstantFlowDesign(IDFBaseModel):
     condensation_control_dewpoint_offset: float | None = Field(
         default=1.0, json_schema_extra={'units': 'C'}
     )
-    changeover_delay_time_period_schedule: str | None = Field(
+    changeover_delay_time_period_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -794,21 +814,23 @@ class ZoneHVACLowTemperatureRadiantElectric(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:LowTemperatureRadiant:Electric'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Name of zone system is serving',
         },
     )
-    surface_name_or_radiant_surface_group_name: str | None = Field(
+    surface_name_or_radiant_surface_group_name: (
+        RadiantGroupNamesRef | RadiantSurfaceNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RadiantGroupNames', 'RadiantSurfaceNames'],
@@ -874,7 +896,7 @@ class ZoneHVACLowTemperatureRadiantElectric(IDFBaseModel):
     heating_throttling_range: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'deltaC'}
     )
-    heating_setpoint_temperature_schedule_name: str = Field(
+    heating_setpoint_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -899,24 +921,26 @@ class ZoneHVACLowTemperatureRadiantVariableFlow(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:LowTemperatureRadiant:VariableFlow'
     name: str = Field(...)
-    design_object: str | None = Field(
+    design_object: RadiantDesignObjectRef | None = Field(
         default=None, json_schema_extra={'object_list': ['RadiantDesignObject']}
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Name of zone system is serving',
         },
     )
-    surface_name_or_radiant_surface_group_name: str | None = Field(
+    surface_name_or_radiant_surface_group_name: (
+        RadiantGroupNamesRef | RadiantSurfaceNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RadiantGroupNames', 'RadiantSurfaceNames'],
@@ -1043,7 +1067,7 @@ class ZoneHVACLowTemperatureRadiantVariableFlowDesign(IDFBaseModel):
     heating_control_throttling_range: float | None = Field(
         default=0.5, ge=0.0, json_schema_extra={'units': 'deltaC'}
     )
-    heating_control_temperature_schedule_name: str | None = Field(
+    heating_control_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     cooling_design_capacity_method: (
@@ -1079,7 +1103,7 @@ class ZoneHVACLowTemperatureRadiantVariableFlowDesign(IDFBaseModel):
     cooling_control_throttling_range: float | None = Field(
         default=0.5, ge=0.0, json_schema_extra={'units': 'deltaC'}
     )
-    cooling_control_temperature_schedule_name: str | None = Field(
+    cooling_control_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     condensation_control_type: Literal['', 'Off', 'SimpleOff', 'VariableOff'] | None = (
@@ -1088,7 +1112,7 @@ class ZoneHVACLowTemperatureRadiantVariableFlowDesign(IDFBaseModel):
     condensation_control_dewpoint_offset: float | None = Field(
         default=1.0, json_schema_extra={'units': 'C'}
     )
-    changeover_delay_time_period_schedule: str | None = Field(
+    changeover_delay_time_period_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1103,21 +1127,23 @@ class ZoneHVACVentilatedSlab(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:VentilatedSlab'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': '(name of zone system is serving)',
         },
     )
-    surface_name_or_radiant_surface_group_name: str | None = Field(
+    surface_name_or_radiant_surface_group_name: (
+        RadiantSurfaceNamesRef | VentSlabGroupNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RadiantSurfaceNames', 'VentSlabGroupNames'],
@@ -1133,7 +1159,7 @@ class ZoneHVACVentilatedSlab(IDFBaseModel):
     minimum_outdoor_air_flow_rate: float | Literal['Autosize'] = Field(
         ..., json_schema_extra={'units': 'm3/s'}
     )
-    minimum_outdoor_air_schedule_name: str = Field(
+    minimum_outdoor_air_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     maximum_outdoor_air_flow_rate: float | Literal['Autosize'] = Field(
@@ -1143,7 +1169,7 @@ class ZoneHVACVentilatedSlab(IDFBaseModel):
             'note': 'schedule values multiply the minimum outdoor air flow rate',
         },
     )
-    maximum_outdoor_air_fraction_or_temperature_schedule_name: str = Field(
+    maximum_outdoor_air_fraction_or_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1185,36 +1211,36 @@ class ZoneHVACVentilatedSlab(IDFBaseModel):
         default='OutdoorDryBulbTemperature',
         json_schema_extra={'note': '(temperature on which unit is controlled)'},
     )
-    heating_high_air_temperature_schedule_name: str = Field(
+    heating_high_air_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Air and control temperatures for heating work together to provide a linear function that determines the air temperature sent to the radiant system. The current control temperature (see A14) is comp...',
         },
     )
-    heating_low_air_temperature_schedule_name: str = Field(
+    heating_low_air_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    heating_high_control_temperature_schedule_name: str = Field(
+    heating_high_control_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    heating_low_control_temperature_schedule_name: str = Field(
+    heating_low_control_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    cooling_high_air_temperature_schedule_name: str = Field(
+    cooling_high_air_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'See note for heating high air temperature schedule above for interpretation information (or see the Input/Output Reference).',
         },
     )
-    cooling_low_air_temperature_schedule_name: str = Field(
+    cooling_low_air_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    cooling_high_control_temperature_schedule_name: str = Field(
+    cooling_high_control_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    cooling_low_control_temperature_schedule_name: str = Field(
+    cooling_low_control_temperature_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     return_air_node_name: str = Field(
@@ -1256,7 +1282,7 @@ class ZoneHVACVentilatedSlab(IDFBaseModel):
     fan_outlet_node_name: str = Field(
         ..., json_schema_extra={'note': 'This is the node name of the fan outlet.'}
     )
-    fan_name: str = Field(
+    fan_name: FansCVRef | FansSystemModelRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansCV', 'FansSystemModel'],
@@ -1275,7 +1301,7 @@ class ZoneHVACVentilatedSlab(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    heating_coil_name: str | None = Field(
+    heating_coil_name: HeatingCoilNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     hot_water_or_steam_inlet_node_name: str | None = Field(default=None)
@@ -1287,18 +1313,20 @@ class ZoneHVACVentilatedSlab(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    cooling_coil_name: str | None = Field(
+    cooling_coil_name: CoolingCoilsWaterRef | None = Field(
         default=None, json_schema_extra={'object_list': ['CoolingCoilsWater']}
     )
     cold_water_inlet_node_name: str | None = Field(default=None)
-    availability_manager_list_name: str | None = Field(
+    availability_manager_list_name: SystemAvailabilityManagerListsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SystemAvailabilityManagerLists'],
             'note': 'Enter the name of an AvailabilityManagerAssignmentList object.',
         },
     )
-    design_specification_zonehvac_sizing_object_name: str | None = Field(
+    design_specification_zonehvac_sizing_object_name: (
+        DesignSpecificationZoneHVACSizingNameRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DesignSpecificationZoneHVACSizingName'],

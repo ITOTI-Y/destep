@@ -12,6 +12,11 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ProgramNamesRef,
+    WaterStorageTankNamesRef,
+    ZoneNamesRef,
+)
 
 
 class AirTerminalSingleDuctUserDefined(IDFBaseModel):
@@ -22,14 +27,16 @@ class AirTerminalSingleDuctUserDefined(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'This is the name of the air terminal'}
     )
-    overall_model_simulation_program_calling_manager_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ProgramNames'],
-            'note': 'For use with the API (Library, Callback) workflow, this field should be the same string that the user provides when registering a callback function using the API.  In this workflow, the callback na...',
-        },
+    overall_model_simulation_program_calling_manager_name: ProgramNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ProgramNames'],
+                'note': 'For use with the API (Library, Callback) workflow, this field should be the same string that the user provides when registering a callback function using the API.  In this workflow, the callback na...',
+            },
+        )
     )
-    model_setup_and_sizing_program_calling_manager_name: str | None = Field(
+    model_setup_and_sizing_program_calling_manager_name: ProgramNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ProgramNames'],
@@ -61,21 +68,21 @@ class AirTerminalSingleDuctUserDefined(IDFBaseModel):
     plant_connection_1_outlet_node_name: str = Field(...)
     plant_connection_2_inlet_node_name: str | None = Field(default=None)
     plant_connection_2_outlet_node_name: str | None = Field(default=None)
-    supply_inlet_water_storage_tank_name: str | None = Field(
+    supply_inlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for alternate source of water consumed by device',
         },
     )
-    collection_outlet_water_storage_tank_name: str | None = Field(
+    collection_outlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for collection of condensate by device',
         },
     )
-    ambient_zone_name: str | None = Field(
+    ambient_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -90,14 +97,16 @@ class CoilUserDefined(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Coil:UserDefined'
     name: str = Field(..., json_schema_extra={'note': 'This is the name of the coil'})
-    overall_model_simulation_program_calling_manager_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ProgramNames'],
-            'note': 'This is the name of a program to run that defines the user-defined functionality for this component. This can match the name of an EnergyManagementSystem:Program or PythonPlugin:Instance object as ...',
-        },
+    overall_model_simulation_program_calling_manager_name: ProgramNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ProgramNames'],
+                'note': 'This is the name of a program to run that defines the user-defined functionality for this component. This can match the name of an EnergyManagementSystem:Program or PythonPlugin:Instance object as ...',
+            },
+        )
     )
-    model_setup_and_sizing_program_calling_manager_name: str = Field(
+    model_setup_and_sizing_program_calling_manager_name: ProgramNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ProgramNames']}
     )
     number_of_air_connections: int = Field(..., ge=1, le=2)
@@ -116,21 +125,21 @@ class CoilUserDefined(IDFBaseModel):
     plant_connection_is_used: Literal['No', 'Yes'] | None = Field(default=None)
     plant_connection_inlet_node_name: str | None = Field(default=None)
     plant_connection_outlet_node_name: str | None = Field(default=None)
-    supply_inlet_water_storage_tank_name: str | None = Field(
+    supply_inlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for alternate source of water consumed by device',
         },
     )
-    collection_outlet_water_storage_tank_name: str | None = Field(
+    collection_outlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for collection of condensate by device',
         },
     )
-    ambient_zone_name: str | None = Field(
+    ambient_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -147,7 +156,7 @@ class PlantComponentUserDefined(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'This is the name of the plant component'}
     )
-    main_model_program_calling_manager_name: str | None = Field(
+    main_model_program_calling_manager_name: ProgramNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ProgramNames'],
@@ -167,14 +176,18 @@ class PlantComponentUserDefined(IDFBaseModel):
     plant_connection_1_loop_flow_request_mode: Literal[
         'NeedsFlowAndTurnsLoopOn', 'NeedsFlowIfLoopOn', 'ReceivesWhateverFlowAvailable'
     ] = Field(...)
-    plant_connection_1_initialization_program_calling_manager_name: str | None = Field(
+    plant_connection_1_initialization_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ProgramNames'],
             'note': 'For use with the API (Library, Callback) workflow, this field should be the same string that the user provides when registering a callback function using the API.  In this workflow, the callback na...',
         },
     )
-    plant_connection_1_simulation_program_calling_manager_name: str | None = Field(
+    plant_connection_1_simulation_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ProgramNames'],
@@ -201,12 +214,12 @@ class PlantComponentUserDefined(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    plant_connection_2_initialization_program_calling_manager_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ProgramNames']}
-    )
-    plant_connection_2_simulation_program_calling_manager_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ProgramNames']}
-    )
+    plant_connection_2_initialization_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ProgramNames']})
+    plant_connection_2_simulation_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ProgramNames']})
     plant_connection_3_inlet_node_name: str | None = Field(default=None)
     plant_connection_3_outlet_node_name: str | None = Field(default=None)
     plant_connection_3_loading_mode: (
@@ -227,12 +240,12 @@ class PlantComponentUserDefined(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    plant_connection_3_initialization_program_calling_manager_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ProgramNames']}
-    )
-    plant_connection_3_simulation_program_calling_manager_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ProgramNames']}
-    )
+    plant_connection_3_initialization_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ProgramNames']})
+    plant_connection_3_simulation_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ProgramNames']})
     plant_connection_4_inlet_node_name: str | None = Field(default=None)
     plant_connection_4_outlet_node_name: str | None = Field(default=None)
     plant_connection_4_loading_mode: (
@@ -253,12 +266,12 @@ class PlantComponentUserDefined(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    plant_connection_4_initialization_program_calling_manager_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ProgramNames']}
-    )
-    plant_connection_4_simulation_program_calling_manager_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ProgramNames']}
-    )
+    plant_connection_4_initialization_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ProgramNames']})
+    plant_connection_4_simulation_program_calling_manager_name: (
+        ProgramNamesRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ProgramNames']})
     air_connection_inlet_node_name: str | None = Field(
         default=None,
         json_schema_extra={'note': 'Inlet air used for heat rejection or air source'},
@@ -267,21 +280,21 @@ class PlantComponentUserDefined(IDFBaseModel):
         default=None,
         json_schema_extra={'note': 'Outlet air used for heat rejection or air source'},
     )
-    supply_inlet_water_storage_tank_name: str | None = Field(
+    supply_inlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for alternate source of water consumed by device',
         },
     )
-    collection_outlet_water_storage_tank_name: str | None = Field(
+    collection_outlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for collection of condensate by device',
         },
     )
-    ambient_zone_name: str | None = Field(
+    ambient_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -299,10 +312,10 @@ class PlantEquipmentOperationUserDefined(IDFBaseModel):
         ...,
         json_schema_extra={'note': 'This is the name of the plant operation scheme'},
     )
-    main_model_program_calling_manager_name: str = Field(
+    main_model_program_calling_manager_name: ProgramNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ProgramNames']}
     )
-    initialization_program_calling_manager_name: str | None = Field(
+    initialization_program_calling_manager_name: ProgramNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ProgramNames']}
     )
     equipment_1_object_type: str | None = Field(default=None)
@@ -335,14 +348,16 @@ class ZoneHVACForcedAirUserDefined(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'This is the name of the zone unit'}
     )
-    overall_model_simulation_program_calling_manager_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ProgramNames'],
-            'note': 'For use with the API (Library, Callback) workflow, this field should be the same string that the user provides when registering a callback function using the API.  In this workflow, the callback na...',
-        },
+    overall_model_simulation_program_calling_manager_name: ProgramNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ProgramNames'],
+                'note': 'For use with the API (Library, Callback) workflow, this field should be the same string that the user provides when registering a callback function using the API.  In this workflow, the callback na...',
+            },
+        )
     )
-    model_setup_and_sizing_program_calling_manager_name: str | None = Field(
+    model_setup_and_sizing_program_calling_manager_name: ProgramNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ProgramNames'],
@@ -376,21 +391,21 @@ class ZoneHVACForcedAirUserDefined(IDFBaseModel):
     plant_connection_2_outlet_node_name: str | None = Field(default=None)
     plant_connection_3_inlet_node_name: str | None = Field(default=None)
     plant_connection_3_outlet_node_name: str | None = Field(default=None)
-    supply_inlet_water_storage_tank_name: str | None = Field(
+    supply_inlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for alternate source of water consumed by device',
         },
     )
-    collection_outlet_water_storage_tank_name: str | None = Field(
+    collection_outlet_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
             'note': 'Water use storage tank for collection of condensate by device',
         },
     )
-    ambient_zone_name: str | None = Field(
+    ambient_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],

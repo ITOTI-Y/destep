@@ -12,6 +12,30 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllShadingAndHTSurfNamesRef,
+    BivariateFunctionsRef,
+    ConverterListRef,
+    ElecStorageListRef,
+    FCAirSupNamesRef,
+    FCAuxHeatNamesRef,
+    FCExhaustHXNamesRef,
+    FCInverterNamesRef,
+    FCPMNamesRef,
+    FCStackCoolerNamesRef,
+    FCStorageNamesRef,
+    FCWaterSupNamesRef,
+    GeneratorListsRef,
+    GenFuelSupNamesRef,
+    InverterListRef,
+    MicroCHPParametersNamesRef,
+    PVModulesRef,
+    ScheduleNamesRef,
+    TransformerNamesRef,
+    TrivariateFunctionsRef,
+    UnivariateFunctionsRef,
+    ZoneNamesRef,
+)
 
 
 class ElectricLoadCenterGeneratorsGeneratorOutputsItem(IDFBaseModel):
@@ -33,7 +57,7 @@ class ElectricLoadCenterGeneratorsGeneratorOutputsItem(IDFBaseModel):
     generator_rated_electric_power_output: float | None = Field(
         default=None, json_schema_extra={'units': 'W'}
     )
-    generator_availability_schedule_name: str | None = Field(
+    generator_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -74,7 +98,7 @@ class ElectricLoadCenterDistribution(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Distribution'
     name: str = Field(...)
-    generator_list_name: str | None = Field(
+    generator_list_name: GeneratorListsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['GeneratorLists'],
@@ -101,7 +125,7 @@ class ElectricLoadCenterDistribution(IDFBaseModel):
     generator_demand_limit_scheme_purchased_electric_demand_limit: float | None = Field(
         default=None, json_schema_extra={'units': 'W'}
     )
-    generator_track_schedule_name_scheme_schedule_name: str | None = Field(
+    generator_track_schedule_name_scheme_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -125,21 +149,21 @@ class ElectricLoadCenterDistribution(IDFBaseModel):
         ]
         | None
     ) = Field(default='AlternatingCurrent')
-    inverter_name: str | None = Field(
+    inverter_name: InverterListRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['InverterList'],
             'note': 'required when Electrical Buss Type=DirectCurrentWithInverter, DirectCurrentWithInverterDCStorage, or DirectCurrentWithInverterACStorage',
         },
     )
-    electrical_storage_object_name: str | None = Field(
+    electrical_storage_object_name: ElecStorageListRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ElecStorageList'],
             'note': 'required when Electrical Buss Type=AlternatingCurrentWithStorage, DirectCurrentWithInverterDCStorage, or DirectCurrentWithInverterACStorage',
         },
     )
-    transformer_object_name: str | None = Field(
+    transformer_object_name: TransformerNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['TransformerNames'],
@@ -167,7 +191,7 @@ class ElectricLoadCenterDistribution(IDFBaseModel):
             'note': 'required when Storage Operation Scheme is set to TrackMeterDemandStoreExcessOnSite.'
         },
     )
-    storage_converter_object_name: str | None = Field(
+    storage_converter_object_name: ConverterListRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ConverterList'],
@@ -193,7 +217,7 @@ class ElectricLoadCenterDistribution(IDFBaseModel):
             'note': 'Maximum rate that electric power can be charged into storage. Storage charging adjusted downward for conversion losses. Rate is modified by fractional values in the schedule named in the next field...',
         },
     )
-    storage_charge_power_fraction_schedule_name: str | None = Field(
+    storage_charge_power_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -207,7 +231,7 @@ class ElectricLoadCenterDistribution(IDFBaseModel):
             'note': 'Maximum rate that electric power can be discharged from storage. Rate is modified by fractional values in the schedule named in the next field. Required field when using Storage Operation Schemes F...',
         },
     )
-    storage_discharge_power_fraction_schedule_name: str | None = Field(
+    storage_discharge_power_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -221,7 +245,9 @@ class ElectricLoadCenterDistribution(IDFBaseModel):
             'note': 'Target utility service demand power for discharge control. Storage draws are adjusted upwards for conversion losses. Required field for FacilityDemandLeveling storage operation scheme',
         },
     )
-    storage_control_utility_demand_target_fraction_schedule_name: str | None = Field(
+    storage_control_utility_demand_target_fraction_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -250,14 +276,14 @@ class ElectricLoadCenterInverterFunctionOfPower(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Inverter:FunctionOfPower'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -265,7 +291,7 @@ class ElectricLoadCenterInverterFunctionOfPower(IDFBaseModel):
         },
     )
     radiative_fraction: float | None = Field(default=None)
-    efficiency_function_of_power_curve_name: str | None = Field(
+    efficiency_function_of_power_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -295,14 +321,14 @@ class ElectricLoadCenterInverterLookUpTable(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Inverter:LookUpTable'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -358,14 +384,14 @@ class ElectricLoadCenterInverterSimple(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Inverter:Simple'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -387,14 +413,14 @@ class ElectricLoadCenterStorageBattery(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Storage:Battery'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -464,14 +490,14 @@ class ElectricLoadCenterStorageBattery(IDFBaseModel):
             'note': 'The voltage is for each battery module.',
         },
     )
-    voltage_change_curve_name_for_charging: str | None = Field(
+    voltage_change_curve_name_for_charging: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Determines how the open circuit voltage change with state of charge relative to the fully discharged state.',
         },
     )
-    voltage_change_curve_name_for_discharging: str | None = Field(
+    voltage_change_curve_name_for_discharging: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -517,7 +543,7 @@ class ElectricLoadCenterStorageBattery(IDFBaseModel):
             'note': 'Only required when battery life calculation is activated'
         },
     )
-    battery_life_curve_name: str | None = Field(
+    battery_life_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -532,7 +558,7 @@ class ElectricLoadCenterStorageConverter(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Storage:Converter'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -562,7 +588,7 @@ class ElectricLoadCenterStorageConverter(IDFBaseModel):
             'note': 'Required field when Power Conversion Efficiency Method is set to FunctionOfPower.',
         },
     )
-    efficiency_function_of_power_curve_name: str | None = Field(
+    efficiency_function_of_power_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -576,7 +602,7 @@ class ElectricLoadCenterStorageConverter(IDFBaseModel):
             'note': 'Optional standby power consumed when converter is available but no power is being conditioned.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -604,14 +630,14 @@ class ElectricLoadCenterStorageLiIonNMCBattery(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Storage:LiIonNMCBattery'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -733,14 +759,14 @@ class ElectricLoadCenterStorageSimple(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Storage:Simple'
     name: str | None = Field(default=None)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -777,7 +803,7 @@ class ElectricLoadCenterTransformer(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ElectricLoadCenter:Transformer'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -793,7 +819,7 @@ class ElectricLoadCenterTransformer(IDFBaseModel):
             'note': 'A transformer can be used to transfer electric energy from utility grid to building (PowerInFromGrid)or from building on-site generation to the grid (PowerOutToGrid) or within a load center to matc...'
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -904,42 +930,46 @@ class GeneratorCombustionTurbine(IDFBaseModel):
     minimum_part_load_ratio: float | None = Field(default=None, ge=0.0, le=1.0)
     maximum_part_load_ratio: float | None = Field(default=None, le=1.0, gt=0.0)
     optimum_part_load_ratio: float | None = Field(default=None)
-    part_load_based_fuel_input_curve_name: str | None = Field(
+    part_load_based_fuel_input_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve = a + b*PLR + c*PLR**2 PLR = Ratio of Generator Load to Rated Power Output this curve is multiplied to the Temperature Based Fuel Input Curve to determine Fuel Energy In',
         },
     )
-    temperature_based_fuel_input_curve_name: str | None = Field(
+    temperature_based_fuel_input_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve = a + b*AT + c*AT**2 AT = Ambient Delta T this curve is multiplied to the Part Load Based Fuel Input Curve to determine Fuel Energy In',
         },
     )
-    exhaust_flow_curve_name: str | None = Field(
+    exhaust_flow_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve = a + b*AT + c*AT**2 AT = Ambient Delta T',
         },
     )
-    part_load_based_exhaust_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'curve = a + b*PLR + c*PLR**2 PLR = Ratio of Generator Load to Rated Power Output this curve is multiplied to the Temperature Based Exhaust Temperature Curve to determine Exhaust Temperature',
-        },
+    part_load_based_exhaust_temperature_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'curve = a + b*PLR + c*PLR**2 PLR = Ratio of Generator Load to Rated Power Output this curve is multiplied to the Temperature Based Exhaust Temperature Curve to determine Exhaust Temperature',
+            },
+        )
     )
-    temperature_based_exhaust_temperature_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'curve = a + b*AT + c*AT**2 AT = Ambient Delta T this curve is multiplied to the Part Load Based Exhaust Temperature Curve to determine Exhaust Temperature',
-        },
+    temperature_based_exhaust_temperature_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'curve = a + b*AT + c*AT**2 AT = Ambient Delta T this curve is multiplied to the Part Load Based Exhaust Temperature Curve to determine Exhaust Temperature',
+            },
+        )
     )
-    heat_recovery_lube_energy_curve_name: str | None = Field(
+    heat_recovery_lube_energy_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1007,63 +1037,63 @@ class GeneratorFuelCell(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Generator:FuelCell'
     name: str = Field(...)
-    power_module_name: str = Field(
+    power_module_name: FCPMNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FCPMNames'],
             'note': 'Enter the name of a Generator:FuelCell:PowerModule object.',
         },
     )
-    air_supply_name: str = Field(
+    air_supply_name: FCAirSupNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FCAirSupNames'],
             'note': 'Enter the name of a Generator:FuelCell:AirSupply object.',
         },
     )
-    fuel_supply_name: str = Field(
+    fuel_supply_name: GenFuelSupNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['GenFuelSupNames'],
             'note': 'Enter the name of a Generator:FuelSupply object.',
         },
     )
-    water_supply_name: str = Field(
+    water_supply_name: FCWaterSupNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FCWaterSupNames'],
             'note': 'Enter the name of a Generator:FuelCell:WaterSupply object.',
         },
     )
-    auxiliary_heater_name: str = Field(
+    auxiliary_heater_name: FCAuxHeatNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FCAuxHeatNames'],
             'note': 'Enter the name of a Generator:FuelCell:AuxiliaryHeater object.',
         },
     )
-    heat_exchanger_name: str = Field(
+    heat_exchanger_name: FCExhaustHXNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FCExhaustHXNames'],
             'note': 'Enter the name of a Generator:FuelCell:ExhaustGasToWaterHeatExchanger object.',
         },
     )
-    electrical_storage_name: str = Field(
+    electrical_storage_name: FCStorageNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FCStorageNames'],
             'note': 'Enter the name of a Generator:FuelCell:ElectricalStorage object.',
         },
     )
-    inverter_name: str = Field(
+    inverter_name: FCInverterNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FCInverterNames'],
             'note': 'Enter the name of a Generator:FuelCell:Inverter object.',
         },
     )
-    stack_cooler_name: str | None = Field(
+    stack_cooler_name: FCStackCoolerNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FCStackCoolerNames'],
@@ -1079,7 +1109,7 @@ class GeneratorFuelCellAirSupply(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'Generator:FuelCell:AirSupply'
     name: str = Field(...)
     air_inlet_node_name: str | None = Field(default=None)
-    blower_power_curve_name: str | None = Field(
+    blower_power_curve_name: UnivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     blower_heat_loss_factor: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -1094,11 +1124,11 @@ class GeneratorFuelCellAirSupply(IDFBaseModel):
             'note': 'This is the excess air "stoics" the value entered is incremented by 1 in the model.'
         },
     )
-    air_rate_function_of_electric_power_curve_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
+    air_rate_function_of_electric_power_curve_name: UnivariateFunctionsRef | None = (
+        Field(default=None, json_schema_extra={'object_list': ['UnivariateFunctions']})
     )
     air_rate_air_temperature_coefficient: float | None = Field(default=None)
-    air_rate_function_of_fuel_rate_curve_name: str | None = Field(
+    air_rate_function_of_fuel_rate_curve_name: UnivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     air_intake_heat_recovery_mode: Literal[
@@ -1135,7 +1165,7 @@ class GeneratorFuelCellAuxiliaryHeater(IDFBaseModel):
     skin_loss_destination: Literal['AirInletForFuelCell', 'SurroundingZone'] | None = (
         Field(default=None)
     )
-    zone_name_to_receive_skin_losses: str | None = Field(
+    zone_name_to_receive_skin_losses: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     heating_capacity_units: Literal['Watts', 'kmol/s'] | None = Field(default=None)
@@ -1242,7 +1272,7 @@ class GeneratorFuelCellInverter(IDFBaseModel):
         Field(default=None)
     )
     inverter_efficiency: float | None = Field(default=None, ge=0.0, le=1.0)
-    efficiency_function_of_dc_power_curve_name: str | None = Field(
+    efficiency_function_of_dc_power_curve_name: UnivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
 
@@ -1257,7 +1287,7 @@ class GeneratorFuelCellPowerModule(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'Generator:FuelCell:PowerModule'
     name: str = Field(...)
     efficiency_curve_mode: Literal['Annex42', 'Normalized'] | None = Field(default=None)
-    efficiency_curve_name: str = Field(
+    efficiency_curve_name: UnivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     nominal_efficiency: float | None = Field(
@@ -1329,7 +1359,7 @@ class GeneratorFuelCellPowerModule(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     skin_loss_radiative_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -1339,7 +1369,7 @@ class GeneratorFuelCellPowerModule(IDFBaseModel):
     skin_loss_u_factor_times_area_term: float | None = Field(
         default=None, json_schema_extra={'units': 'W/K'}
     )
-    skin_loss_quadratic_curve_name: str | None = Field(
+    skin_loss_quadratic_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1417,12 +1447,12 @@ class GeneratorFuelCellWaterSupply(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Generator:FuelCell:WaterSupply'
     name: str = Field(...)
-    reformer_water_flow_rate_function_of_fuel_rate_curve_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
-    )
-    reformer_water_pump_power_function_of_fuel_rate_curve_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
-    )
+    reformer_water_flow_rate_function_of_fuel_rate_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['UnivariateFunctions']})
+    reformer_water_pump_power_function_of_fuel_rate_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['UnivariateFunctions']})
     pump_heat_loss_factor: float | None = Field(default=None)
     water_temperature_modeling_mode: (
         Literal[
@@ -1434,7 +1464,7 @@ class GeneratorFuelCellWaterSupply(IDFBaseModel):
         | None
     ) = Field(default=None)
     water_temperature_reference_node_name: str | None = Field(default=None)
-    water_temperature_schedule_name: str | None = Field(
+    water_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -1448,12 +1478,12 @@ class GeneratorFuelSupply(IDFBaseModel):
         Literal['Scheduled', 'TemperatureFromAirNode'] | None
     ) = Field(default=None)
     fuel_temperature_reference_node_name: str | None = Field(default=None)
-    fuel_temperature_schedule_name: str | None = Field(
+    fuel_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    compressor_power_multiplier_function_of_fuel_rate_curve_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
-    )
+    compressor_power_multiplier_function_of_fuel_rate_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['UnivariateFunctions']})
     compressor_heat_loss_factor: float | None = Field(default=None, ge=0.0, le=1.0)
     fuel_type: Literal['GaseousConstituents', 'LiquidGeneric'] | None = Field(
         default=None
@@ -1723,35 +1753,35 @@ class GeneratorInternalCombustionEngine(IDFBaseModel):
     minimum_part_load_ratio: float | None = Field(default=None, ge=0.0, le=1.0)
     maximum_part_load_ratio: float | None = Field(default=None, le=1.0, gt=0.0)
     optimum_part_load_ratio: float | None = Field(default=None)
-    shaft_power_curve_name: str | None = Field(
+    shaft_power_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve = a + b*PLR + c*PLR**2 PLR = Ratio of Generator Load to Rated Power Output',
         },
     )
-    jacket_heat_recovery_curve_name: str | None = Field(
+    jacket_heat_recovery_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve = a + b*PLR + c*PLR**2 PLR = Ratio of Generator Load to Rated Power Output',
         },
     )
-    lube_heat_recovery_curve_name: str | None = Field(
+    lube_heat_recovery_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve = a + b*PLR + c*PLR**2 PLR = Ratio of Generator Load to Rated Power Output',
         },
     )
-    total_exhaust_energy_curve_name: str | None = Field(
+    total_exhaust_energy_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'curve = a + b*PLR + c*PLR**2 PLR = Ratio of Generator Load to Rated Power Output',
         },
     )
-    exhaust_temperature_curve_name: str | None = Field(
+    exhaust_temperature_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1815,28 +1845,28 @@ class GeneratorMicroCHP(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Generator:MicroCHP'
     name: str | None = Field(default=None)
-    performance_parameters_name: str | None = Field(
+    performance_parameters_name: MicroCHPParametersNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['MicroCHPParametersNames'],
             'note': 'Enter the name of a Generator:MicroCHP:NonNormalizedParameters object.',
         },
     )
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
     cooling_water_inlet_node_name: str | None = Field(default=None)
     cooling_water_outlet_node_name: str | None = Field(default=None)
     air_inlet_node_name: str | None = Field(default=None)
     air_outlet_node_name: str | None = Field(default=None)
-    generator_fuel_supply_name: str | None = Field(
+    generator_fuel_supply_name: GenFuelSupNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['GenFuelSupNames'],
             'note': 'Enter the name of a Generator:FuelSupply object.',
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1863,14 +1893,14 @@ class GeneratorMicroCHPNonNormalizedParameters(IDFBaseModel):
     maximum_cooling_water_temperature: float | None = Field(
         default=None, json_schema_extra={'units': 'C'}
     )
-    electrical_efficiency_curve_name: str | None = Field(
+    electrical_efficiency_curve_name: TrivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['TrivariateFunctions'],
             'note': 'TriQuadratic',
         },
     )
-    thermal_efficiency_curve_name: str | None = Field(
+    thermal_efficiency_curve_name: TrivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['TrivariateFunctions'],
@@ -1880,10 +1910,10 @@ class GeneratorMicroCHPNonNormalizedParameters(IDFBaseModel):
     cooling_water_flow_rate_mode: Literal['InternalControl', 'PlantControl'] | None = (
         Field(default=None)
     )
-    cooling_water_flow_rate_curve_name: str | None = Field(
+    cooling_water_flow_rate_curve_name: BivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['BivariateFunctions']}
     )
-    air_flow_rate_curve_name: str | None = Field(
+    air_flow_rate_curve_name: UnivariateFunctionsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     maximum_net_electrical_power_rate_of_change: float | None = Field(
@@ -1970,21 +2000,21 @@ class GeneratorMicroTurbine(IDFBaseModel):
     reference_elevation: float | None = Field(
         default=0.0, ge=-300.0, json_schema_extra={'units': 'm'}
     )
-    electrical_power_function_of_temperature_and_elevation_curve_name: str = Field(
+    electrical_power_function_of_temperature_and_elevation_curve_name: BivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BivariateFunctions'],
             'note': 'curve = a + b*T + c*T**2 + d*Elev + e*Elev**2 + f*T*Elev T = combustion air inlet temperature (C) Elev = elevation (m)',
         },
     )
-    electrical_efficiency_function_of_temperature_curve_name: str = Field(
+    electrical_efficiency_function_of_temperature_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Quadratic curve = a + b*T + c*T**2 Cubic curve = a + b*T + c*T**2 + d*T**3 T = combustion air inlet temperature (C)',
         },
     )
-    electrical_efficiency_function_of_part_load_ratio_curve_name: str = Field(
+    electrical_efficiency_function_of_part_load_ratio_curve_name: UnivariateFunctionsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2028,12 +2058,14 @@ class GeneratorMicroTurbine(IDFBaseModel):
             'note': "Electric power consumed by ancillary equipment (e.g., external fuel pressurization pump). Set to zero if Reference Electrical Power Output is the 'net' value (ancillary power already deducted). Inp...",
         },
     )
-    ancillary_power_function_of_fuel_input_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'Quadratic curve = a + b*mdot + c*mdot**2 mdot = fuel mass flow rate (kg/s) If left blank, model assumes ancillary power defined in previous field is constant whenever the generator is operating.',
-        },
+    ancillary_power_function_of_fuel_input_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'Quadratic curve = a + b*mdot + c*mdot**2 mdot = fuel mass flow rate (kg/s) If left blank, model assumes ancillary power defined in previous field is constant whenever the generator is operating.',
+            },
+        )
     )
     heat_recovery_water_inlet_node_name: str | None = Field(default=None)
     heat_recovery_water_outlet_node_name: str | None = Field(default=None)
@@ -2060,7 +2092,7 @@ class GeneratorMicroTurbine(IDFBaseModel):
         default=None, gt=0.0, json_schema_extra={'units': 'm3/s'}
     )
     heat_recovery_water_flow_rate_function_of_temperature_and_power_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -2068,32 +2100,36 @@ class GeneratorMicroTurbine(IDFBaseModel):
             'note': 'curve = a + b*T + c*T**2 + d*Pnet + e*Pnet + f*T*Pnet T = heat recovery inlet water temperature Pnet = net power output = electric power output - ancillary power If left blank, model assumes the he...',
         },
     )
-    thermal_efficiency_function_of_temperature_and_elevation_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['BivariateFunctions'],
-                'note': 'Bicubic curve = a + b*T + c*T**2 + d*Elev + e*Elev**2 + f*T*Elev + g*T**3 + h*Elev**3 + i*T**2*Elev + j*T*Elev**2 Biquadratic curve = a + b*T + c*T**2 + d*Elev + e*Elev**2 + f*T*Elev T = combustion...',
-            },
-        )
+    thermal_efficiency_function_of_temperature_and_elevation_curve_name: (
+        BivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['BivariateFunctions'],
+            'note': 'Bicubic curve = a + b*T + c*T**2 + d*Elev + e*Elev**2 + f*T*Elev + g*T**3 + h*Elev**3 + i*T**2*Elev + j*T*Elev**2 Biquadratic curve = a + b*T + c*T**2 + d*Elev + e*Elev**2 + f*T*Elev T = combustion...',
+        },
     )
-    heat_recovery_rate_function_of_part_load_ratio_curve_name: str | None = Field(
+    heat_recovery_rate_function_of_part_load_ratio_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Quadratic curve = a + b*PLR + c*PLR**2 Cubic curve = a + b*PLR + c*PLR**2 + d*PLR**3 PLR = ratio of Generator Load to steady state Electrical Power Output at current operating conditions If field i...',
         },
     )
-    heat_recovery_rate_function_of_inlet_water_temperature_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UnivariateFunctions'],
-                'note': 'Quadratic curve = a + b*T + c*T**2 T = inlet water temperature (C) If field is left blank, model assumes this modifier equals 1 for entire simulation.',
-            },
-        )
+    heat_recovery_rate_function_of_inlet_water_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Quadratic curve = a + b*T + c*T**2 T = inlet water temperature (C) If field is left blank, model assumes this modifier equals 1 for entire simulation.',
+        },
     )
-    heat_recovery_rate_function_of_water_flow_rate_curve_name: str | None = Field(
+    heat_recovery_rate_function_of_water_flow_rate_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2116,14 +2152,18 @@ class GeneratorMicroTurbine(IDFBaseModel):
     reference_exhaust_air_mass_flow_rate: float | None = Field(
         default=None, gt=0.0, json_schema_extra={'units': 'kg/s'}
     )
-    exhaust_air_flow_rate_function_of_temperature_curve_name: str | None = Field(
+    exhaust_air_flow_rate_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Quadratic curve = a + b*T + c*T**2 Cubic curve = a + b*T + c*T**2 + d*T**3 T = combustion air inlet temperature (C) If field is left blank, model assumes this modifier equals 1 for entire simulation.',
         },
     )
-    exhaust_air_flow_rate_function_of_part_load_ratio_curve_name: str | None = Field(
+    exhaust_air_flow_rate_function_of_part_load_ratio_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2136,14 +2176,18 @@ class GeneratorMicroTurbine(IDFBaseModel):
             'note': 'Exhaust air outlet temperature at reference conditions.'
         },
     )
-    exhaust_air_temperature_function_of_temperature_curve_name: str | None = Field(
+    exhaust_air_temperature_function_of_temperature_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Quadratic curve = a + b*T + c*T**2 Cubic curve = a + b*T + c*T**2 + d*T**3 T = combustion air inlet temperature (C) If field is left blank, model assumes this modifier equals 1 for entire simulation.',
         },
     )
-    exhaust_air_temperature_function_of_part_load_ratio_curve_name: str | None = Field(
+    exhaust_air_temperature_function_of_part_load_ratio_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -2201,7 +2245,7 @@ class GeneratorPVWatts(IDFBaseModel):
             'note': 'For a fixed array, the azimuth angle is the angle clockwise from true north describing the direction that the array faces. For an array with one-axis tracking, the azimuth angle is the angle clockw...',
         },
     )
-    surface_name: str | None = Field(
+    surface_name: AllShadingAndHTSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
     ground_coverage_ratio: float | None = Field(
@@ -2225,7 +2269,7 @@ class GeneratorPhotovoltaic(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Generator:Photovoltaic'
     name: str = Field(...)
-    surface_name: str = Field(
+    surface_name: AllShadingAndHTSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
     photovoltaic_performance_object_type: (
@@ -2236,7 +2280,7 @@ class GeneratorPhotovoltaic(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    module_performance_name: str | None = Field(
+    module_performance_name: PVModulesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['PVModules'],
@@ -2278,7 +2322,7 @@ class GeneratorWindTurbine(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Generator:WindTurbine'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2616,6 +2660,6 @@ class PhotovoltaicPerformanceSimple(IDFBaseModel):
             'note': 'Efficiency = (power generated [W])/(incident solar[W])'
         },
     )
-    efficiency_schedule_name: str | None = Field(
+    efficiency_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )

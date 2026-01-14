@@ -12,6 +12,15 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    DayScheduleNamesRef,
+    MaterialNameRef,
+    OSCMNamesRef,
+    RunPeriodsAndDesignDaysRef,
+    ScheduleNamesRef,
+    SpectrumDataNamesRef,
+    UndisturbedGroundTempModelsRef,
+)
 
 
 class SiteSpectrumDataExtensionsItem(IDFBaseModel):
@@ -34,7 +43,7 @@ class RoofIrrigation(IDFBaseModel):
             'note': 'SmartSchedule will not allow irrigation when soil is already moist. Current threshold set at 30% of saturation.'
         },
     )
-    irrigation_rate_schedule_name: str | None = Field(
+    irrigation_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -222,7 +231,7 @@ class SiteGroundDomainBasement(IDFBaseModel):
         'Site:GroundTemperature:Undisturbed:KusudaAchenbach',
         'Site:GroundTemperature:Undisturbed:Xing',
     ] = Field(...)
-    undisturbed_ground_temperature_model_name: str = Field(
+    undisturbed_ground_temperature_model_name: UndisturbedGroundTempModelsRef = Field(
         ..., json_schema_extra={'object_list': ['UndisturbedGroundTempModels']}
     )
     evapotranspiration_ground_cover_parameter: float | None = Field(
@@ -233,7 +242,7 @@ class SiteGroundDomainBasement(IDFBaseModel):
             'note': 'This specifies the ground cover effects during evapotranspiration calculations. The value roughly represents the following cases: = 0   : concrete or other solid, non-permeable ground surface mater...'
         },
     )
-    basement_floor_boundary_condition_model_name: str = Field(
+    basement_floor_boundary_condition_model_name: OSCMNamesRef = Field(
         ..., json_schema_extra={'object_list': ['OSCMNames']}
     )
     horizontal_insulation: Literal['', 'No', 'Yes'] | None = Field(
@@ -242,7 +251,7 @@ class SiteGroundDomainBasement(IDFBaseModel):
             'note': 'This field specifies the presence of insulation beneath the basement floor.'
         },
     )
-    horizontal_insulation_material_name: str | None = Field(
+    horizontal_insulation_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     horizontal_insulation_extents: Literal['', 'Full', 'Perimeter'] | None = Field(
@@ -264,11 +273,11 @@ class SiteGroundDomainBasement(IDFBaseModel):
         gt=0.0,
         json_schema_extra={'units': 'm', 'note': 'Depth measured from ground surface.'},
     )
-    basement_wall_boundary_condition_model_name: str = Field(
+    basement_wall_boundary_condition_model_name: OSCMNamesRef = Field(
         ..., json_schema_extra={'object_list': ['OSCMNames']}
     )
     vertical_insulation: Literal['', 'No', 'Yes'] | None = Field(default='No')
-    basement_wall_vertical_insulation_material_name: str | None = Field(
+    basement_wall_vertical_insulation_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     vertical_insulation_depth: float | None = Field(
@@ -321,7 +330,7 @@ class SiteGroundDomainSlab(IDFBaseModel):
         'Site:GroundTemperature:Undisturbed:KusudaAchenbach',
         'Site:GroundTemperature:Undisturbed:Xing',
     ] = Field(...)
-    undisturbed_ground_temperature_model_name: str = Field(
+    undisturbed_ground_temperature_model_name: UndisturbedGroundTempModelsRef = Field(
         ..., json_schema_extra={'object_list': ['UndisturbedGroundTempModels']}
     )
     evapotranspiration_ground_cover_parameter: float | None = Field(
@@ -332,7 +341,7 @@ class SiteGroundDomainSlab(IDFBaseModel):
             'note': 'This specifies the ground cover effects during evapotranspiration calculations. The value roughly represents the following cases: = 0   : concrete or other solid, non-permeable ground surface mater...'
         },
     )
-    slab_boundary_condition_model_name: str = Field(
+    slab_boundary_condition_model_name: OSCMNamesRef = Field(
         ..., json_schema_extra={'object_list': ['OSCMNames']}
     )
     slab_location: Literal['InGrade', 'OnGrade'] = Field(
@@ -341,7 +350,7 @@ class SiteGroundDomainSlab(IDFBaseModel):
             'note': 'This field specifies whether the slab is located "in-grade" or "on-grade"'
         },
     )
-    slab_material_name: str | None = Field(
+    slab_material_name: MaterialNameRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -354,7 +363,7 @@ class SiteGroundDomainSlab(IDFBaseModel):
             'note': 'This field specifies the presence of insulation beneath the slab. Only required for in-grade case.'
         },
     )
-    horizontal_insulation_material_name: str | None = Field(
+    horizontal_insulation_material_name: MaterialNameRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -381,7 +390,7 @@ class SiteGroundDomainSlab(IDFBaseModel):
             'note': 'This field specifies the presence of vertical insulation at the slab edge.'
         },
     )
-    vertical_insulation_material_name: str | None = Field(
+    vertical_insulation_material_name: MaterialNameRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['MaterialName'],
@@ -843,7 +852,7 @@ class SitePrecipitation(IDFBaseModel):
             'note': 'meters of water per year used for design level',
         },
     )
-    precipitation_rates_schedule_name: str | None = Field(
+    precipitation_rates_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -872,10 +881,10 @@ class SiteSolarAndVisibleSpectrum(IDFBaseModel):
             'note': 'The method specifies which of the solar and visible spectrum data to use in the calculations. Choices: Default - existing hard-wired spectrum data in EnergyPlus. UserDefined - user specified spectr...'
         },
     )
-    solar_spectrum_data_object_name: str | None = Field(
+    solar_spectrum_data_object_name: SpectrumDataNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['SpectrumDataNames']}
     )
-    visible_spectrum_data_object_name: str | None = Field(
+    visible_spectrum_data_object_name: SpectrumDataNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['SpectrumDataNames']}
     )
 
@@ -905,21 +914,21 @@ class SiteVariableLocation(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Site:VariableLocation'
     name: str = Field(...)
-    building_location_latitude_schedule: str | None = Field(
+    building_location_latitude_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The name of a schedule that defines the latitude of the building at any time. If not entered, the latitude defined in the Site:Location, or the default latitude, will be used for the entirety of th...',
         },
     )
-    building_location_longitude_schedule: str | None = Field(
+    building_location_longitude_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The name of a schedule that defines the longitude of the building at any time. If not entered, the longitude defined in the Site:Location, or the default longitude, will be used for the entirety of...',
         },
     )
-    building_location_orientation_schedule: str | None = Field(
+    building_location_orientation_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -942,7 +951,7 @@ class SiteWaterMainsTemperature(IDFBaseModel):
             'note': 'If calculation method is CorrelationFromWeatherFile, the two numeric input fields are ignored. Instead, EnergyPlus calculates them from weather file.'
         },
     )
-    temperature_schedule_name: str | None = Field(
+    temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     annual_average_outdoor_air_temperature: float | None = Field(
@@ -1047,7 +1056,9 @@ class SizingPeriodDesignDay(IDFBaseModel):
             'note': 'Type of modifier to the dry-bulb temperature calculated for the timestep'
         },
     )
-    dry_bulb_temperature_range_modifier_day_schedule_name: str | None = Field(
+    dry_bulb_temperature_range_modifier_day_schedule_name: (
+        DayScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DayScheduleNames'],
@@ -1080,7 +1091,7 @@ class SizingPeriodDesignDay(IDFBaseModel):
             'note': 'Wetbulb or dewpoint temperature coincident with the maximum temperature. Required only if field Humidity Condition Type is "Wetbulb", "Dewpoint", "WetBulbProfileMultiplierSchedule", "WetBulbProfile...',
         },
     )
-    humidity_condition_day_schedule_name: str | None = Field(
+    humidity_condition_day_schedule_name: DayScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DayScheduleNames'],
@@ -1147,14 +1158,14 @@ class SizingPeriodDesignDay(IDFBaseModel):
         ]
         | None
     ) = Field(default='ASHRAEClearSky')
-    beam_solar_day_schedule_name: str | None = Field(
+    beam_solar_day_schedule_name: DayScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DayScheduleNames'],
             'note': 'if Solar Model Indicator = Schedule, then beam schedule name (for day)',
         },
     )
-    diffuse_solar_day_schedule_name: str | None = Field(
+    diffuse_solar_day_schedule_name: DayScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DayScheduleNames'],
@@ -1318,7 +1329,7 @@ class WeatherPropertySkyTemperature(IDFBaseModel):
     """This object is used to override internal sky temperature calculations."""
 
     _idf_object_type: ClassVar[str] = 'WeatherProperty:SkyTemperature'
-    name: str | None = Field(
+    name: RunPeriodsAndDesignDaysRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['RunPeriodsAndDesignDays'],
@@ -1343,7 +1354,7 @@ class WeatherPropertySkyTemperature(IDFBaseModel):
             'note': 'The field indicates that the sky temperature will be imported from external schedules or calculated by alternative methods other than default.'
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: (DayScheduleNamesRef | ScheduleNamesRef) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DayScheduleNames', 'ScheduleNames'],

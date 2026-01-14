@@ -12,6 +12,12 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AirPrimaryLoopsRef,
+    QuadvariateFunctionsRef,
+    ScheduleNamesRef,
+    ZoneNamesRef,
+)
 
 
 class SetpointManagerColdest(IDFBaseModel):
@@ -23,7 +29,7 @@ class SetpointManagerColdest(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'SetpointManager:Coldest'
     name: str = Field(...)
     control_variable: Literal['', 'Temperature'] | None = Field(default='Temperature')
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -52,21 +58,21 @@ class SetpointManagerCondenserEnteringReset(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'SetpointManager:CondenserEnteringReset'
     name: str = Field(...)
     control_variable: Literal['', 'Temperature'] | None = Field(default='Temperature')
-    default_condenser_entering_water_temperature_schedule_name: str = Field(
+    default_condenser_entering_water_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This scheduled setpoint value is only used in a given timestep if the "Optimized" Condenser Entering Temperature does not fall within the prescribed boundary conditions.',
         },
     )
-    minimum_design_wetbulb_temperature_curve_name: str = Field(
+    minimum_design_wetbulb_temperature_curve_name: QuadvariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['QuadvariateFunctions']}
     )
-    minimum_outside_air_wetbulb_temperature_curve_name: str = Field(
+    minimum_outside_air_wetbulb_temperature_curve_name: QuadvariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['QuadvariateFunctions']}
     )
-    optimized_cond_entering_water_temperature_curve_name: str = Field(
-        ..., json_schema_extra={'object_list': ['QuadvariateFunctions']}
+    optimized_cond_entering_water_temperature_curve_name: QuadvariateFunctionsRef = (
+        Field(..., json_schema_extra={'object_list': ['QuadvariateFunctions']})
     )
     minimum_lift: float | None = Field(
         default=11.1, json_schema_extra={'units': 'deltaC'}
@@ -238,7 +244,7 @@ class SetpointManagerMultiZoneCoolingAverage(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SetpointManager:MultiZone:Cooling:Average'
     name: str = Field(...)
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -263,7 +269,7 @@ class SetpointManagerMultiZoneHeatingAverage(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SetpointManager:MultiZone:Heating:Average'
     name: str = Field(...)
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -289,7 +295,7 @@ class SetpointManagerMultiZoneHumidityMaximum(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SetpointManager:MultiZone:Humidity:Maximum'
     name: str = Field(...)
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -316,7 +322,7 @@ class SetpointManagerMultiZoneHumidityMinimum(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SetpointManager:MultiZone:Humidity:Minimum'
     name: str = Field(...)
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -344,7 +350,7 @@ class SetpointManagerMultiZoneMaximumHumidityAverage(IDFBaseModel):
         'SetpointManager:MultiZone:MaximumHumidity:Average'
     )
     name: str = Field(...)
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -372,7 +378,7 @@ class SetpointManagerMultiZoneMinimumHumidityAverage(IDFBaseModel):
         'SetpointManager:MultiZone:MinimumHumidity:Average'
     )
     name: str = Field(...)
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -481,7 +487,7 @@ class SetpointManagerOutdoorAirReset(IDFBaseModel):
     setpoint_node_or_nodelist_name: str = Field(
         ..., json_schema_extra={'note': 'Node(s) at which temperature will be set'}
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -525,14 +531,14 @@ class SetpointManagerReturnAirBypassFlow(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'SetpointManager:ReturnAirBypassFlow'
     name: str = Field(...)
     control_variable: Literal['', 'Flow'] | None = Field(default='Flow')
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
             'note': 'Enter the name of an AirLoopHVAC object.',
         },
     )
-    temperature_setpoint_schedule_name: str | None = Field(
+    temperature_setpoint_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -587,7 +593,7 @@ class SetpointManagerReturnTemperatureChilledWater(IDFBaseModel):
             'note': 'This is the desired return temperature target, which is met by adjusting the supply temperature setpoint. This constant value is only used if the Design Chilled Water Return Temperature Input Type ...',
         },
     )
-    return_temperature_setpoint_schedule_name: str | None = Field(
+    return_temperature_setpoint_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -646,7 +652,7 @@ class SetpointManagerReturnTemperatureHotWater(IDFBaseModel):
             'note': 'This is the desired return temperature target, which is met by adjusting the supply temperature setpoint. This constant value is only used if the Design Hot Water Return Temperature Input Type is C...',
         },
     )
-    return_temperature_setpoint_schedule_name: str | None = Field(
+    return_temperature_setpoint_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -672,7 +678,7 @@ class SetpointManagerScheduled(IDFBaseModel):
         'MinimumTemperature',
         'Temperature',
     ] = Field(...)
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     setpoint_node_or_nodelist_name: str = Field(
@@ -687,10 +693,10 @@ class SetpointManagerScheduledDualSetpoint(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'SetpointManager:Scheduled:DualSetpoint'
     name: str = Field(...)
     control_variable: Literal['', 'Temperature'] | None = Field(default='Temperature')
-    high_setpoint_schedule_name: str = Field(
+    high_setpoint_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    low_setpoint_schedule_name: str = Field(
+    low_setpoint_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     setpoint_node_or_nodelist_name: str = Field(
@@ -713,7 +719,7 @@ class SetpointManagerSingleZoneCooling(IDFBaseModel):
     maximum_supply_air_temperature: float | None = Field(
         default=99.0, json_schema_extra={'units': 'C'}
     )
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     zone_node_name: str = Field(...)
@@ -738,7 +744,7 @@ class SetpointManagerSingleZoneHeating(IDFBaseModel):
     maximum_supply_air_temperature: float | None = Field(
         default=99.0, json_schema_extra={'units': 'C'}
     )
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     zone_node_name: str = Field(...)
@@ -812,7 +818,7 @@ class SetpointManagerSingleZoneOneStageCooling(IDFBaseModel):
             'note': 'This is the setpoint value applied when cooling device is to cycle OFF',
         },
     )
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     setpoint_node_or_nodelist_name: str = Field(
@@ -843,7 +849,7 @@ class SetpointManagerSingleZoneOneStageHeating(IDFBaseModel):
             'note': 'This is the setpoint value applied when heating device is to cycle OFF',
         },
     )
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     setpoint_node_or_nodelist_name: str = Field(
@@ -866,7 +872,7 @@ class SetpointManagerSingleZoneReheat(IDFBaseModel):
     maximum_supply_air_temperature: float | None = Field(
         default=99.0, json_schema_extra={'units': 'C'}
     )
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     zone_node_name: str = Field(...)
@@ -947,7 +953,7 @@ class SetpointManagerWarmest(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'SetpointManager:Warmest'
     name: str = Field(...)
     control_variable: Literal['', 'Temperature'] | None = Field(default='Temperature')
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -975,7 +981,7 @@ class SetpointManagerWarmestTemperatureFlow(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'SetpointManager:WarmestTemperatureFlow'
     name: str = Field(...)
     control_variable: Literal['Temperature'] | None = Field(default=None)
-    hvac_air_loop_name: str = Field(
+    hvac_air_loop_name: AirPrimaryLoopsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],

@@ -12,6 +12,10 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ColorSchemesRef,
+    ScheduleNamesRef,
+)
 
 
 class MeterCustomVariableDetailsItem(IDFBaseModel):
@@ -290,103 +294,103 @@ class FuelFactors(IDFBaseModel):
     source_energy_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'J/J'}
     )
-    source_energy_schedule_name: str | None = Field(
+    source_energy_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     co2_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    co2_emission_factor_schedule_name: str | None = Field(
+    co2_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     co_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    co_emission_factor_schedule_name: str | None = Field(
+    co_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     ch4_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    ch4_emission_factor_schedule_name: str | None = Field(
+    ch4_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     nox_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    nox_emission_factor_schedule_name: str | None = Field(
+    nox_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     n2o_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    n2o_emission_factor_schedule_name: str | None = Field(
+    n2o_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     so2_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    so2_emission_factor_schedule_name: str | None = Field(
+    so2_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     pm_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    pm_emission_factor_schedule_name: str | None = Field(
+    pm_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     pm10_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    pm10_emission_factor_schedule_name: str | None = Field(
+    pm10_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     pm2_5_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    pm2_5_emission_factor_schedule_name: str | None = Field(
+    pm2_5_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     nh3_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    nh3_emission_factor_schedule_name: str | None = Field(
+    nh3_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     nmvoc_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    nmvoc_emission_factor_schedule_name: str | None = Field(
+    nmvoc_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     hg_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    hg_emission_factor_schedule_name: str | None = Field(
+    hg_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     pb_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    pb_emission_factor_schedule_name: str | None = Field(
+    pb_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     water_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'L/MJ'}
     )
-    water_emission_factor_schedule_name: str | None = Field(
+    water_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     nuclear_high_level_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'g/MJ'}
     )
-    nuclear_high_level_emission_factor_schedule_name: str | None = Field(
+    nuclear_high_level_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     nuclear_low_level_emission_factor: float | None = Field(
         default=None, json_schema_extra={'units': 'm3/MJ'}
     )
-    nuclear_low_level_emission_factor_schedule_name: str | None = Field(
+    nuclear_low_level_emission_factor_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -1282,7 +1286,7 @@ class OutputSurfacesDrawing(IDFBaseModel):
             'note': 'Triangulate3DFace (default), ThickPolyline, RegularPolyline apply to DXF This field is ignored for DXF:WireFrame and VRML'
         },
     )
-    report_specifications_2: str | None = Field(
+    report_specifications_2: ColorSchemesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ColorSchemes'],
@@ -1327,7 +1331,7 @@ class OutputTableAnnual(IDFBaseModel):
             'note': 'An optional text string that is compared to the names of the objects referenced by the variables and if they match are included in the table. A footnote will appear that indicates that the objects ...'
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1443,7 +1447,7 @@ class OutputTableTimeBins(IDFBaseModel):
             'note': 'The number of bins used. The number of hours below the start of the Lowest bin and above the value of the last bin are also shown.'
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1494,7 +1498,7 @@ class OutputVariable(IDFBaseModel):
             'note': 'Detailed lists every instance (i.e. HVAC variable timesteps) Timestep refers to the zone Timestep/Number of Timesteps in hour value RunPeriod and Environment are the same'
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 

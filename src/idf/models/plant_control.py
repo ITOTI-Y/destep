@@ -12,6 +12,16 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ChillersRef,
+    ControlSchemeListRef,
+    IceThermalStorageEquipmentRef,
+    PlantAndCondenserEquipmentListsRef,
+    PLHPCoolingNamesRef,
+    PLHPHeatingNamesRef,
+    ScheduleNamesRef,
+    ZoneListNamesRef,
+)
 
 
 class CondenserEquipmentListEquipmentItem(IDFBaseModel):
@@ -63,10 +73,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         'PlantEquipmentOperation:Uncontrolled',
         'PlantEquipmentOperation:UserDefined',
     ] = Field(...)
-    control_scheme_1_name: str = Field(
+    control_scheme_1_name: ControlSchemeListRef = Field(
         ..., json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_1_schedule_name: str = Field(
+    control_scheme_1_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_2_object_type: (
@@ -85,10 +95,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_2_name: str | None = Field(
+    control_scheme_2_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_2_schedule_name: str | None = Field(
+    control_scheme_2_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_3_object_type: (
@@ -107,10 +117,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_3_name: str | None = Field(
+    control_scheme_3_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_3_schedule_name: str | None = Field(
+    control_scheme_3_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_4_object_type: (
@@ -129,10 +139,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_4_name: str | None = Field(
+    control_scheme_4_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_4_schedule_name: str | None = Field(
+    control_scheme_4_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_5_object_type: (
@@ -151,10 +161,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_5_name: str | None = Field(
+    control_scheme_5_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_5_schedule_name: str | None = Field(
+    control_scheme_5_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_6_object_type: (
@@ -173,10 +183,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_6_name: str | None = Field(
+    control_scheme_6_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_6_schedule_name: str | None = Field(
+    control_scheme_6_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_7_object_type: (
@@ -195,10 +205,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_7_name: str | None = Field(
+    control_scheme_7_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_7_schedule_name: str | None = Field(
+    control_scheme_7_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_8_object_type: (
@@ -217,10 +227,10 @@ class CondenserEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_8_name: str | None = Field(
+    control_scheme_8_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_8_schedule_name: str | None = Field(
+    control_scheme_8_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -267,34 +277,38 @@ class PlantEquipmentOperationChillerHeaterChangeover(IDFBaseModel):
     secondary_distribution_heating_plant_setpoint_temperature: float | None = Field(
         default=None, ge=20.0, le=80.0, json_schema_extra={'units': 'C'}
     )
-    zone_load_polling_zonelist_name: str | None = Field(
+    zone_load_polling_zonelist_name: ZoneListNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneListNames']}
     )
-    cooling_only_load_plant_equipment_operation_cooling_load_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
-    )
-    heating_only_load_plant_equipment_operation_heating_load_name: str | None = Field(
-        default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
-    )
+    cooling_only_load_plant_equipment_operation_cooling_load_name: (
+        ControlSchemeListRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ControlSchemeList']})
+    heating_only_load_plant_equipment_operation_heating_load_name: (
+        ControlSchemeListRef | None
+    ) = Field(default=None, json_schema_extra={'object_list': ['ControlSchemeList']})
     simultaneous_cooling_and_heating_plant_equipment_operation_cooling_load_name: (
-        str | None
+        ControlSchemeListRef | None
     ) = Field(default=None, json_schema_extra={'object_list': ['ControlSchemeList']})
     simultaneous_cooling_and_heating_plant_equipment_operation_heating_load_name: (
-        str | None
+        ControlSchemeListRef | None
     ) = Field(default=None, json_schema_extra={'object_list': ['ControlSchemeList']})
-    dedicated_chilled_water_return_recovery_heat_pump_name: str | None = Field(
+    dedicated_chilled_water_return_recovery_heat_pump_name: (
+        PLHPCoolingNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['PLHPCoolingNames'],
             'note': 'enter name of HeatPump:PlantLoop:EIR:Cooling object to control chilled water return adding heat to hot water return',
         },
     )
-    dedicated_hot_water_return_recovery_heat_pump_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['PLHPHeatingNames'],
-            'note': 'enter name of HeatPump:PlantLoop:EIR:Heating object to control hot water return cooling the chilled water return',
-        },
+    dedicated_hot_water_return_recovery_heat_pump_name: PLHPHeatingNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['PLHPHeatingNames'],
+                'note': 'enter name of HeatPump:PlantLoop:EIR:Heating object to control hot water return cooling the chilled water return',
+            },
+        )
     )
     boiler_setpoint_temperature_offset: float | None = Field(
         default=0.5, json_schema_extra={'units': 'deltaC'}
@@ -417,7 +431,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_1_upper_limit: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_1_equipment_list_name: str | None = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -427,7 +441,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_2_upper_limit: float | None = Field(
         default=None, json_schema_extra={'units': 'W'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -437,7 +451,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_3_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -447,7 +461,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_4_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -457,7 +471,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_5_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -467,7 +481,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_6_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -477,7 +491,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_7_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -487,7 +501,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_8_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -497,7 +511,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_9_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -507,7 +521,7 @@ class PlantEquipmentOperationCoolingLoad(IDFBaseModel):
     load_range_10_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -526,7 +540,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_1_upper_limit: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     load_range_2_lower_limit: float | None = Field(
@@ -535,7 +549,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_2_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -545,7 +559,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_3_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -555,7 +569,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_4_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -565,7 +579,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_5_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -575,7 +589,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_6_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -585,7 +599,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_7_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -595,7 +609,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_8_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -605,7 +619,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_9_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -615,7 +629,7 @@ class PlantEquipmentOperationHeatingLoad(IDFBaseModel):
     load_range_10_upper_limit: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'W'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -634,7 +648,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_1_upper_limit: float = Field(
         ..., ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     dewpoint_temperature_range_2_lower_limit: float | None = Field(
@@ -643,7 +657,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_2_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -653,7 +667,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_3_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -663,7 +677,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_4_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -673,7 +687,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_5_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -683,7 +697,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_6_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -693,7 +707,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_7_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -703,7 +717,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_8_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -713,7 +727,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_9_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -723,7 +737,7 @@ class PlantEquipmentOperationOutdoorDewpoint(IDFBaseModel):
     dewpoint_temperature_range_10_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -746,7 +760,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_1_upper_limit: float = Field(
         ..., ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     dewpoint_temperature_difference_range_2_lower_limit: float | None = Field(
@@ -755,7 +769,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_2_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -765,7 +779,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_3_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -775,7 +789,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_4_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -785,7 +799,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_5_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -795,7 +809,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_6_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -805,7 +819,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_7_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -815,7 +829,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_8_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -825,7 +839,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_9_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -835,7 +849,7 @@ class PlantEquipmentOperationOutdoorDewpointDifference(IDFBaseModel):
     dewpoint_temperature_difference_range_10_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -854,7 +868,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_1_upper_limit: float = Field(
         ..., ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     dry_bulb_temperature_range_2_lower_limit: float | None = Field(
@@ -863,7 +877,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_2_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -873,7 +887,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_3_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -883,7 +897,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_4_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -893,7 +907,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_5_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -903,7 +917,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_6_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -913,7 +927,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_7_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -923,7 +937,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_8_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -933,7 +947,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_9_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -943,7 +957,7 @@ class PlantEquipmentOperationOutdoorDryBulb(IDFBaseModel):
     dry_bulb_temperature_range_10_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -964,7 +978,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_1_upper_limit: float = Field(
         ..., ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     dry_bulb_temperature_difference_range_2_lower_limit: float | None = Field(
@@ -973,7 +987,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_2_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -983,7 +997,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_3_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -993,7 +1007,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_4_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1003,7 +1017,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_5_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1013,7 +1027,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_6_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1023,7 +1037,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_7_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1033,7 +1047,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_8_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1043,7 +1057,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_9_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1053,7 +1067,7 @@ class PlantEquipmentOperationOutdoorDryBulbDifference(IDFBaseModel):
     dry_bulb_temperature_difference_range_10_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1072,7 +1086,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_1_upper_limit: float = Field(
         ..., ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     relative_humidity_range_2_lower_limit: float | None = Field(
@@ -1081,7 +1095,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_2_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1091,7 +1105,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_3_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1101,7 +1115,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_4_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1111,7 +1125,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_5_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1121,7 +1135,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_6_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1131,7 +1145,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_7_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1141,7 +1155,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_8_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1151,7 +1165,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_9_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1161,7 +1175,7 @@ class PlantEquipmentOperationOutdoorRelativeHumidity(IDFBaseModel):
     relative_humidity_range_10_upper_limit: float | None = Field(
         default=None, ge=0.0, le=100.0, json_schema_extra={'units': 'percent'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1180,7 +1194,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_1_upper_limit: float = Field(
         ..., ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     wet_bulb_temperature_range_2_lower_limit: float | None = Field(
@@ -1189,7 +1203,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_2_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1199,7 +1213,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_3_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1209,7 +1223,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_4_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1219,7 +1233,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_5_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1229,7 +1243,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_6_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1239,7 +1253,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_7_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1249,7 +1263,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_8_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1259,7 +1273,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_9_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1269,7 +1283,7 @@ class PlantEquipmentOperationOutdoorWetBulb(IDFBaseModel):
     wet_bulb_temperature_range_10_upper_limit: float | None = Field(
         default=None, ge=-70.0, le=70.0, json_schema_extra={'units': 'C'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1290,7 +1304,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_1_upper_limit: float = Field(
         ..., ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_1_equipment_list_name: str = Field(
+    range_1_equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )
     wet_bulb_temperature_difference_range_2_lower_limit: float | None = Field(
@@ -1299,7 +1313,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_2_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_2_equipment_list_name: str | None = Field(
+    range_2_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1309,7 +1323,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_3_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_3_equipment_list_name: str | None = Field(
+    range_3_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1319,7 +1333,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_4_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_4_equipment_list_name: str | None = Field(
+    range_4_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1329,7 +1343,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_5_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_5_equipment_list_name: str | None = Field(
+    range_5_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1339,7 +1353,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_6_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_6_equipment_list_name: str | None = Field(
+    range_6_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1349,7 +1363,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_7_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_7_equipment_list_name: str | None = Field(
+    range_7_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1359,7 +1373,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_8_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_8_equipment_list_name: str | None = Field(
+    range_8_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1369,7 +1383,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_9_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_9_equipment_list_name: str | None = Field(
+    range_9_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1379,7 +1393,7 @@ class PlantEquipmentOperationOutdoorWetBulbDifference(IDFBaseModel):
     wet_bulb_temperature_difference_range_10_upper_limit: float | None = Field(
         default=None, ge=-50.0, le=100.0, json_schema_extra={'units': 'deltaC'}
     )
-    range_10_equipment_list_name: str | None = Field(
+    range_10_equipment_list_name: PlantAndCondenserEquipmentListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']},
     )
@@ -1411,10 +1425,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         'PlantEquipmentOperation:Uncontrolled',
         'PlantEquipmentOperation:UserDefined',
     ] = Field(...)
-    control_scheme_1_name: str = Field(
+    control_scheme_1_name: ControlSchemeListRef = Field(
         ..., json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_1_schedule_name: str = Field(
+    control_scheme_1_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_2_object_type: (
@@ -1436,10 +1450,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_2_name: str | None = Field(
+    control_scheme_2_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_2_schedule_name: str | None = Field(
+    control_scheme_2_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_3_object_type: (
@@ -1461,10 +1475,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_3_name: str | None = Field(
+    control_scheme_3_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_3_schedule_name: str | None = Field(
+    control_scheme_3_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_4_object_type: (
@@ -1486,10 +1500,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_4_name: str | None = Field(
+    control_scheme_4_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_4_schedule_name: str | None = Field(
+    control_scheme_4_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_5_object_type: (
@@ -1511,10 +1525,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_5_name: str | None = Field(
+    control_scheme_5_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_5_schedule_name: str | None = Field(
+    control_scheme_5_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_6_object_type: (
@@ -1536,10 +1550,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_6_name: str | None = Field(
+    control_scheme_6_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_6_schedule_name: str | None = Field(
+    control_scheme_6_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_7_object_type: (
@@ -1561,10 +1575,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_7_name: str | None = Field(
+    control_scheme_7_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_7_schedule_name: str | None = Field(
+    control_scheme_7_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     control_scheme_8_object_type: (
@@ -1586,10 +1600,10 @@ class PlantEquipmentOperationSchemes(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    control_scheme_8_name: str | None = Field(
+    control_scheme_8_name: ControlSchemeListRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ControlSchemeList']}
     )
-    control_scheme_8_schedule_name: str | None = Field(
+    control_scheme_8_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -1602,10 +1616,10 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'PlantEquipmentOperation:ThermalEnergyStorage'
     name: str = Field(...)
-    on_peak_schedule: str = Field(
+    on_peak_schedule: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    charging_availability_schedule: str = Field(
+    charging_availability_schedule: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     non_charging_chilled_water_temperature: float = Field(
@@ -1639,7 +1653,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
             'note': 'This field is the type of object and should either be a chiller or some ice storage equipment.'
         },
     )
-    component_1_name: str = Field(
+    component_1_name: ChillersRef | IceThermalStorageEquipmentRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['Chillers', 'IceThermalStorageEquipment'],
@@ -1686,7 +1700,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_2_name: str | None = Field(
+    component_2_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1713,7 +1727,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_3_name: str | None = Field(
+    component_3_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1741,7 +1755,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_4_name: str | None = Field(
+    component_4_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1769,7 +1783,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_5_name: str | None = Field(
+    component_5_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1797,7 +1811,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_6_name: str | None = Field(
+    component_6_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1825,7 +1839,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_7_name: str | None = Field(
+    component_7_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1853,7 +1867,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_8_name: str | None = Field(
+    component_8_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1881,7 +1895,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_9_name: str | None = Field(
+    component_9_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1909,7 +1923,7 @@ class PlantEquipmentOperationThermalEnergyStorage(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    component_10_name: str | None = Field(
+    component_10_name: (ChillersRef | IceThermalStorageEquipmentRef) | None = Field(
         default=None,
         json_schema_extra={'object_list': ['Chillers', 'IceThermalStorageEquipment']},
     )
@@ -1930,6 +1944,6 @@ class PlantEquipmentOperationUncontrolled(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'PlantEquipmentOperation:Uncontrolled'
     name: str = Field(...)
-    equipment_list_name: str = Field(
+    equipment_list_name: PlantAndCondenserEquipmentListsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantAndCondenserEquipmentLists']}
     )

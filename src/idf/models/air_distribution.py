@@ -12,12 +12,30 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AirLoopHVACMixerNamesRef,
+    AirLoopHVACSplitterNamesRef,
+    AirLoopOAEquipmentListsRef,
+    AirPrimaryLoopsRef,
+    BranchListsRef,
+    ConnectorListsRef,
+    ControllerListsRef,
+    FansComponentModelRef,
+    FansSystemModelRef,
+    ScheduleNamesRef,
+    SystemAvailabilityManagerListsRef,
+    ValidBranchEquipmentNamesRef,
+    ValidOASysEquipmentNamesRef,
+    ValidOASysEquipmentTypesRef,
+    ZoneMixersRef,
+    ZoneNamesRef,
+)
 
 
 class AirLoopHVACDedicatedOutdoorAirSystemAirloophvacsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    airloophvac_name: str | None = Field(
+    airloophvac_name: AirPrimaryLoopsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AirPrimaryLoops'],
@@ -54,14 +72,14 @@ class AirLoopHVAC(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC'
     name: str = Field(...)
-    controller_list_name: str | None = Field(
+    controller_list_name: ControllerListsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ControllerLists'],
             'note': 'Enter the name of an AirLoopHVAC:ControllerList object.',
         },
     )
-    availability_manager_list_name: str | None = Field(
+    availability_manager_list_name: SystemAvailabilityManagerListsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SystemAvailabilityManagerLists'],
@@ -71,14 +89,14 @@ class AirLoopHVAC(IDFBaseModel):
     design_supply_air_flow_rate: float | Literal['', 'Autosize'] | None = Field(
         default=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    branch_list_name: str = Field(
+    branch_list_name: BranchListsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['BranchLists'],
             'note': 'Name of a BranchList containing all the branches in this air loop',
         },
     )
-    connector_list_name: str | None = Field(
+    connector_list_name: ConnectorListsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ConnectorLists'],
@@ -124,28 +142,28 @@ class AirLoopHVACDedicatedOutdoorAirSystem(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:DedicatedOutdoorAirSystem'
     name: str = Field(...)
-    airloophvac_outdoorairsystem_name: str | None = Field(
+    airloophvac_outdoorairsystem_name: ValidBranchEquipmentNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['validBranchEquipmentNames'],
             'note': 'Enter the name of an AirLoopHVAC:OutdoorAirSystem object.',
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    airloophvac_mixer_name: str = Field(
+    airloophvac_mixer_name: AirLoopHVACMixerNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirLoopHVACMixerNames'],
             'note': 'Name of AirLoopHVAC:Mixer.',
         },
     )
-    airloophvac_splitter_name: str = Field(
+    airloophvac_splitter_name: AirLoopHVACSplitterNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirLoopHVACSplitterNames'],
@@ -177,7 +195,7 @@ class AirLoopHVACExhaustSystem(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:ExhaustSystem'
     name: str = Field(..., json_schema_extra={'note': 'Name of the exhaust system'})
-    zone_mixer_name: str = Field(
+    zone_mixer_name: ZoneMixersRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneMixers'],
@@ -185,7 +203,7 @@ class AirLoopHVACExhaustSystem(IDFBaseModel):
         },
     )
     fan_object_type: Literal['Fan:ComponentModel', 'Fan:SystemModel'] = Field(...)
-    fan_name: str = Field(
+    fan_name: FansComponentModelRef | FansSystemModelRef = Field(
         ...,
         json_schema_extra={'object_list': ['FansComponentModel', 'FansSystemModel']},
     )
@@ -211,14 +229,14 @@ class AirLoopHVACOutdoorAirSystem(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:OutdoorAirSystem'
     name: str = Field(...)
-    controller_list_name: str | None = Field(
+    controller_list_name: ControllerListsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ControllerLists'],
             'note': 'Enter the name of an AirLoopHVAC:ControllerList object or blank if this object is used in AirLoopHVAC:DedicatedOutdoorAirSystem.',
         },
     )
-    outdoor_air_equipment_list_name: str = Field(
+    outdoor_air_equipment_list_name: AirLoopOAEquipmentListsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirLoopOAEquipmentLists'],
@@ -232,58 +250,58 @@ class AirLoopHVACOutdoorAirSystemEquipmentList(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:OutdoorAirSystem:EquipmentList'
     name: str = Field(...)
-    component_1_object_type: str = Field(
+    component_1_object_type: ValidOASysEquipmentTypesRef = Field(
         ..., json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_1_name: str = Field(
+    component_1_name: ValidOASysEquipmentNamesRef = Field(
         ..., json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_2_object_type: str | None = Field(
+    component_2_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_2_name: str | None = Field(
+    component_2_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_3_object_type: str | None = Field(
+    component_3_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_3_name: str | None = Field(
+    component_3_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_4_object_type: str | None = Field(
+    component_4_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_4_name: str | None = Field(
+    component_4_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_5_object_type: str | None = Field(
+    component_5_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_5_name: str | None = Field(
+    component_5_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_6_object_type: str | None = Field(
+    component_6_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_6_name: str | None = Field(
+    component_6_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_7_object_type: str | None = Field(
+    component_7_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_7_name: str | None = Field(
+    component_7_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_8_object_type: str | None = Field(
+    component_8_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_8_name: str | None = Field(
+    component_8_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
-    component_9_object_type: str | None = Field(
+    component_9_object_type: ValidOASysEquipmentTypesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentTypes']}
     )
-    component_9_name: str | None = Field(
+    component_9_name: ValidOASysEquipmentNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['validOASysEquipmentNames']}
     )
 
@@ -305,7 +323,9 @@ class AirLoopHVACReturnPlenum(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:ReturnPlenum'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     zone_node_name: str = Field(...)
     outlet_node_name: str = Field(...)
     induced_air_outlet_node_or_nodelist_name: str | None = Field(default=None)
@@ -340,7 +360,9 @@ class AirLoopHVACSupplyPlenum(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirLoopHVAC:SupplyPlenum'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     zone_node_name: str = Field(...)
     inlet_node_name: str = Field(...)
     nodes: list[AirLoopHVACSplitterNodesItem] | None = Field(default=None)

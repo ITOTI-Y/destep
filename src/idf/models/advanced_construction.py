@@ -12,12 +12,35 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AllHeatTranSurfNamesRef,
+    AllShadingAndHTSurfNamesRef,
+    ComplexFenestrationStatesRef,
+    ConstructionNamesRef,
+    FloorSurfaceNamesRef,
+    GroundSurfacesNamesRef,
+    MaterialNameRef,
+    OSCMNamesRef,
+    OutdoorAirNodeNamesRef,
+    ScheduleNamesRef,
+    SpaceListNamesRef,
+    SpaceNamesRef,
+    SubSurfNamesRef,
+    SurfaceNamesRef,
+    SurroundingSurfacesNamesRef,
+    UnivariateFunctionsRef,
+    UserConvectionInsideModelsRef,
+    UserConvectionModelsRef,
+    UserConvectionOutsideModelsRef,
+    ZoneListNamesRef,
+    ZoneNamesRef,
+)
 
 
 class FoundationKivaBlocksItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    custom_block_material_name: str | None = Field(
+    custom_block_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     custom_block_depth: float | None = Field(
@@ -58,7 +81,7 @@ class SurfacePropertyExposedFoundationPerimeterSurfacesItem(IDFBaseModel):
 class SurfacePropertyExteriorNaturalVentedCAVitySurfaceItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    surface_name: str = Field(
+    surface_name: AllShadingAndHTSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllShadingAndHTSurfNames']}
     )
 
@@ -70,14 +93,14 @@ class SurfacePropertyGroundSurfacesGroundSurfacesItem(IDFBaseModel):
     ground_surface_view_factor: float | None = Field(
         default=None, ge=0.0, le=1.0, json_schema_extra={'units': 'dimensionless'}
     )
-    ground_surface_temperature_schedule_name: str | None = Field(
+    ground_surface_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values are real numbers, -100.0 to 100.0, units C',
         },
     )
-    ground_surface_reflectance_schedule_name: str | None = Field(
+    ground_surface_reflectance_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -91,7 +114,7 @@ class SurfacePropertySurroundingSurfacesSurfacesItem(IDFBaseModel):
 
     surrounding_surface_name: str = Field(...)
     surrounding_surface_view_factor: float | None = Field(default=0.0, ge=0.0, le=1.0)
-    surrounding_surface_temperature_schedule_name: str = Field(
+    surrounding_surface_temperature_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -103,10 +126,10 @@ class SurfacePropertySurroundingSurfacesSurfacesItem(IDFBaseModel):
 class ZonePropertyUserViewFactorsBySurfaceNameViewFactorsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    from_surface: str | None = Field(
+    from_surface: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
-    to_surface: str | None = Field(
+    to_surface: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     view_factor: float | None = Field(
@@ -125,41 +148,41 @@ class ComplexFenestrationPropertySolarAbsorbedLayers(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ComplexFenestrationProperty:SolarAbsorbedLayers'
     name: str = Field(...)
-    fenestration_surface: str = Field(
+    fenestration_surface: SubSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SubSurfNames']}
     )
-    construction_name: str = Field(
+    construction_name: ComplexFenestrationStatesRef = Field(
         ..., json_schema_extra={'object_list': ['ComplexFenestrationStates']}
     )
-    layer_1_solar_radiation_absorbed_schedule_name: str = Field(
+    layer_1_solar_radiation_absorbed_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Values in schedule are expected to be in W/m2',
         },
     )
-    layer_2_solar_radiation_absorbed_schedule_name: str | None = Field(
+    layer_2_solar_radiation_absorbed_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Values in schedule are expected to be in W/m2',
         },
     )
-    layer_3_solar_radiation_absorbed_schedule_name: str | None = Field(
+    layer_3_solar_radiation_absorbed_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Values in schedule are expected to be in W/m2',
         },
     )
-    layer_4_solar_radiation_absorbed_schedule_name: str | None = Field(
+    layer_4_solar_radiation_absorbed_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Values in schedule are expected to be in W/m2',
         },
     )
-    layer_5_solar_radiation_absorbed_schedule_name: str | None = Field(
+    layer_5_solar_radiation_absorbed_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -182,7 +205,7 @@ class FoundationKiva(IDFBaseModel):
             'note': 'Indoor air temperature used for Kiva initialization (prior to warmup period) If left blank, indoor air temperature will be determined based on zone setpoints',
         },
     )
-    interior_horizontal_insulation_material_name: str | None = Field(
+    interior_horizontal_insulation_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     interior_horizontal_insulation_depth: float | None = Field(
@@ -201,7 +224,7 @@ class FoundationKiva(IDFBaseModel):
             'note': 'Extent of insulation as measured from the wall interior',
         },
     )
-    interior_vertical_insulation_material_name: str | None = Field(
+    interior_vertical_insulation_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     interior_vertical_insulation_depth: float | None = Field(
@@ -212,7 +235,7 @@ class FoundationKiva(IDFBaseModel):
             'note': 'Extent of insulation as measured from the wall top to the bottom edge of the interior vertical insulation',
         },
     )
-    exterior_horizontal_insulation_material_name: str | None = Field(
+    exterior_horizontal_insulation_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     exterior_horizontal_insulation_depth: float | None = Field(
@@ -231,7 +254,7 @@ class FoundationKiva(IDFBaseModel):
             'note': 'Extent of insulation as measured from the wall exterior',
         },
     )
-    exterior_vertical_insulation_material_name: str | None = Field(
+    exterior_vertical_insulation_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     exterior_vertical_insulation_depth: float | None = Field(
@@ -258,14 +281,14 @@ class FoundationKiva(IDFBaseModel):
             'note': 'Distance from the slab bottom to the bottom of the foundation wall',
         },
     )
-    footing_wall_construction_name: str | None = Field(
+    footing_wall_construction_name: ConstructionNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ConstructionNames'],
             'note': 'Defines the below-grade surface construction for slabs. Required if foundation wall is not exposed to the zone.',
         },
     )
-    footing_material_name: str | None = Field(
+    footing_material_name: MaterialNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['MaterialName']}
     )
     footing_depth: float | None = Field(
@@ -327,9 +350,13 @@ class SurfaceControlMovableInsulation(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SurfaceControl:MovableInsulation'
     insulation_type: Literal['Inside', 'Outside'] = Field(...)
-    surface_name: str = Field(..., json_schema_extra={'object_list': ['SurfaceNames']})
-    material_name: str = Field(..., json_schema_extra={'object_list': ['MaterialName']})
-    schedule_name: str = Field(
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
+    )
+    material_name: MaterialNameRef = Field(
+        ..., json_schema_extra={'object_list': ['MaterialName']}
+    )
+    schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -363,7 +390,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with no HVAC or when HVAC is off This is for vertical walls'
         },
     )
-    simple_buoyancy_vertical_wall_user_curve_name: str | None = Field(
+    simple_buoyancy_vertical_wall_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -384,7 +413,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with no HVAC or when HVAC is off This is for horizontal surfaces with heat flow directed for stable thermal stratification'
         },
     )
-    simple_buoyancy_stable_horizontal_equation_user_curve_name: str | None = Field(
+    simple_buoyancy_stable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -405,7 +436,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with no HVAC or when HVAC is off This is for passive horizontal surfaces with heat flow for unstable thermal stratification'
         },
     )
-    simple_buoyancy_unstable_horizontal_equation_user_curve_name: str | None = Field(
+    simple_buoyancy_unstable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -426,7 +459,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with no HVAC or when HVAC is off This is for tilted surfaces with heat flow for stable thermal stratification'
         },
     )
-    simple_buoyancy_stable_tilted_equation_user_curve_name: str | None = Field(
+    simple_buoyancy_stable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -447,7 +482,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with no HVAC or when HVAC is off This is for tilted surfaces with heat flow for unstable thermal stratification'
         },
     )
-    simple_buoyancy_unstable_tilted_equation_user_curve_name: str | None = Field(
+    simple_buoyancy_unstable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -471,7 +508,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with no HVAC or when HVAC is off This is for all window surfaces'
         },
     )
-    simple_buoyancy_windows_equation_user_curve_name: str | None = Field(
+    simple_buoyancy_windows_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -495,7 +534,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for vertical walls'
         },
     )
-    floor_heat_ceiling_cool_vertical_wall_equation_user_curve_name: str | None = Field(
+    floor_heat_ceiling_cool_vertical_wall_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -516,14 +557,14 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for passive horizontal surfaces with heat flow for stable thermal stratification'
         },
     )
-    floor_heat_ceiling_cool_stable_horizontal_equation_user_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UserConvectionInsideModels'],
-                'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
-            },
-        )
+    floor_heat_ceiling_cool_stable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UserConvectionInsideModels'],
+            'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
+        },
     )
     floor_heat_ceiling_cool_unstable_horizontal_equation_source: (
         Literal[
@@ -540,14 +581,14 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for passive horizontal surfaces with heat flow for unstable thermal stratification'
         },
     )
-    floor_heat_ceiling_cool_unstable_horizontal_equation_user_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UserConvectionInsideModels'],
-                'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
-            },
-        )
+    floor_heat_ceiling_cool_unstable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UserConvectionInsideModels'],
+            'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
+        },
     )
     floor_heat_ceiling_cool_heated_floor_equation_source: (
         Literal[
@@ -564,7 +605,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for a floor with active heating elements'
         },
     )
-    floor_heat_ceiling_cool_heated_floor_equation_user_curve_name: str | None = Field(
+    floor_heat_ceiling_cool_heated_floor_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -586,14 +629,14 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for a ceiling with active cooling elements'
         },
     )
-    floor_heat_ceiling_cool_chilled_ceiling_equation_user_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UserConvectionInsideModels'],
-                'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
-            },
-        )
+    floor_heat_ceiling_cool_chilled_ceiling_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UserConvectionInsideModels'],
+            'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
+        },
     )
     floor_heat_ceiling_cool_stable_tilted_equation_source: (
         Literal[
@@ -610,7 +653,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for tilted surfaces with heat flow for stable thermal stratification'
         },
     )
-    floor_heat_ceiling_cool_stable_tilted_equation_user_curve_name: str | None = Field(
+    floor_heat_ceiling_cool_stable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -632,14 +677,14 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for tilted surfaces with heat flow for unstable thermal stratification'
         },
     )
-    floor_heat_ceiling_cool_unstable_tilted_equation_user_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UserConvectionInsideModels'],
-                'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
-            },
-        )
+    floor_heat_ceiling_cool_unstable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UserConvectionInsideModels'],
+            'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
+        },
     )
     floor_heat_ceiling_cool_window_equation_source: (
         Literal[
@@ -656,7 +701,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-floor heating and/or in-ceiling cooling This is for all window surfaces'
         },
     )
-    floor_heat_ceiling_cool_window_equation_user_curve_name: str | None = Field(
+    floor_heat_ceiling_cool_window_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -680,7 +727,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-wall panel heating This is for vertical walls that are not actively heated'
         },
     )
-    wall_panel_heating_vertical_wall_equation_user_curve_name: str | None = Field(
+    wall_panel_heating_vertical_wall_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -705,7 +754,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-wall panel heating This is for vertical walls that are being actively heated'
         },
     )
-    wall_panel_heating_heated_wall_equation_user_curve_name: str | None = Field(
+    wall_panel_heating_heated_wall_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -726,7 +777,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-wall panel heating This is for horizontal surfaces with heat flow directed for stable thermal stratification'
         },
     )
-    wall_panel_heating_stable_horizontal_equation_user_curve_name: str | None = Field(
+    wall_panel_heating_stable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -750,7 +803,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-wall panel heating This is for horizontal surfaces with heat flow directed for unstable thermal stratification'
         },
     )
-    wall_panel_heating_unstable_horizontal_equation_user_curve_name: str | None = Field(
+    wall_panel_heating_unstable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -772,7 +827,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-wall panel heating This is for tilted surfaces with heat flow for stable thermal stratification'
         },
     )
-    wall_panel_heating_stable_tilted_equation_user_curve_name: str | None = Field(
+    wall_panel_heating_stable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -794,7 +851,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-wall panel heating This is for tilted surfaces with heat flow for unstable thermal stratification'
         },
     )
-    wall_panel_heating_unstable_tilted_equation_user_curve_name: str | None = Field(
+    wall_panel_heating_unstable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -817,7 +876,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with in-wall panel heating This is for all window surfaces'
         },
     )
-    wall_panel_heating_window_equation_user_curve_name: str | None = Field(
+    wall_panel_heating_window_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -842,7 +903,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with convective heater This is for vertical walls not directly affected by heater'
         },
     )
-    convective_zone_heater_vertical_wall_equation_user_curve_name: str | None = Field(
+    convective_zone_heater_vertical_wall_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -868,7 +931,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         },
     )
     convective_zone_heater_vertical_walls_near_heater_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -890,14 +953,14 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with convective heater This is for horizontal surfaces with heat flow directed for stable thermal stratification'
         },
     )
-    convective_zone_heater_stable_horizontal_equation_user_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UserConvectionInsideModels'],
-                'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
-            },
-        )
+    convective_zone_heater_stable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UserConvectionInsideModels'],
+            'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
+        },
     )
     convective_zone_heater_unstable_horizontal_equation_source: (
         Literal[
@@ -915,14 +978,14 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with convective heater This is for horizontal surfaces with heat flow directed for unstable thermal stratification'
         },
     )
-    convective_zone_heater_unstable_horizontal_equation_user_curve_name: str | None = (
-        Field(
-            default=None,
-            json_schema_extra={
-                'object_list': ['UserConvectionInsideModels'],
-                'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
-            },
-        )
+    convective_zone_heater_unstable_horizontal_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UserConvectionInsideModels'],
+            'note': 'The SurfaceConvectionAlgorithm:Inside:UserCurve named in this field is used when the previous field is set to UserCurve',
+        },
     )
     convective_zone_heater_stable_tilted_equation_source: (
         Literal[
@@ -938,7 +1001,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with convective heater This is for tilted surfaces with heat flow for stable thermal stratification'
         },
     )
-    convective_zone_heater_stable_tilted_equation_user_curve_name: str | None = Field(
+    convective_zone_heater_stable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -959,7 +1024,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with convective heater This is for tilted surfaces with heat flow for unstable thermal stratification'
         },
     )
-    convective_zone_heater_unstable_tilted_equation_user_curve_name: str | None = Field(
+    convective_zone_heater_unstable_tilted_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -983,7 +1050,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with convective heater This is for all window surfaces'
         },
     )
-    convective_zone_heater_windows_equation_user_curve_name: str | None = Field(
+    convective_zone_heater_windows_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1010,7 +1079,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with mechanical forced central air with diffusers This is for all wall surfaces'
         },
     )
-    central_air_diffuser_wall_equation_user_curve_name: str | None = Field(
+    central_air_diffuser_wall_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1032,7 +1103,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with mechanical forced central air with diffusers This is for all ceiling surfaces'
         },
     )
-    central_air_diffuser_ceiling_equation_user_curve_name: str | None = Field(
+    central_air_diffuser_ceiling_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1055,7 +1128,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with mechanical forced central air with diffusers This is for all floor surfaces'
         },
     )
-    central_air_diffuser_floor_equation_user_curve_name: str | None = Field(
+    central_air_diffuser_floor_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1082,7 +1157,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'Applies to zone with mechanical forced central air with diffusers This is for all window surfaces'
         },
     )
-    central_air_diffuser_window_equation_user_curve_name: str | None = Field(
+    central_air_diffuser_window_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1109,7 +1186,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         json_schema_extra={'note': 'reference choice fields'},
     )
     mechanical_zone_fan_circulation_vertical_wall_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1130,7 +1207,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         json_schema_extra={'note': 'reference choice fields'},
     )
     mechanical_zone_fan_circulation_stable_horizontal_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1152,7 +1229,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         json_schema_extra={'note': 'reference choice fields'},
     )
     mechanical_zone_fan_circulation_unstable_horizontal_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1167,7 +1244,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         json_schema_extra={'note': 'reference choice fields'},
     )
     mechanical_zone_fan_circulation_stable_tilted_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1188,7 +1265,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         json_schema_extra={'note': 'reference choice fields'},
     )
     mechanical_zone_fan_circulation_unstable_tilted_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1210,7 +1287,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
     ) = Field(
         default='ISO15099Windows', json_schema_extra={'note': 'reference choice fields'}
     )
-    mechanical_zone_fan_circulation_window_equation_user_curve_name: str | None = Field(
+    mechanical_zone_fan_circulation_window_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1234,7 +1313,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         json_schema_extra={'note': 'reference choice fields'},
     )
     mixed_regime_buoyancy_assisting_flow_on_walls_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1259,7 +1338,7 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         json_schema_extra={'note': 'reference choice fields'},
     )
     mixed_regime_buoyancy_opposing_flow_on_walls_equation_user_curve_name: (
-        str | None
+        UserConvectionInsideModelsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1280,7 +1359,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         default='BeausoleilMorrisonMixedStableFloor',
         json_schema_extra={'note': 'reference choice fields'},
     )
-    mixed_regime_stable_floor_equation_user_curve_name: str | None = Field(
+    mixed_regime_stable_floor_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1300,7 +1381,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         default='BeausoleilMorrisonMixedUnstableFloor',
         json_schema_extra={'note': 'reference choice fields'},
     )
-    mixed_regime_unstable_floor_equation_user_curve_name: str | None = Field(
+    mixed_regime_unstable_floor_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1320,7 +1403,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         default='BeausoleilMorrisonMixedStableCeiling',
         json_schema_extra={'note': 'reference choice fields'},
     )
-    mixed_regime_stable_ceiling_equation_user_curve_name: str | None = Field(
+    mixed_regime_stable_ceiling_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1340,7 +1425,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         default='BeausoleilMorrisonMixedUnstableCeiling',
         json_schema_extra={'note': 'reference choice fields'},
     )
-    mixed_regime_unstable_ceiling_equation_user_curve_name: str | None = Field(
+    mixed_regime_unstable_ceiling_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1359,7 +1446,9 @@ class SurfaceConvectionAlgorithmInsideAdaptiveModelSelections(IDFBaseModel):
         default='GoldsteinNovoselacCeilingDiffuserWindow',
         json_schema_extra={'note': 'reference choice fields'},
     )
-    mixed_regime_window_equation_user_curve_name: str | None = Field(
+    mixed_regime_window_equation_user_curve_name: (
+        UserConvectionInsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionInsideModels'],
@@ -1384,23 +1473,25 @@ class SurfaceConvectionAlgorithmInsideUserCurve(IDFBaseModel):
             'note': 'Controls which temperature is differenced from surface temperature when using the Hc value'
         },
     )
-    hc_function_of_temperature_difference_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'Curve\'s "x" is absolute value of delta-T (Surface temperature minus reference temperature, (C))',
-        },
-    )
-    hc_function_of_temperature_difference_divided_by_height_curve_name: str | None = (
+    hc_function_of_temperature_difference_curve_name: UnivariateFunctionsRef | None = (
         Field(
             default=None,
             json_schema_extra={
                 'object_list': ['UnivariateFunctions'],
-                'note': 'Curve\'s "x" is absolute value of delta-T/Height (Surface temp minus Air temp)/(vertical length scale), (C/m) when used for an inside face the vertical length scale is the zone\'s interior height',
+                'note': 'Curve\'s "x" is absolute value of delta-T (Surface temperature minus reference temperature, (C))',
             },
         )
     )
-    hc_function_of_air_change_rate_curve_name: str | None = Field(
+    hc_function_of_temperature_difference_divided_by_height_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Curve\'s "x" is absolute value of delta-T/Height (Surface temp minus Air temp)/(vertical length scale), (C/m) when used for an inside face the vertical length scale is the zone\'s interior height',
+        },
+    )
+    hc_function_of_air_change_rate_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -1408,7 +1499,7 @@ class SurfaceConvectionAlgorithmInsideUserCurve(IDFBaseModel):
         },
     )
     hc_function_of_air_system_volume_flow_rate_divided_by_zone_perimeter_length_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1445,7 +1536,9 @@ class SurfaceConvectionAlgorithmOutsideAdaptiveModelSelections(IDFBaseModel):
         ]
         | None
     ) = Field(default='TARPWindward')
-    wind_convection_windward_equation_vertical_wall_user_curve_name: str | None = Field(
+    wind_convection_windward_equation_vertical_wall_user_curve_name: (
+        UserConvectionOutsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionOutsideModels'],
@@ -1467,7 +1560,9 @@ class SurfaceConvectionAlgorithmOutsideAdaptiveModelSelections(IDFBaseModel):
         ]
         | None
     ) = Field(default='TARPLeeward')
-    wind_convection_leeward_vertical_wall_equation_user_curve_name: str | None = Field(
+    wind_convection_leeward_vertical_wall_equation_user_curve_name: (
+        UserConvectionOutsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionOutsideModels'],
@@ -1491,7 +1586,9 @@ class SurfaceConvectionAlgorithmOutsideAdaptiveModelSelections(IDFBaseModel):
         ]
         | None
     ) = Field(default='ClearRoof')
-    wind_convection_horizontal_roof_user_curve_name: str | None = Field(
+    wind_convection_horizontal_roof_user_curve_name: (
+        UserConvectionOutsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionOutsideModels'],
@@ -1513,7 +1610,9 @@ class SurfaceConvectionAlgorithmOutsideAdaptiveModelSelections(IDFBaseModel):
         default='ASHRAEVerticalWall',
         json_schema_extra={'note': 'This is for vertical walls'},
     )
-    natural_convection_vertical_wall_equation_user_curve_name: str | None = Field(
+    natural_convection_vertical_wall_equation_user_curve_name: (
+        UserConvectionOutsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionOutsideModels'],
@@ -1535,7 +1634,9 @@ class SurfaceConvectionAlgorithmOutsideAdaptiveModelSelections(IDFBaseModel):
             'note': 'This is for horizontal surfaces with heat flow directed for stable thermal stratification'
         },
     )
-    natural_convection_stable_horizontal_equation_user_curve_name: str | None = Field(
+    natural_convection_stable_horizontal_equation_user_curve_name: (
+        UserConvectionOutsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionOutsideModels'],
@@ -1552,7 +1653,9 @@ class SurfaceConvectionAlgorithmOutsideAdaptiveModelSelections(IDFBaseModel):
         ]
         | None
     ) = Field(default='WaltonUnstableHorizontalOrTilt')
-    natural_convection_unstable_horizontal_equation_user_curve_name: str | None = Field(
+    natural_convection_unstable_horizontal_equation_user_curve_name: (
+        UserConvectionOutsideModelsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionOutsideModels'],
@@ -1578,28 +1681,30 @@ class SurfaceConvectionAlgorithmOutsideUserCurve(IDFBaseModel):
         ]
         | None
     ) = Field(default='HeightAdjust')
-    hf_function_of_wind_speed_curve_name: str | None = Field(
+    hf_function_of_wind_speed_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'Curve\'s "x" is wind speed of the type determined in the previous field (m/s)',
         },
     )
-    hn_function_of_temperature_difference_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'Curve\'s "x" is absolute value of delta-T (Surface temperature minus air temperature, (C))',
-        },
-    )
-    hn_function_of_temperature_difference_divided_by_height_curve_name: str | None = (
+    hn_function_of_temperature_difference_curve_name: UnivariateFunctionsRef | None = (
         Field(
             default=None,
             json_schema_extra={
                 'object_list': ['UnivariateFunctions'],
-                'note': 'Curve\'s "x" is absolute value of delta-T/Height (Surface temp minus Air temp)/(vertical length scale), (C/m) when used for an outside face the vertical length scale is the exterior facade\'s overall...',
+                'note': 'Curve\'s "x" is absolute value of delta-T (Surface temperature minus air temperature, (C))',
             },
         )
+    )
+    hn_function_of_temperature_difference_divided_by_height_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
+        default=None,
+        json_schema_extra={
+            'object_list': ['UnivariateFunctions'],
+            'note': 'Curve\'s "x" is absolute value of delta-T/Height (Surface temp minus Air temp)/(vertical length scale), (C/m) when used for an outside face the vertical length scale is the exterior facade\'s overall...',
+        },
     )
 
 
@@ -1611,7 +1716,9 @@ class SurfacePropertiesVaporCoefficients(IDFBaseModel):
     algorithms will ignore these coefficients"""
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperties:VaporCoefficients'
-    surface_name: str = Field(..., json_schema_extra={'object_list': ['SurfaceNames']})
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
+    )
     constant_external_vapor_transfer_coefficient: Literal['', 'No', 'Yes'] | None = (
         Field(default='No')
     )
@@ -1636,7 +1743,7 @@ class SurfacePropertyConvectionCoefficients(IDFBaseModel):
     HeatBalanceAlgorithm object are [.1,1000]."""
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:ConvectionCoefficients'
-    surface_name: str = Field(
+    surface_name: AllHeatTranSurfNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     convection_coefficient_1_location: Literal['Inside', 'Outside'] = Field(...)
@@ -1694,14 +1801,14 @@ class SurfacePropertyConvectionCoefficients(IDFBaseModel):
             'note': 'used if Convection Type=Value, min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_1_schedule_name: str | None = Field(
+    convection_coefficient_1_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'used if Convection Type=Schedule,  min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_1_user_curve_name: str | None = Field(
+    convection_coefficient_1_user_curve_name: UserConvectionModelsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionModels'],
@@ -1768,14 +1875,14 @@ class SurfacePropertyConvectionCoefficients(IDFBaseModel):
             'note': 'used if Convection Type=Value, min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_2_schedule_name: str | None = Field(
+    convection_coefficient_2_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'used if Convection Type=Schedule,  min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_2_user_curve_name: str | None = Field(
+    convection_coefficient_2_user_curve_name: UserConvectionModelsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionModels'],
@@ -1863,14 +1970,14 @@ class SurfacePropertyConvectionCoefficientsMultipleSurface(IDFBaseModel):
             'note': 'used if Convection Type=Value, min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_1_schedule_name: str | None = Field(
+    convection_coefficient_1_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'used if Convection Type=Schedule,  min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_1_user_curve_name: str | None = Field(
+    convection_coefficient_1_user_curve_name: UserConvectionModelsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionModels'],
@@ -1937,14 +2044,14 @@ class SurfacePropertyConvectionCoefficientsMultipleSurface(IDFBaseModel):
             'note': 'used if Convection Type=Value, min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_2_schedule_name: str | None = Field(
+    convection_coefficient_2_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'used if Convection Type=Schedule,  min and max limits are set in HeatBalanceAlgorithm object. Default limits are Minimum >= 0.1 and Maximum <= 1000',
         },
     )
-    convection_coefficient_2_user_curve_name: str | None = Field(
+    convection_coefficient_2_user_curve_name: UserConvectionModelsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UserConvectionModels'],
@@ -1960,7 +2067,7 @@ class SurfacePropertyExposedFoundationPerimeter(IDFBaseModel):
     segments of the floor surface perimeter are exposed."""
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:ExposedFoundationPerimeter'
-    surface_name: str = Field(
+    surface_name: FloorSurfaceNamesRef = Field(
         ..., json_schema_extra={'object_list': ['FloorSurfaceNames']}
     )
     exposed_perimeter_calculation_method: Literal[
@@ -1989,7 +2096,7 @@ class SurfacePropertyExteriorNaturalVentedCAVity(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:ExteriorNaturalVentedCavity'
     name: str = Field(...)
-    boundary_conditions_model_name: str = Field(
+    boundary_conditions_model_name: OSCMNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['OSCMNames'],
@@ -2055,15 +2162,17 @@ class SurfacePropertyHeatBalanceSourceTerm(IDFBaseModel):
     and outside of the same surface."""
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:HeatBalanceSourceTerm'
-    surface_name: str = Field(..., json_schema_extra={'object_list': ['SurfaceNames']})
-    inside_face_heat_source_term_schedule_name: str | None = Field(
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
+    )
+    inside_face_heat_source_term_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The value of this schedule is the source term value for the inside face of this surface If this field is left blank, no inside surface source term will be applied. The schedule values are heat rate...',
         },
     )
-    outside_face_heat_source_term_schedule_name: str | None = Field(
+    outside_face_heat_source_term_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2081,7 +2190,9 @@ class SurfacePropertyHeatTransferAlgorithm(IDFBaseModel):
     And Moisture Finite Element)"""
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:HeatTransferAlgorithm'
-    surface_name: str = Field(..., json_schema_extra={'object_list': ['SurfaceNames']})
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
+    )
     algorithm: (
         Literal[
             '',
@@ -2116,7 +2227,7 @@ class SurfacePropertyHeatTransferAlgorithmConstruction(IDFBaseModel):
         ]
         | None
     ) = Field(default='ConductionTransferFunction')
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
 
@@ -2187,7 +2298,7 @@ class SurfacePropertyIncidentSolarMultiplier(IDFBaseModel):
     """SurfaceProperty:IncidentSolarMultiplier"""
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:IncidentSolarMultiplier'
-    surface_name: str = Field(
+    surface_name: SurfaceNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
@@ -2203,7 +2314,7 @@ class SurfacePropertyIncidentSolarMultiplier(IDFBaseModel):
             'note': 'a constant multiplier for window solar transmittance and visible transmittance. If the Shading Multiplier Schedule Name is defined, the product of these two will be the final shading multiplier.',
         },
     )
-    incident_solar_multiplier_schedule_name: str | None = Field(
+    incident_solar_multiplier_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2219,35 +2330,35 @@ class SurfacePropertyLocalEnvironment(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:LocalEnvironment'
     name: str = Field(...)
-    exterior_surface_name: str | None = Field(
+    exterior_surface_name: SurfaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SurfaceNames'],
             'note': 'Enter the name of an exterior surface object',
         },
     )
-    sunlit_fraction_schedule_name: str | None = Field(
+    sunlit_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Enter the name of a Schedule object',
         },
     )
-    surrounding_surfaces_object_name: str | None = Field(
+    surrounding_surfaces_object_name: SurroundingSurfacesNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SurroundingSurfacesNames'],
             'note': 'Enter the name of a SurfaceProperty:SurroundingSurfaces object',
         },
     )
-    outdoor_air_node_name: str | None = Field(
+    outdoor_air_node_name: OutdoorAirNodeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutdoorAirNodeNames'],
             'note': 'Enter the name of an OutdoorAir:Node object',
         },
     )
-    ground_surfaces_object_name: str | None = Field(
+    ground_surfaces_object_name: GroundSurfacesNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['GroundSurfacesNames'],
@@ -2286,7 +2397,7 @@ class SurfacePropertyOtherSideCoefficients(IDFBaseModel):
     ground_temperature_coefficient: float | None = Field(default=0.0)
     wind_speed_coefficient: float | None = Field(default=0.0)
     zone_air_temperature_coefficient: float | None = Field(default=0.0)
-    constant_temperature_schedule_name: str | None = Field(
+    constant_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2362,11 +2473,13 @@ class SurfacePropertySolarIncidentInside(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SurfaceProperty:SolarIncidentInside'
     name: str = Field(...)
-    surface_name: str = Field(..., json_schema_extra={'object_list': ['SurfaceNames']})
-    construction_name: str = Field(
+    surface_name: SurfaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SurfaceNames']}
+    )
+    construction_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
-    inside_surface_incident_sun_solar_radiation_schedule_name: str = Field(
+    inside_surface_incident_sun_solar_radiation_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2383,7 +2496,7 @@ class SurfacePropertySurroundingSurfaces(IDFBaseModel):
     sky_view_factor: float | None = Field(
         default=0.5, ge=0.0, le=1.0, json_schema_extra={'note': 'optional'}
     )
-    sky_temperature_schedule_name: str | None = Field(
+    sky_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2393,7 +2506,7 @@ class SurfacePropertySurroundingSurfaces(IDFBaseModel):
     ground_view_factor: float | None = Field(
         default=0.5, ge=0.0, le=1.0, json_schema_extra={'note': 'optional'}
     )
-    ground_temperature_schedule_name: str | None = Field(
+    ground_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2420,10 +2533,10 @@ class SurfacePropertyUnderwater(IDFBaseModel):
             'note': 'This is the distance from the leading edge of the boundary layer development to the centroid of the surface of interest. The value of this field is used as the distance in the Reynolds number for e...',
         },
     )
-    free_stream_water_temperature_schedule: str = Field(
+    free_stream_water_temperature_schedule: ScheduleNamesRef = Field(
         ..., json_schema_extra={'units': 'C', 'object_list': ['ScheduleNames']}
     )
-    free_stream_water_velocity_schedule: str | None = Field(
+    free_stream_water_velocity_schedule: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={'units': 'm/s', 'object_list': ['ScheduleNames']},
     )
@@ -2436,14 +2549,14 @@ class ZonePropertyLocalEnvironment(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneProperty:LocalEnvironment'
     name: str = Field(...)
-    zone_name: str | None = Field(
+    zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Enter the name of a zone object',
         },
     )
-    outdoor_air_node_name: str | None = Field(
+    outdoor_air_node_name: OutdoorAirNodeNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OutdoorAirNodeNames'],
@@ -2458,7 +2571,9 @@ class ZonePropertyUserViewFactorsBySurfaceName(IDFBaseModel):
     zero."""
 
     _idf_object_type: ClassVar[str] = 'ZoneProperty:UserViewFactors:BySurfaceName'
-    zone_or_zonelist_or_space_or_spacelist_name: str | None = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceListNamesRef | SpaceNamesRef | ZoneListNamesRef | ZoneNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': [

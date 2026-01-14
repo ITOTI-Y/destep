@@ -12,6 +12,10 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    FMUFileNameRef,
+    ScheduleTypeLimitsNamesRef,
+)
 
 
 class ExternalInterface(IDFBaseModel):
@@ -96,7 +100,7 @@ class ExternalInterfaceFunctionalMockupUnitExportToSchedule(IDFBaseModel):
         'ExternalInterface:FunctionalMockupUnitExport:To:Schedule'
     )
     schedule_name: str = Field(...)
-    schedule_type_limits_names: str | None = Field(
+    schedule_type_limits_names: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     fmu_variable_name: str = Field(...)
@@ -143,7 +147,9 @@ class ExternalInterfaceFunctionalMockupUnitImportFromVariable(IDFBaseModel):
     )
     output_variable_index_key_name: str = Field(...)
     output_variable_name: str = Field(...)
-    fmu_file_name: str = Field(..., json_schema_extra={'object_list': ['FMUFileName']})
+    fmu_file_name: FMUFileNameRef = Field(
+        ..., json_schema_extra={'object_list': ['FMUFileName']}
+    )
     fmu_instance_name: str = Field(...)
     fmu_variable_name: str = Field(...)
 
@@ -164,7 +170,9 @@ class ExternalInterfaceFunctionalMockupUnitImportToActuator(IDFBaseModel):
     actuated_component_unique_name: str = Field(...)
     actuated_component_type: str = Field(...)
     actuated_component_control_type: str = Field(...)
-    fmu_file_name: str = Field(..., json_schema_extra={'object_list': ['FMUFileName']})
+    fmu_file_name: FMUFileNameRef = Field(
+        ..., json_schema_extra={'object_list': ['FMUFileName']}
+    )
     fmu_instance_name: str = Field(...)
     fmu_variable_name: str = Field(...)
     initial_value: float = Field(
@@ -180,10 +188,12 @@ class ExternalInterfaceFunctionalMockupUnitImportToSchedule(IDFBaseModel):
         'ExternalInterface:FunctionalMockupUnitImport:To:Schedule'
     )
     name: str = Field(...)
-    schedule_type_limits_names: str | None = Field(
+    schedule_type_limits_names: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
-    fmu_file_name: str = Field(..., json_schema_extra={'object_list': ['FMUFileName']})
+    fmu_file_name: FMUFileNameRef = Field(
+        ..., json_schema_extra={'object_list': ['FMUFileName']}
+    )
     fmu_instance_name: str = Field(...)
     fmu_variable_name: str = Field(...)
     initial_value: float = Field(
@@ -204,7 +214,9 @@ class ExternalInterfaceFunctionalMockupUnitImportToVariable(IDFBaseModel):
             'note': 'This name becomes a variable for use in Erl programs no spaces allowed in name'
         },
     )
-    fmu_file_name: str = Field(..., json_schema_extra={'object_list': ['FMUFileName']})
+    fmu_file_name: FMUFileNameRef = Field(
+        ..., json_schema_extra={'object_list': ['FMUFileName']}
+    )
     fmu_instance_name: str = Field(...)
     fmu_variable_name: str = Field(...)
     initial_value: float = Field(
@@ -218,7 +230,7 @@ class ExternalInterfaceSchedule(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ExternalInterface:Schedule'
     name: str = Field(...)
-    schedule_type_limits_name: str | None = Field(
+    schedule_type_limits_name: ScheduleTypeLimitsNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleTypeLimitsNames']}
     )
     initial_value: float = Field(

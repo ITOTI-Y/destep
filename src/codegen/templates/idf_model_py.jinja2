@@ -67,6 +67,13 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+{% if has_refs %}
+from ._refs import (
+{% for ref_type in used_ref_types %}
+    {{ ref_type }},
+{% endfor %}
+)
+{% endif %}
 
 {# ============================================================================
    NESTED CLASS DEFINITIONS

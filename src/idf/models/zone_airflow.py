@@ -12,6 +12,15 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    EarthTubeParameterNamesRef,
+    ScheduleNamesRef,
+    SpaceAndSpaceListNamesRef,
+    SpaceNamesRef,
+    WaterStorageTankNamesRef,
+    ZoneAndZoneListNamesRef,
+    ZoneNamesRef,
+)
 
 
 class ZoneAirBalanceOutdoorAir(IDFBaseModel):
@@ -23,7 +32,9 @@ class ZoneAirBalanceOutdoorAir(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneAirBalance:OutdoorAir'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     air_balance_method: Literal['', 'None', 'Quadrature'] | None = Field(
         default='Quadrature',
         json_schema_extra={
@@ -33,7 +44,7 @@ class ZoneAirBalanceOutdoorAir(IDFBaseModel):
     induced_outdoor_air_due_to_unbalanced_duct_leakage: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'm3/s'}
     )
-    induced_outdoor_air_schedule_name: str | None = Field(
+    induced_outdoor_air_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -50,17 +61,17 @@ class ZoneCoolTowerShower(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneCoolTower:Shower'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for this system. Schedule value > 0 means the system is available. If this field is blank, the system is always available.',
         },
     )
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
-    water_supply_storage_tank_name: str | None = Field(
+    water_supply_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
@@ -75,7 +86,7 @@ class ZoneCoolTowerShower(IDFBaseModel):
             },
         )
     )
-    pump_flow_rate_schedule_name: str = Field(
+    pump_flow_rate_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     maximum_water_flow_rate: float = Field(..., json_schema_extra={'units': 'm3/s'})
@@ -117,14 +128,14 @@ class ZoneCrossMixing(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneCrossMixing'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
             'note': 'ZoneList and SpaceList names are not allowed.',
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -151,7 +162,7 @@ class ZoneCrossMixing(IDFBaseModel):
     air_changes_per_hour: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': '1/hr'}
     )
-    source_zone_or_space_name: str = Field(
+    source_zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     delta_temperature: float | None = Field(
@@ -162,49 +173,49 @@ class ZoneCrossMixing(IDFBaseModel):
             'note': 'This field contains the constant temperature differential between source and receiving zone or space below which mixing is shutoff. If a source zone is specified and it contains more than one space...',
         },
     )
-    delta_temperature_schedule_name: str | None = Field(
+    delta_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the temperature differential between source and receiving zone or space below which mixing is shutoff. If a source zone is specified and it contains more than one space, the ...',
         },
     )
-    minimum_receiving_temperature_schedule_name: str | None = Field(
+    minimum_receiving_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the receiving zone or space temperature versus time below which cross mixing is shutoff.',
         },
     )
-    maximum_receiving_temperature_schedule_name: str | None = Field(
+    maximum_receiving_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the receiving zone or space  temperature versus time above which cross mixing is shutoff.',
         },
     )
-    minimum_source_temperature_schedule_name: str | None = Field(
+    minimum_source_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the source zone or space  temperature versus time below which cross mixing is shutoff.',
         },
     )
-    maximum_source_temperature_schedule_name: str | None = Field(
+    maximum_source_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the source zone or space  temperature versus time above which cross mixing is shutoff.',
         },
     )
-    minimum_outdoor_temperature_schedule_name: str | None = Field(
+    minimum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the outdoor temperature versus time below which cross mixing is shutoff.',
         },
     )
-    maximum_outdoor_temperature_schedule_name: str | None = Field(
+    maximum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -219,8 +230,10 @@ class ZoneEarthtube(IDFBaseModel):
     Fschedule * (A + B*|(Tzone-Todb)| + C*WindSpd + D * WindSpd**2)"""
 
     _idf_object_type: ClassVar[str] = 'ZoneEarthtube'
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
-    schedule_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
+    schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     design_flow_rate: float = Field(
@@ -306,7 +319,7 @@ class ZoneEarthtube(IDFBaseModel):
     earth_tube_model_type: Literal['', 'Basic', 'Vertical'] | None = Field(
         default='Basic'
     )
-    earth_tube_model_parameters: str | None = Field(
+    earth_tube_model_parameters: EarthTubeParameterNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['EarthTubeParameterNames']}
     )
 
@@ -361,13 +374,15 @@ class ZoneInfiltrationDesignFlowRate(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneInfiltration:DesignFlowRate'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -438,14 +453,14 @@ class ZoneInfiltrationEffectiveLeakageArea(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneInfiltration:EffectiveLeakageArea'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
             'note': 'ZoneList and SpaceList names are not allowed.',
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -478,14 +493,14 @@ class ZoneInfiltrationFlowCoefficient(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneInfiltration:FlowCoefficient'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
             'note': 'ZoneList and SpaceList names are not allowed.',
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -518,14 +533,14 @@ class ZoneMixing(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneMixing'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
             'note': 'ZoneList and SpaceList names are not allowed.',
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -552,7 +567,7 @@ class ZoneMixing(IDFBaseModel):
     air_changes_per_hour: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': '1/hr'}
     )
-    source_zone_or_space_name: str = Field(
+    source_zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     delta_temperature: float | None = Field(
@@ -562,49 +577,49 @@ class ZoneMixing(IDFBaseModel):
             'note': 'This field contains the constant temperature differential between source and receiving zone or space below which mixing is shutoff. If a source zone is specified and it contains more than one space...',
         },
     )
-    delta_temperature_schedule_name: str | None = Field(
+    delta_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the temperature differential between source and receiving zone or space below which mixing is shutoff. If a source zone is specified and it contains more than one space, the ...',
         },
     )
-    minimum_receiving_temperature_schedule_name: str | None = Field(
+    minimum_receiving_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the receiving zone or space temperature versus time below which mixing is shutoff.',
         },
     )
-    maximum_receiving_temperature_schedule_name: str | None = Field(
+    maximum_receiving_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the receiving zone or space  temperature versus time above which mixing is shutoff.',
         },
     )
-    minimum_source_temperature_schedule_name: str | None = Field(
+    minimum_source_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the source zone or space temperature versus time below which mixing is shutoff.',
         },
     )
-    maximum_source_temperature_schedule_name: str | None = Field(
+    maximum_source_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the source zone or space temperature versus time above which mixing is shutoff.',
         },
     )
-    minimum_outdoor_temperature_schedule_name: str | None = Field(
+    minimum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'This schedule contains the outdoor temperature versus time below which mixing is shutoff.',
         },
     )
-    maximum_outdoor_temperature_schedule_name: str | None = Field(
+    maximum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -625,21 +640,21 @@ class ZoneRefrigerationDoorMixing(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneRefrigerationDoorMixing'
     name: str = Field(...)
-    zone_or_space_name_1: str = Field(
+    zone_or_space_name_1: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
             'note': 'If a space name is used, it must belong to a different zone than Zone or Space Name 2.',
         },
     )
-    zone_or_space_name_2: str = Field(
+    zone_or_space_name_2: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
             'note': 'If a space name is used, it must belong to a different zone than Zone or Space Name 1.',
         },
     )
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -669,14 +684,14 @@ class ZoneThermalChimney(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneThermalChimney'
     name: str = Field(...)
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
             'note': 'Name of zone that is the thermal chimney.',
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -690,7 +705,7 @@ class ZoneThermalChimney(IDFBaseModel):
         ..., ge=0.0, json_schema_extra={'units': 'm2'}
     )
     discharge_coefficient: float | None = Field(default=0.8, ge=0.0, le=1.0)
-    zone_or_space_name_1: str = Field(
+    zone_or_space_name_1: SpaceNamesRef | ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_1: float = Field(
@@ -702,7 +717,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_1: float = Field(
         ..., ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_2: str | None = Field(
+    zone_or_space_name_2: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_2: float | None = Field(
@@ -714,7 +729,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_2: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_3: str | None = Field(
+    zone_or_space_name_3: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_3: float | None = Field(
@@ -726,7 +741,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_3: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_4: str | None = Field(
+    zone_or_space_name_4: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_4: float | None = Field(
@@ -738,7 +753,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_4: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_5: str | None = Field(
+    zone_or_space_name_5: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_5: float | None = Field(
@@ -750,7 +765,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_5: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_6: str | None = Field(
+    zone_or_space_name_6: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_6: float | None = Field(
@@ -762,7 +777,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_6: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_7: str | None = Field(
+    zone_or_space_name_7: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_7: float | None = Field(
@@ -774,7 +789,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_7: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_8: str | None = Field(
+    zone_or_space_name_8: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_8: float | None = Field(
@@ -786,7 +801,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_8: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_9: str | None = Field(
+    zone_or_space_name_9: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_9: float | None = Field(
@@ -798,7 +813,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_9: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_10: str | None = Field(
+    zone_or_space_name_10: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_10: float | None = Field(
@@ -810,7 +825,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_10: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_11: str | None = Field(
+    zone_or_space_name_11: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_11: float | None = Field(
@@ -822,7 +837,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_11: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_12: str | None = Field(
+    zone_or_space_name_12: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_12: float | None = Field(
@@ -834,7 +849,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_12: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_13: str | None = Field(
+    zone_or_space_name_13: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_13: float | None = Field(
@@ -846,7 +861,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_13: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_14: str | None = Field(
+    zone_or_space_name_14: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_14: float | None = Field(
@@ -858,7 +873,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_14: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_15: str | None = Field(
+    zone_or_space_name_15: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_15: float | None = Field(
@@ -870,7 +885,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_15: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_16: str | None = Field(
+    zone_or_space_name_16: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_16: float | None = Field(
@@ -882,7 +897,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_16: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_17: str | None = Field(
+    zone_or_space_name_17: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_17: float | None = Field(
@@ -894,7 +909,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_17: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_18: str | None = Field(
+    zone_or_space_name_18: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_18: float | None = Field(
@@ -906,7 +921,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_18: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_19: str | None = Field(
+    zone_or_space_name_19: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_19: float | None = Field(
@@ -918,7 +933,7 @@ class ZoneThermalChimney(IDFBaseModel):
     cross_sectional_areas_of_air_channel_inlet_19: float | None = Field(
         default=None, ge=0.0, json_schema_extra={'units': 'm2'}
     )
-    zone_or_space_name_20: str | None = Field(
+    zone_or_space_name_20: (SpaceNamesRef | ZoneNamesRef) | None = Field(
         default=None, json_schema_extra={'object_list': ['SpaceNames', 'ZoneNames']}
     )
     distance_from_top_of_thermal_chimney_to_inlet_20: float | None = Field(
@@ -942,13 +957,15 @@ class ZoneVentilationDesignFlowRate(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneVentilation:DesignFlowRate'
     name: str = Field(...)
-    zone_or_zonelist_or_space_or_spacelist_name: str = Field(
+    zone_or_zonelist_or_space_or_spacelist_name: (
+        SpaceAndSpaceListNamesRef | ZoneAndZoneListNamesRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceAndSpaceListNames', 'ZoneAndZoneListNames']
         },
     )
-    schedule_name: str | None = Field(
+    schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1005,7 +1022,7 @@ class ZoneVentilationDesignFlowRate(IDFBaseModel):
             'note': 'this is the indoor temperature below which ventilation is shutoff',
         },
     )
-    minimum_indoor_temperature_schedule_name: str | None = Field(
+    minimum_indoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1021,7 +1038,7 @@ class ZoneVentilationDesignFlowRate(IDFBaseModel):
             'note': 'this is the indoor temperature above which ventilation is shutoff',
         },
     )
-    maximum_indoor_temperature_schedule_name: str | None = Field(
+    maximum_indoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1036,7 +1053,7 @@ class ZoneVentilationDesignFlowRate(IDFBaseModel):
             'note': 'This is the temperature differential between indoor and outdoor below which ventilation is shutoff. If ((IndoorTemp - OutdoorTemp) < DeltaTemperature) then ventilation is not allowed. For example, ...',
         },
     )
-    delta_temperature_schedule_name: str | None = Field(
+    delta_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1052,7 +1069,7 @@ class ZoneVentilationDesignFlowRate(IDFBaseModel):
             'note': 'this is the outdoor temperature below which ventilation is shutoff',
         },
     )
-    minimum_outdoor_temperature_schedule_name: str | None = Field(
+    minimum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1068,7 +1085,7 @@ class ZoneVentilationDesignFlowRate(IDFBaseModel):
             'note': 'this is the outdoor temperature above which ventilation is shutoff',
         },
     )
-    maximum_outdoor_temperature_schedule_name: str | None = Field(
+    maximum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1103,7 +1120,7 @@ class ZoneVentilationWindandStackOpenArea(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneVentilation:WindandStackOpenArea'
     name: str = Field(...)
-    zone_or_space_name: str = Field(
+    zone_or_space_name: SpaceNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SpaceNames', 'ZoneNames'],
@@ -1118,7 +1135,7 @@ class ZoneVentilationWindandStackOpenArea(IDFBaseModel):
             'note': 'This is the opening area used to calculate stack effect and wind driven ventilation.',
         },
     )
-    opening_area_fraction_schedule_name: str | None = Field(
+    opening_area_fraction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1166,7 +1183,7 @@ class ZoneVentilationWindandStackOpenArea(IDFBaseModel):
             'note': 'This is the indoor temperature below which ventilation is shutoff.',
         },
     )
-    minimum_indoor_temperature_schedule_name: str | None = Field(
+    minimum_indoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1182,7 +1199,7 @@ class ZoneVentilationWindandStackOpenArea(IDFBaseModel):
             'note': 'This is the indoor temperature above which ventilation is shutoff.',
         },
     )
-    maximum_indoor_temperature_schedule_name: str | None = Field(
+    maximum_indoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1197,7 +1214,7 @@ class ZoneVentilationWindandStackOpenArea(IDFBaseModel):
             'note': 'This is the temperature differential between indoor and outdoor below which ventilation is shutoff.',
         },
     )
-    delta_temperature_schedule_name: str | None = Field(
+    delta_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1213,7 +1230,7 @@ class ZoneVentilationWindandStackOpenArea(IDFBaseModel):
             'note': 'This is the outdoor temperature below which ventilation is shutoff.',
         },
     )
-    minimum_outdoor_temperature_schedule_name: str | None = Field(
+    minimum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -1229,7 +1246,7 @@ class ZoneVentilationWindandStackOpenArea(IDFBaseModel):
             'note': 'This is the outdoor temperature above which ventilation is shutoff.',
         },
     )
-    maximum_outdoor_temperature_schedule_name: str | None = Field(
+    maximum_outdoor_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],

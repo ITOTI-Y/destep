@@ -12,6 +12,57 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    AFNCoilNamesRef,
+    AFNHeatExchangerNamesRef,
+    AFNReliefAirFlowNamesRef,
+    AFNTerminalUnitNamesRef,
+    AirflowNetworkComponentNamesRef,
+    AirFlowNetworkMultizoneZonesRef,
+    AirflowNetworkNodeAndZoneNamesRef,
+    AirflowNetworkNodeNamesRef,
+    AirflowNetworkOccupantVentilationControlNamesRef,
+    AirLoopControllersRef,
+    AllHeatTranSurfNamesRef,
+    BivariateFunctionsRef,
+    BranchListsRef,
+    CondenserOperationSchemesRef,
+    ConnectorListsRef,
+    ControllerMechanicalVentNamesRef,
+    CoolingCoilsDXMultiModeOrSingleSpeedRef,
+    CoolingCoilsDXVariableSpeedRef,
+    DesiccantHXPerfDataRef,
+    DesignSpecificationOutdoorAirNamesRef,
+    DesignSpecificationZoneAirDistributionNamesRef,
+    DSOASpaceListNamesRef,
+    ExternalNodeNamesRef,
+    FansCVandOnOffandVAVRef,
+    FansCVandVAVRef,
+    FansOnOffandVAVRef,
+    FansSystemModelRef,
+    FansZoneExhaustRef,
+    FluidAndGlycolNamesRef,
+    FluidNamesRef,
+    HeatingCoilNameRef,
+    HXDesiccantBalancedRef,
+    IndependentVariableListNameRef,
+    OutdoorAirMixersRef,
+    OutdoorAirNodeNamesRef,
+    PlantOperationSchemesRef,
+    ReferenceCrackConditionsRef,
+    RoomAirflowNetworkNodesRef,
+    ScheduleNamesRef,
+    SurfaceAirflowLeakageNamesRef,
+    SurfAndSubSurfNamesRef,
+    SystemAvailabilityManagerListsRef,
+    UnivariateFunctionsRef,
+    WaterStorageTankNamesRef,
+    WPCSetNamesRef,
+    WPCValueNamesRef,
+    ZoneAndZoneListNamesRef,
+    ZoneNamesRef,
+    ZoneTerminalUnitListNamesRef,
+)
 
 
 class AirConditionerVariableRefrigerantFlowFluidTemperatureControlLoadingIndicesItem(
@@ -24,10 +75,10 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControlLoadingIndices
         gt=0.0,
         json_schema_extra={'units': 'rev/min', 'note': 'Minimum compressor speed'},
     )
-    loading_index_evaporative_capacity_multiplier_function_of_temperature_curve_name: str = Field(
+    loading_index_evaporative_capacity_multiplier_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['BivariateFunctions']}
     )
-    loading_index_compressor_power_multiplier_function_of_temperature_curve_name: str = Field(
+    loading_index_compressor_power_multiplier_function_of_temperature_curve_name: BivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['BivariateFunctions']}
     )
 
@@ -35,7 +86,7 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControlLoadingIndices
 class AirflowNetworkDistributionDuctViewFactorsSurfacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    surface_name: str | None = Field(
+    surface_name: AllHeatTranSurfNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AllHeatTranSurfNames']}
     )
     surface_view_factor: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -44,21 +95,25 @@ class AirflowNetworkDistributionDuctViewFactorsSurfacesItem(IDFBaseModel):
 class ControllerMechanicalVentilationZoneSpecificationsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    zone_or_zonelist_name: str = Field(
+    zone_or_zonelist_name: ZoneAndZoneListNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneAndZoneListNames'],
             'note': 'A zone name or a zone list name may be used here',
         },
     )
-    design_specification_outdoor_air_object_name: str | None = Field(
+    design_specification_outdoor_air_object_name: (
+        DSOASpaceListNamesRef | DesignSpecificationOutdoorAirNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DSOASpaceListNames', 'DesignSpecificationOutdoorAirNames'],
             'note': 'Specify the name of a DesignSpecification:OutdoorAir object to specify one set of requirements for the Zone. Use a DesignSpecification:OutdoorAir:SpaceList object name to specify different requirem...',
         },
     )
-    design_specification_zone_air_distribution_object_name: str | None = Field(
+    design_specification_zone_air_distribution_object_name: (
+        DesignSpecificationZoneAirDistributionNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['DesignSpecificationZoneAirDistributionNames'],
@@ -132,7 +187,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter a unique name for this variable refrigerant flow heat pump.'
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -169,7 +224,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     cooling_capacity_ratio_modifier_function_of_low_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -177,7 +232,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter a curve name that represents full load cooling capacity ratio as a function of outdoor dry-bulb temperature and indoor wet-bulb temperature. Up to two curves are allowed if the performance ca...',
         },
     )
-    cooling_capacity_ratio_boundary_curve_name: str | None = Field(
+    cooling_capacity_ratio_boundary_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -185,7 +240,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     cooling_capacity_ratio_modifier_function_of_high_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -194,7 +249,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     cooling_energy_input_ratio_modifier_function_of_low_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -202,15 +257,17 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter a curve name that represents cooling energy ratio as a function of outdoor dry-bulb temperature and indoor wet-bulb temperature',
         },
     )
-    cooling_energy_input_ratio_boundary_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'This curve object is used to allow separate low and high cooling energy input ratio performance curves. This curve represents a line passing through the points where performance changes. The curve ...',
-        },
+    cooling_energy_input_ratio_boundary_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'This curve object is used to allow separate low and high cooling energy input ratio performance curves. This curve represents a line passing through the points where performance changes. The curve ...',
+            },
+        )
     )
     cooling_energy_input_ratio_modifier_function_of_high_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -219,7 +276,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     cooling_energy_input_ratio_modifier_function_of_low_part_load_ratio_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -228,7 +285,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     cooling_energy_input_ratio_modifier_function_of_high_part_load_ratio_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -236,19 +293,23 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter a curve name that represents cooling energy ratio as a function of part-load ratio for part-load ratios greater than 1. Part-load ratios can exceed 1 in variable speed compression systems. If...',
         },
     )
-    cooling_combination_ratio_correction_factor_curve_name: str | None = Field(
+    cooling_combination_ratio_correction_factor_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'This curve defines how rated capacity changes when the total indoor terminal unit cooling capacity is greater than the Gross Rated Total Cooling Capacity defined in this object. If this field is le...',
         },
     )
-    cooling_part_load_fraction_correlation_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'This curve defines the cycling losses when the heat pump compressor cycles on and off below the Minimum Heat Pump Part-Load Ratio specified in the field below.',
-        },
+    cooling_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'This curve defines the cycling losses when the heat pump compressor cycles on and off below the Minimum Heat Pump Part-Load Ratio specified in the field below.',
+            },
+        )
     )
     gross_rated_heating_capacity: float | Literal['Autosize'] | None = Field(
         default=None,
@@ -288,7 +349,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     heating_capacity_ratio_modifier_function_of_low_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -296,7 +357,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter a curve name that represents full load heating capacity ratio as a function of outdoor wet-bulb temperature and indoor dry-bulb temperature. Outdoor dry-bulb temperature may be used if wet-bu...',
         },
     )
-    heating_capacity_ratio_boundary_curve_name: str | None = Field(
+    heating_capacity_ratio_boundary_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -304,7 +365,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     heating_capacity_ratio_modifier_function_of_high_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -313,7 +374,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     heating_energy_input_ratio_modifier_function_of_low_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -321,15 +382,17 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter a curve name that represents heating energy ratio as a function of outdoor wet-bulb temperature and indoor dry-bulb temperature Outdoor dry-bulb temperature may be used if wet-bulb temperatur...',
         },
     )
-    heating_energy_input_ratio_boundary_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'This curve object is used to allow separate low and high heating energy input ratio performance curves. This curve represents a line passing through the points where performance changes. The curve ...',
-        },
+    heating_energy_input_ratio_boundary_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'This curve object is used to allow separate low and high heating energy input ratio performance curves. This curve represents a line passing through the points where performance changes. The curve ...',
+            },
+        )
     )
     heating_energy_input_ratio_modifier_function_of_high_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -346,7 +409,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     heating_energy_input_ratio_modifier_function_of_low_part_load_ratio_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -355,7 +418,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     heating_energy_input_ratio_modifier_function_of_high_part_load_ratio_curve_name: (
-        str | None
+        UnivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -363,19 +426,23 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'This curve represents the heating energy input ratio for part-load ratios greater than 1.',
         },
     )
-    heating_combination_ratio_correction_factor_curve_name: str | None = Field(
+    heating_combination_ratio_correction_factor_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'This curve defines how rated capacity changes when the total indoor terminal unit heating capacity is greater than the Gross Rated Heating Capacity defined in this object. If this field is left bla...',
         },
     )
-    heating_part_load_fraction_correlation_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions'],
-            'note': 'This curve defines the cycling losses when the heat pump compressor cycles on and off below the Minimum Heat Pump Part-Load Ratio specified in the following field.',
-        },
+    heating_part_load_fraction_correlation_curve_name: UnivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions'],
+                'note': 'This curve defines the cycling losses when the heat pump compressor cycles on and off below the Minimum Heat Pump Part-Load Ratio specified in the following field.',
+            },
+        )
     )
     minimum_heat_pump_part_load_ratio: float | None = Field(
         default=0.15,
@@ -384,7 +451,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter the minimum heat pump part-load ratio (PLR). When the cooling or heating PLR is below this value, the heat pump compressor will cycle to meet the cooling or heating demand.',
         },
     )
-    zone_name_for_master_thermostat_location: str | None = Field(
+    zone_name_for_master_thermostat_location: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -407,14 +474,14 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Choose a thermostat control logic scheme. If these control types fail to control zone temperature within a reasonable limit, consider using multiple VRF systems. This field is not used when all ter...'
         },
     )
-    thermostat_priority_schedule_name: str | None = Field(
+    thermostat_priority_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'this field is required if Master Thermostat Priority Control Type is Scheduled. Schedule values of 0 denote cooling, 1 for heating, and all other values disable the system.',
         },
     )
-    zone_terminal_unit_list_name: str = Field(
+    zone_terminal_unit_list_name: ZoneTerminalUnitListNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneTerminalUnitListNames'],
@@ -443,7 +510,9 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter the height difference between the highest and lowest terminal unit',
         },
     )
-    piping_correction_factor_for_length_in_cooling_mode_curve_name: str | None = Field(
+    piping_correction_factor_for_length_in_cooling_mode_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
@@ -468,7 +537,9 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter the equivalent length of the farthest terminal unit from the condenser',
         },
     )
-    piping_correction_factor_for_length_in_heating_mode_curve_name: str | None = Field(
+    piping_correction_factor_for_length_in_heating_mode_curve_name: (
+        BivariateFunctionsRef | UnivariateFunctionsRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['BivariateFunctions', 'UnivariateFunctions'],
@@ -525,7 +596,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
         },
     )
     defrost_energy_input_ratio_modifier_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -607,7 +678,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': "Rated power consumed by the evaporative condenser's water pump. This field is only used when the Condenser Type = EvaporativelyCooled.",
         },
     )
-    supply_water_storage_tank_name: str | None = Field(
+    supply_water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['WaterStorageTankNames'],
@@ -630,7 +701,7 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'This field is only used for Condenser Type = EvaporativelyCooled. Enter the outdoor dry-bulb temperature when the basin heater turns on.',
         },
     )
-    basin_heater_operating_schedule_name: str | None = Field(
+    basin_heater_operating_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -670,12 +741,14 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             },
         )
     )
-    heat_recovery_cooling_capacity_modifier_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Enter the name of a performance curve which represents the change in cooling capacity when heat recovery is active A default constant of 0.9 is used if this input is blank',
-        },
+    heat_recovery_cooling_capacity_modifier_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Enter the name of a performance curve which represents the change in cooling capacity when heat recovery is active A default constant of 0.9 is used if this input is blank',
+            },
+        )
     )
     initial_heat_recovery_cooling_capacity_fraction: float | None = Field(
         default=0.5,
@@ -691,12 +764,14 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter the time constant used to model the transition from cooling only mode to heat recovery mode',
         },
     )
-    heat_recovery_cooling_energy_modifier_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Enter the name of a performance curve which represents the change in cooling energy when heat recovery is active A default constant of 1.1 is used if this input is blank',
-        },
+    heat_recovery_cooling_energy_modifier_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Enter the name of a performance curve which represents the change in cooling energy when heat recovery is active A default constant of 1.1 is used if this input is blank',
+            },
+        )
     )
     initial_heat_recovery_cooling_energy_fraction: float | None = Field(
         default=1.0,
@@ -712,12 +787,14 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter the time constant used to model the transition from cooling only mode to heat recovery mode',
         },
     )
-    heat_recovery_heating_capacity_modifier_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Enter the name of a performance curve which represents the change in heating capacity when heat recovery is active A default constant of 1.1 is used if this input is blank',
-        },
+    heat_recovery_heating_capacity_modifier_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Enter the name of a performance curve which represents the change in heating capacity when heat recovery is active A default constant of 1.1 is used if this input is blank',
+            },
+        )
     )
     initial_heat_recovery_heating_capacity_fraction: float | None = Field(
         default=1.0,
@@ -733,12 +810,14 @@ class AirConditionerVariableRefrigerantFlow(IDFBaseModel):
             'note': 'Enter the time constant used to model the transition from cooling only mode to heat recovery mode',
         },
     )
-    heat_recovery_heating_energy_modifier_curve_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['BivariateFunctions'],
-            'note': 'Enter the name of a performance curve which represents the change in heating electric consumption rate when heat recovery is active A default constant of 1.1 is used if this input is blank',
-        },
+    heat_recovery_heating_energy_modifier_curve_name: BivariateFunctionsRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['BivariateFunctions'],
+                'note': 'Enter the name of a performance curve which represents the change in heating electric consumption rate when heat recovery is active A default constant of 1.1 is used if this input is blank',
+            },
+        )
     )
     initial_heat_recovery_heating_energy_fraction: float | None = Field(
         default=1.0,
@@ -771,21 +850,21 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControl(IDFBaseModel)
             'note': 'Enter a unique name for this variable refrigerant flow heat pump'
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Enter the name of a schedule that defines the availability of the unit Schedule values of 0 denote the unit is off. All other values denote the unit is available If this field is left blank, the un...',
         },
     )
-    zone_terminal_unit_list_name: str = Field(
+    zone_terminal_unit_list_name: ZoneTerminalUnitListNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneTerminalUnitListNames'],
             'note': 'Enter the name of a ZoneTerminalUnitList. This list connects zone terminal units to this heat pump',
         },
     )
-    refrigerant_type: str | None = Field(
+    refrigerant_type: FluidNamesRef | None = Field(
         default='R410A', json_schema_extra={'object_list': ['FluidNames']}
     )
     rated_evaporative_capacity: float | Literal['', 'Autosize'] | None = Field(
@@ -900,10 +979,10 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControl(IDFBaseModel)
             },
         )
     )
-    outdoor_unit_evaporating_temperature_function_of_superheating_curve_name: str = (
-        Field(..., json_schema_extra={'object_list': ['UnivariateFunctions']})
+    outdoor_unit_evaporating_temperature_function_of_superheating_curve_name: UnivariateFunctionsRef = Field(
+        ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
-    outdoor_unit_condensing_temperature_function_of_subcooling_curve_name: str = Field(
+    outdoor_unit_condensing_temperature_function_of_subcooling_curve_name: UnivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     diameter_of_main_pipe_connecting_outdoor_unit_to_the_first_branch_joint: (
@@ -987,7 +1066,7 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControl(IDFBaseModel)
         },
     )
     defrost_energy_input_ratio_modifier_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1050,21 +1129,21 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControlHR(IDFBaseMode
             'note': 'Enter a unique name for this variable refrigerant flow heat pump'
         },
     )
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Enter the name of a schedule that defines the availability of the unit Schedule values of 0 denote the unit is off. All other values denote the unit is available If this field is left blank, the un...',
         },
     )
-    zone_terminal_unit_list_name: str = Field(
+    zone_terminal_unit_list_name: ZoneTerminalUnitListNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneTerminalUnitListNames'],
             'note': 'Enter the name of a ZoneTerminalUnitList. This list connects zone terminal units to this heat pump',
         },
     )
-    refrigerant_type: str | None = Field(
+    refrigerant_type: FluidNamesRef | None = Field(
         default='R410A', json_schema_extra={'object_list': ['FluidNames']}
     )
     rated_evaporative_capacity: float | Literal['', 'Autosize'] | None = Field(
@@ -1210,10 +1289,10 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControlHR(IDFBaseMode
             },
         )
     )
-    outdoor_unit_evaporating_temperature_function_of_superheating_curve_name: str = (
-        Field(..., json_schema_extra={'object_list': ['UnivariateFunctions']})
+    outdoor_unit_evaporating_temperature_function_of_superheating_curve_name: UnivariateFunctionsRef = Field(
+        ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
-    outdoor_unit_condensing_temperature_function_of_subcooling_curve_name: str = Field(
+    outdoor_unit_condensing_temperature_function_of_subcooling_curve_name: UnivariateFunctionsRef = Field(
         ..., json_schema_extra={'object_list': ['UnivariateFunctions']}
     )
     diameter_of_main_pipe_for_suction_gas: float | None = Field(
@@ -1300,7 +1379,7 @@ class AirConditionerVariableRefrigerantFlowFluidTemperatureControlHR(IDFBaseMode
         },
     )
     defrost_energy_input_ratio_modifier_function_of_temperature_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -1428,49 +1507,49 @@ class AirLoopHVACControllerList(IDFBaseModel):
     controller_1_object_type: Literal[
         'Controller:OutdoorAir', 'Controller:WaterCoil'
     ] = Field(...)
-    controller_1_name: str = Field(
+    controller_1_name: AirLoopControllersRef = Field(
         ..., json_schema_extra={'object_list': ['AirLoopControllers']}
     )
     controller_2_object_type: (
         Literal['Controller:OutdoorAir', 'Controller:WaterCoil'] | None
     ) = Field(default=None)
-    controller_2_name: str | None = Field(
+    controller_2_name: AirLoopControllersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AirLoopControllers']}
     )
     controller_3_object_type: (
         Literal['Controller:OutdoorAir', 'Controller:WaterCoil'] | None
     ) = Field(default=None)
-    controller_3_name: str | None = Field(
+    controller_3_name: AirLoopControllersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AirLoopControllers']}
     )
     controller_4_object_type: (
         Literal['Controller:OutdoorAir', 'Controller:WaterCoil'] | None
     ) = Field(default=None)
-    controller_4_name: str | None = Field(
+    controller_4_name: AirLoopControllersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AirLoopControllers']}
     )
     controller_5_object_type: (
         Literal['Controller:OutdoorAir', 'Controller:WaterCoil'] | None
     ) = Field(default=None)
-    controller_5_name: str | None = Field(
+    controller_5_name: AirLoopControllersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AirLoopControllers']}
     )
     controller_6_object_type: (
         Literal['Controller:OutdoorAir', 'Controller:WaterCoil'] | None
     ) = Field(default=None)
-    controller_6_name: str | None = Field(
+    controller_6_name: AirLoopControllersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AirLoopControllers']}
     )
     controller_7_object_type: (
         Literal['Controller:OutdoorAir', 'Controller:WaterCoil'] | None
     ) = Field(default=None)
-    controller_7_name: str | None = Field(
+    controller_7_name: AirLoopControllersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AirLoopControllers']}
     )
     controller_8_object_type: (
         Literal['Controller:OutdoorAir', 'Controller:WaterCoil'] | None
     ) = Field(default=None)
-    controller_8_name: str | None = Field(
+    controller_8_name: AirLoopControllersRef | None = Field(
         default=None, json_schema_extra={'object_list': ['AirLoopControllers']}
     )
 
@@ -1479,7 +1558,7 @@ class AirflowNetworkDistributionComponentCoil(IDFBaseModel):
     """This object defines the name of a coil used in an air loop."""
 
     _idf_object_type: ClassVar[str] = 'AirflowNetwork:Distribution:Component:Coil'
-    coil_name: str = Field(
+    coil_name: AFNCoilNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AFNCoilNames'],
@@ -1639,7 +1718,7 @@ class AirflowNetworkDistributionComponentFan(IDFBaseModel):
     """This object defines the name of the supply Air Fan used in an Air loop."""
 
     _idf_object_type: ClassVar[str] = 'AirflowNetwork:Distribution:Component:Fan'
-    fan_name: str = Field(
+    fan_name: FansCVandOnOffandVAVRef | FansSystemModelRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansCVandOnOffandVAV', 'FansSystemModel'],
@@ -1665,7 +1744,7 @@ class AirflowNetworkDistributionComponentHeatExchanger(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'AirflowNetwork:Distribution:Component:HeatExchanger'
     )
-    heatexchanger_name: str = Field(
+    heatexchanger_name: AFNHeatExchangerNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AFNHeatExchangerNames'],
@@ -1780,7 +1859,7 @@ class AirflowNetworkDistributionComponentOutdoorAirFlow(IDFBaseModel):
         'AirflowNetwork:Distribution:Component:OutdoorAirFlow'
     )
     name: str = Field(...)
-    outdoor_air_mixer_name: str = Field(
+    outdoor_air_mixer_name: OutdoorAirMixersRef = Field(
         ..., json_schema_extra={'object_list': ['OutdoorAirMixers']}
     )
     air_mass_flow_coefficient_when_no_outdoor_air_flow_at_reference_conditions: float = Field(
@@ -1800,7 +1879,7 @@ class AirflowNetworkDistributionComponentOutdoorAirFlow(IDFBaseModel):
             'note': 'Enter the exponent used in the following equation: Mass Flow Rate = Air Mass Flow Coefficient * (dP)^Air Mass Flow Exponent. Used only when no outdoor air flow rate.',
         },
     )
-    reference_crack_conditions: str | None = Field(
+    reference_crack_conditions: ReferenceCrackConditionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ReferenceCrackConditions'],
@@ -1816,7 +1895,7 @@ class AirflowNetworkDistributionComponentReliefAirFlow(IDFBaseModel):
         'AirflowNetwork:Distribution:Component:ReliefAirFlow'
     )
     name: str = Field(...)
-    outdoor_air_mixer_name: str = Field(
+    outdoor_air_mixer_name: OutdoorAirMixersRef = Field(
         ..., json_schema_extra={'object_list': ['OutdoorAirMixers']}
     )
     air_mass_flow_coefficient_when_no_outdoor_air_flow_at_reference_conditions: float = Field(
@@ -1836,7 +1915,7 @@ class AirflowNetworkDistributionComponentReliefAirFlow(IDFBaseModel):
             'note': 'Enter the exponent used in the following equation: Mass Flow Rate = Air Mass Flow Coefficient * (dP)^Air Mass Flow Exponent. Used only when no outdoor air flow rate.',
         },
     )
-    reference_crack_conditions: str | None = Field(
+    reference_crack_conditions: ReferenceCrackConditionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ReferenceCrackConditions'],
@@ -1851,7 +1930,7 @@ class AirflowNetworkDistributionComponentTerminalUnit(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'AirflowNetwork:Distribution:Component:TerminalUnit'
     )
-    terminal_unit_name: str = Field(
+    terminal_unit_name: AFNTerminalUnitNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AFNTerminalUnitNames'],
@@ -1947,7 +2026,7 @@ class AirflowNetworkDistributionDuctViewFactors(IDFBaseModel):
     surface radiation calculations. All surfaces must be in the same enclosure."""
 
     _idf_object_type: ClassVar[str] = 'AirflowNetwork:Distribution:DuctViewFactors'
-    linkage_name: str = Field(
+    linkage_name: AirflowNetworkComponentNamesRef = Field(
         ..., json_schema_extra={'object_list': ['AirflowNetworkComponentNames']}
     )
     duct_surface_exposure_fraction: float | None = Field(default=0.0, ge=0.0, le=1.0)
@@ -1964,21 +2043,27 @@ class AirflowNetworkDistributionLinkage(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'Enter a unique name for this object.'}
     )
-    node_1_name: str = Field(
+    node_1_name: AirflowNetworkNodeAndZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirflowNetworkNodeAndZoneNames'],
             'note': 'Enter the name of zone or AirflowNetwork Node.',
         },
     )
-    node_2_name: str = Field(
+    node_2_name: AirflowNetworkNodeAndZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirflowNetworkNodeAndZoneNames'],
             'note': 'Enter the name of zone or AirflowNetwork Node.',
         },
     )
-    component_name: str = Field(
+    component_name: (
+        AFNCoilNamesRef
+        | AFNHeatExchangerNamesRef
+        | AFNTerminalUnitNamesRef
+        | AirflowNetworkComponentNamesRef
+        | FansCVandOnOffandVAVRef
+    ) = Field(
         ...,
         json_schema_extra={
             'object_list': [
@@ -1991,7 +2076,7 @@ class AirflowNetworkDistributionLinkage(IDFBaseModel):
             'note': 'Enter the name of an AirflowNetwork component. A component is one of the following AirflowNetwork:Distribution:Component objects: Leak, LeakageRatio, Duct, ConstantVolumeFan, Coil, TerminalUnit, Co...',
         },
     )
-    thermal_zone_name: str | None = Field(
+    thermal_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -2048,28 +2133,28 @@ class AirflowNetworkIntraZoneLinkage(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'Enter a unique name for this object.'}
     )
-    node_1_name: str = Field(
+    node_1_name: AirflowNetworkNodeNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirflowNetworkNodeNames', 'ZoneNames'],
             'note': 'Enter the name of zone or AirflowNetwork Node.',
         },
     )
-    node_2_name: str = Field(
+    node_2_name: AirflowNetworkNodeNamesRef | ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirflowNetworkNodeNames', 'ZoneNames'],
             'note': 'Enter the name of zone or AirflowNetwork Node.',
         },
     )
-    component_name: str | None = Field(
+    component_name: AirflowNetworkComponentNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AirflowNetworkComponentNames'],
             'note': 'Enter the name of an AirflowNetwork component. A component is one of the following AirflowNetwork:Multizone:Component objects: AirflowNetwork:MultiZone:Surface:Crack, AirflowNetwork:MultiZone:Surfa...',
         },
     )
-    airflownetwork_multizone_surface_name: str | None = Field(
+    airflownetwork_multizone_surface_name: SurfAndSubSurfNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SurfAndSubSurfNames'],
@@ -2086,14 +2171,14 @@ class AirflowNetworkIntraZoneNode(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'Enter a unique name for this object.'}
     )
-    roomair_node_airflownetwork_name: str = Field(
+    roomair_node_airflownetwork_name: RoomAirflowNetworkNodesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['RoomAirflowNetworkNodes'],
             'note': 'Enter the name of a RoomAir:Node object defined in a RoomAirSettings:AirflowNetwork object.',
         },
     )
-    zone_name: str = Field(
+    zone_name: AirFlowNetworkMultizoneZonesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AirFlowNetworkMultizoneZones'],
@@ -2440,7 +2525,7 @@ class AirflowNetworkMultiZoneComponentZoneExhaustFan(IDFBaseModel):
     _idf_object_type: ClassVar[str] = (
         'AirflowNetwork:MultiZone:Component:ZoneExhaustFan'
     )
-    name: str = Field(
+    name: FansZoneExhaustRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['FansZoneExhaust'],
@@ -2464,7 +2549,7 @@ class AirflowNetworkMultiZoneComponentZoneExhaustFan(IDFBaseModel):
             'note': 'Enter the exponent used in the following equation: Mass Flow Rate = Air Mass Flow Coefficient * (dP)^Air Mass Flow Exponent. Used only when the fan is off.',
         },
     )
-    reference_crack_conditions: str | None = Field(
+    reference_crack_conditions: ReferenceCrackConditionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ReferenceCrackConditions'],
@@ -2491,12 +2576,14 @@ class AirflowNetworkMultiZoneExternalNode(IDFBaseModel):
             'note': 'Designates the reference height used to calculate relative pressure.',
         },
     )
-    wind_pressure_coefficient_curve_name: str = Field(
-        ...,
-        json_schema_extra={
-            'object_list': ['UnivariateFunctions', 'WPCValueNames'],
-            'note': 'The name of the AirflowNetwork:MultiZone:WindPressureCoefficientValues, curve, or table object specifying the wind pressure coefficient.',
-        },
+    wind_pressure_coefficient_curve_name: UnivariateFunctionsRef | WPCValueNamesRef = (
+        Field(
+            ...,
+            json_schema_extra={
+                'object_list': ['UnivariateFunctions', 'WPCValueNames'],
+                'note': 'The name of the AirflowNetwork:MultiZone:WindPressureCoefficientValues, curve, or table object specifying the wind pressure coefficient.',
+            },
+        )
     )
     symmetric_wind_pressure_coefficient_curve: Literal['', 'No', 'Yes'] | None = Field(
         default='No',
@@ -2571,21 +2658,21 @@ class AirflowNetworkMultiZoneSurface(IDFBaseModel):
     face zone or external node."""
 
     _idf_object_type: ClassVar[str] = 'AirflowNetwork:MultiZone:Surface'
-    surface_name: str = Field(
+    surface_name: SurfAndSubSurfNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfAndSubSurfNames'],
             'note': 'Enter the name of a heat transfer surface.',
         },
     )
-    leakage_component_name: str = Field(
+    leakage_component_name: SurfaceAirflowLeakageNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['SurfaceAirflowLeakageNames'],
             'note': 'Enter the name of an Airflow Network leakage component. A leakage component is one of the following AirflowNetwork:Multizone objects: AirflowNetwork:MultiZone:Component:DetailedOpening, AirflowNetw...',
         },
     )
-    external_node_name: str | None = Field(
+    external_node_name: (ExternalNodeNamesRef | OutdoorAirNodeNamesRef) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ExternalNodeNames', 'OutdoorAirNodeNames'],
@@ -2621,7 +2708,9 @@ class AirflowNetworkMultiZoneSurface(IDFBaseModel):
             'note': "When Ventilation Control Mode = Temperature or Enthalpy, the following fields are used to modulate the Ventilation Open Factor for a window or door opening according to the parent zone's indoor-out..."
         },
     )
-    ventilation_control_zone_temperature_setpoint_schedule_name: str | None = Field(
+    ventilation_control_zone_temperature_setpoint_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -2679,14 +2768,16 @@ class AirflowNetworkMultiZoneSurface(IDFBaseModel):
             'note': 'Applicable only if Ventilation Control Mode = Enthalpy. This value must be greater than the corresponding lower value (previous field).',
         },
     )
-    venting_availability_schedule_name: str | None = Field(
+    venting_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Non-zero schedule value means venting is allowed if other venting control conditions are satisfied. A zero (or negative) schedule value means venting is not allowed under any circumstances. The sch...',
         },
     )
-    occupant_ventilation_control_name: str | None = Field(
+    occupant_ventilation_control_name: (
+        AirflowNetworkOccupantVentilationControlNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AirflowNetworkOccupantVentilationControlNames'],
@@ -2736,7 +2827,7 @@ class AirflowNetworkMultiZoneSurfaceCrack(IDFBaseModel):
             'note': 'Enter the air mass flow exponent for the surface crack.',
         },
     )
-    reference_crack_conditions: str | None = Field(
+    reference_crack_conditions: ReferenceCrackConditionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ReferenceCrackConditions'],
@@ -3137,7 +3228,7 @@ class AirflowNetworkMultiZoneWindPressureCoefficientValues(IDFBaseModel):
     name: str = Field(
         ..., json_schema_extra={'note': 'Enter a unique name for this object.'}
     )
-    airflownetwork_multizone_windpressurecoefficientarray_name: str = Field(
+    airflownetwork_multizone_windpressurecoefficientarray_name: WPCSetNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['WPCSetNames'],
@@ -3403,7 +3494,7 @@ class AirflowNetworkMultiZoneZone(IDFBaseModel):
     door openings, both exterior and interior."""
 
     _idf_object_type: ClassVar[str] = 'AirflowNetwork:MultiZone:Zone'
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -3427,7 +3518,9 @@ class AirflowNetworkMultiZoneZone(IDFBaseModel):
             'note': "When Ventilation Control Mode = Temperature or Enthalpy, the following fields are used to modulate the Ventilation Open Factor for all window and door openings in the zone according to the zone's i..."
         },
     )
-    ventilation_control_zone_temperature_setpoint_schedule_name: str | None = Field(
+    ventilation_control_zone_temperature_setpoint_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -3485,7 +3578,7 @@ class AirflowNetworkMultiZoneZone(IDFBaseModel):
             'note': 'Applicable only if Ventilation Control Mode = Enthalpy. This value must be greater than the corresponding lower value (previous field).',
         },
     )
-    venting_availability_schedule_name: str | None = Field(
+    venting_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -3508,7 +3601,9 @@ class AirflowNetworkMultiZoneZone(IDFBaseModel):
             'note': 'This is the whole building width along the direction of the facade of this zone.',
         },
     )
-    occupant_ventilation_control_name: str | None = Field(
+    occupant_ventilation_control_name: (
+        AirflowNetworkOccupantVentilationControlNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['AirflowNetworkOccupantVentilationControlNames'],
@@ -3534,7 +3629,7 @@ class AirflowNetworkOccupantVentilationControl(IDFBaseModel):
     minimum_closing_time: float | None = Field(
         default=0.0, ge=0.0, json_schema_extra={'units': 'minutes'}
     )
-    thermal_comfort_low_temperature_curve_name: str | None = Field(
+    thermal_comfort_low_temperature_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -3549,7 +3644,7 @@ class AirflowNetworkOccupantVentilationControl(IDFBaseModel):
             'note': 'This point is used to allow separate low and high thermal comfort temperature curves. If a single performance curve is used, leave this field blank.',
         },
     )
-    thermal_comfort_high_temperature_curve_name: str | None = Field(
+    thermal_comfort_high_temperature_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -3565,14 +3660,14 @@ class AirflowNetworkOccupantVentilationControl(IDFBaseModel):
             'note': 'If Yes, occupancy check will be performed as part of the opening probability check.'
         },
     )
-    opening_probability_schedule_name: str | None = Field(
+    opening_probability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'If this field is blank, the opening probability check is bypassed and opening is true.',
         },
     )
-    closing_probability_schedule_name: str | None = Field(
+    closing_probability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -3718,7 +3813,7 @@ class AirflowNetworkZoneControlPressureController(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'AirflowNetwork:ZoneControl:PressureController'
     name: str = Field(...)
-    control_zone_name: str = Field(
+    control_zone_name: ZoneNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneNames']}
     )
     control_object_type: Literal[
@@ -3730,21 +3825,21 @@ class AirflowNetworkZoneControlPressureController(IDFBaseModel):
             'note': 'The current selection is AirflowNetwork:MultiZone:Component:ZoneExhaustFan or AirflowNetwork:Distribution:Component:ReliefAirFlow.'
         },
     )
-    control_object_name: str = Field(
+    control_object_name: AFNReliefAirFlowNamesRef | FansZoneExhaustRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['AFNReliefAirFlowNames', 'FansZoneExhaust'],
             'note': 'Control names are names of individual control objects',
         },
     )
-    pressure_control_availability_schedule_name: str | None = Field(
+    pressure_control_availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Availability schedule name for pressure controller. Schedule value > 0 means the pressure controller is enabled. If this field is blank, then pressure controller is always enabled.',
         },
     )
-    pressure_setpoint_schedule_name: str = Field(
+    pressure_setpoint_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
 
@@ -3773,14 +3868,14 @@ class CondenserLoop(IDFBaseModel):
     fluid_type: Literal['', 'UserDefinedFluidType', 'Water'] | None = Field(
         default='Water'
     )
-    user_defined_fluid_type: str | None = Field(
+    user_defined_fluid_type: FluidAndGlycolNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FluidAndGlycolNames'],
             'note': 'This field is only required when Fluid Type is UserDefinedFluidType',
         },
     )
-    condenser_equipment_operation_scheme_name: str = Field(
+    condenser_equipment_operation_scheme_name: CondenserOperationSchemesRef = Field(
         ..., json_schema_extra={'object_list': ['CondenserOperationSchemes']}
     )
     condenser_loop_temperature_setpoint_node_name: str = Field(...)
@@ -3797,18 +3892,18 @@ class CondenserLoop(IDFBaseModel):
     )
     condenser_side_inlet_node_name: str = Field(...)
     condenser_side_outlet_node_name: str = Field(...)
-    condenser_side_branch_list_name: str = Field(
+    condenser_side_branch_list_name: BranchListsRef = Field(
         ..., json_schema_extra={'object_list': ['BranchLists']}
     )
-    condenser_side_connector_list_name: str = Field(
+    condenser_side_connector_list_name: ConnectorListsRef = Field(
         ..., json_schema_extra={'object_list': ['ConnectorLists']}
     )
     demand_side_inlet_node_name: str = Field(...)
     demand_side_outlet_node_name: str = Field(...)
-    condenser_demand_side_branch_list_name: str = Field(
+    condenser_demand_side_branch_list_name: BranchListsRef = Field(
         ..., json_schema_extra={'object_list': ['BranchLists']}
     )
-    condenser_demand_side_connector_list_name: str = Field(
+    condenser_demand_side_connector_list_name: ConnectorListsRef = Field(
         ..., json_schema_extra={'object_list': ['ConnectorLists']}
     )
     load_distribution_scheme: (
@@ -3847,7 +3942,7 @@ class ControllerMechanicalVentilation(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Controller:MechanicalVentilation'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -3942,7 +4037,7 @@ class ControllerOutdoorAir(IDFBaseModel):
             'note': 'Enter the maximum outdoor dewpoint temperature limit for FixedDewPointAndDryBulb economizer control type. No input or blank input means this limit is not operative. Limit is applied regardless of e...',
         },
     )
-    electronic_enthalpy_limit_curve_name: str | None = Field(
+    electronic_enthalpy_limit_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -3962,35 +4057,37 @@ class ControllerOutdoorAir(IDFBaseModel):
     minimum_limit_type: Literal['', 'FixedMinimum', 'ProportionalMinimum'] | None = (
         Field(default='ProportionalMinimum')
     )
-    minimum_outdoor_air_schedule_name: str | None = Field(
+    minimum_outdoor_air_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values multiply the minimum outdoor air flow rate',
         },
     )
-    minimum_fraction_of_outdoor_air_schedule_name: str | None = Field(
+    minimum_fraction_of_outdoor_air_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'schedule values multiply the design/mixed air flow rate',
         },
     )
-    maximum_fraction_of_outdoor_air_schedule_name: str | None = Field(
+    maximum_fraction_of_outdoor_air_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'schedule values multiply the design/mixed air flow rate',
         },
     )
-    mechanical_ventilation_controller_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ControllerMechanicalVentNames'],
-            'note': 'Enter the name of a Controller:MechanicalVentilation object. Optional field for defining outdoor ventilation air based on flow rate per unit floor area and flow rate per person. Simplified method o...',
-        },
+    mechanical_ventilation_controller_name: ControllerMechanicalVentNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ControllerMechanicalVentNames'],
+                'note': 'Enter the name of a Controller:MechanicalVentilation object. Optional field for defining outdoor ventilation air based on flow rate per unit floor area and flow rate per person. Simplified method o...',
+            },
+        )
     )
-    time_of_day_economizer_control_schedule_name: str | None = Field(
+    time_of_day_economizer_control_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -4003,7 +4100,7 @@ class ControllerOutdoorAir(IDFBaseModel):
             'note': 'Optional field to enable modified outdoor air flow rates based on zone relative humidity. Select Yes to modify outdoor air flow rate based on a zone humidistat. Select No to disable this feature. I...'
         },
     )
-    humidistat_control_zone_name: str | None = Field(
+    humidistat_control_zone_name: ZoneNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -4096,7 +4193,7 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Dehumidifier:Desiccant:NoFans'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -4182,7 +4279,7 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
             'note': 'heating coil type works with gas, electric, hot water and steam heating coils'
         },
     )
-    regeneration_coil_name: str | None = Field(
+    regeneration_coil_name: HeatingCoilNameRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['HeatingCoilName'],
@@ -4197,7 +4294,7 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
             'note': 'Type of fan object for regeneration air. When using the Default Performance Model Type (see below), only Fan:VariableVolume or Fan:SystemModel are valid.'
         },
     )
-    regeneration_fan_name: str | None = Field(
+    regeneration_fan_name: (FansCVandVAVRef | FansSystemModelRef) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FansCVandVAV', 'FansSystemModel'],
@@ -4211,7 +4308,7 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
         },
     )
     leaving_dry_bulb_function_of_entering_dry_bulb_and_humidity_ratio_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4219,7 +4316,9 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
             'note': 'Leaving dry-bulb of process air as a function of entering dry-bulb and entering humidity ratio, biquadratic curve curve = C1 + C2*edb + C3*edb**2 + C4*ew + C5*ew**2 + C6*edb*ew edb = process enteri...',
         },
     )
-    leaving_dry_bulb_function_of_air_velocity_curve_name: str | None = Field(
+    leaving_dry_bulb_function_of_air_velocity_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4227,7 +4326,7 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
         },
     )
     leaving_humidity_ratio_function_of_entering_dry_bulb_and_humidity_ratio_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4235,7 +4334,9 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
             'note': 'Leaving humidity ratio of process air as a function of entering dry-bulb and entering humidity ratio, biquadratic curve curve = C1 + C2*edb + C3*edb**2 + C4*ew + C5*ew**2 + C6*edb*ew edb = process ...',
         },
     )
-    leaving_humidity_ratio_function_of_air_velocity_curve_name: str | None = Field(
+    leaving_humidity_ratio_function_of_air_velocity_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4243,7 +4344,7 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
         },
     )
     regeneration_energy_function_of_entering_dry_bulb_and_humidity_ratio_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4251,7 +4352,9 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
             'note': 'Regeneration energy [J/kg of water removed] as a function of entering dry-bulb and entering humidity ratio, biquadratic curve curve = C1 + C2*edb + C3*edb**2 + C4*ew + C5*ew**2 + C6*edb*ew edb = pr...',
         },
     )
-    regeneration_energy_function_of_air_velocity_curve_name: str | None = Field(
+    regeneration_energy_function_of_air_velocity_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4259,7 +4362,7 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
         },
     )
     regeneration_velocity_function_of_entering_dry_bulb_and_humidity_ratio_curve_name: (
-        str | None
+        BivariateFunctionsRef | None
     ) = Field(
         default=None,
         json_schema_extra={
@@ -4267,7 +4370,9 @@ class DehumidifierDesiccantNoFans(IDFBaseModel):
             'note': 'Regeneration velocity [m/s] as a function of entering dry-bulb and entering humidity ratio, biquadratic curve curve = C1 + C2*edb + C3*edb**2 + C4*ew + C5*ew**2 + C6*edb*ew edb = process entering d...',
         },
     )
-    regeneration_velocity_function_of_air_velocity_curve_name: str | None = Field(
+    regeneration_velocity_function_of_air_velocity_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4296,7 +4401,7 @@ class DehumidifierDesiccantSystem(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Dehumidifier:Desiccant:System'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -4306,14 +4411,14 @@ class DehumidifierDesiccantSystem(IDFBaseModel):
     desiccant_heat_exchanger_object_type: Literal[
         'HeatExchanger:Desiccant:BalancedFlow'
     ] = Field(...)
-    desiccant_heat_exchanger_name: str = Field(
+    desiccant_heat_exchanger_name: HXDesiccantBalancedRef = Field(
         ..., json_schema_extra={'object_list': ['HXDesiccantBalanced']}
     )
     sensor_node_name: str = Field(...)
     regeneration_air_fan_object_type: Literal[
         'Fan:ConstantVolume', 'Fan:OnOff', 'Fan:SystemModel'
     ] = Field(...)
-    regeneration_air_fan_name: str = Field(
+    regeneration_air_fan_name: FansOnOffandVAVRef | FansSystemModelRef = Field(
         ..., json_schema_extra={'object_list': ['FansOnOffandVAV', 'FansSystemModel']}
     )
     regeneration_air_fan_placement: Literal['', 'BlowThrough', 'DrawThrough'] | None = (
@@ -4333,7 +4438,7 @@ class DehumidifierDesiccantSystem(IDFBaseModel):
             'note': 'works with gas, electric, hot water and steam heating coils. For autosizing the regeneration air heating coil the Design Coil Inlet Air Condition used is the outdoor air condition if the desiccant ...'
         },
     )
-    regeneration_air_heater_name: str | None = Field(
+    regeneration_air_heater_name: HeatingCoilNameRef | None = Field(
         default=None, json_schema_extra={'object_list': ['HeatingCoilName']}
     )
     regeneration_inlet_air_setpoint_temperature: float | None = Field(
@@ -4351,7 +4456,9 @@ class DehumidifierDesiccantSystem(IDFBaseModel):
         ]
         | None
     ) = Field(default=None)
-    companion_cooling_coil_name: str | None = Field(
+    companion_cooling_coil_name: (
+        CoolingCoilsDXMultiModeOrSingleSpeedRef | CoolingCoilsDXVariableSpeedRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': [
@@ -4377,7 +4484,7 @@ class DehumidifierDesiccantSystem(IDFBaseModel):
     exhaust_fan_maximum_power: float | None = Field(
         default=None, json_schema_extra={'units': 'W'}
     )
-    exhaust_fan_power_curve_name: str | None = Field(
+    exhaust_fan_power_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -4407,7 +4514,7 @@ class ExteriorFuelEquipment(IDFBaseModel):
         'Propane',
         'Water',
     ] = Field(...)
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -4428,7 +4535,7 @@ class ExteriorLights(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Exterior:Lights'
     name: str = Field(...)
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -4456,7 +4563,7 @@ class ExteriorWaterEquipment(IDFBaseModel):
     _idf_object_type: ClassVar[str] = 'Exterior:WaterEquipment'
     name: str = Field(...)
     fuel_use_type: Literal['', 'Water'] | None = Field(default='Water')
-    schedule_name: str = Field(
+    schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5242,7 +5349,7 @@ class HeatExchangerAirToAirFlatPlate(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'HeatExchanger:AirToAir:FlatPlate'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5297,7 +5404,7 @@ class HeatExchangerAirToAirSensibleAndLatent(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'HeatExchanger:AirToAir:SensibleAndLatent'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5370,28 +5477,36 @@ class HeatExchangerAirToAirSensibleAndLatent(IDFBaseModel):
             'note': 'Yes means that the heat exchanger will be locked out (off) when the economizer is operating or high humidity control is active'
         },
     )
-    sensible_effectiveness_of_heating_air_flow_curve_name: str | None = Field(
+    sensible_effectiveness_of_heating_air_flow_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'optional if this field has value, then the sensible effectiveness for heating will be the value in N2 multiplied by this curve value',
         },
     )
-    latent_effectiveness_of_heating_air_flow_curve_name: str | None = Field(
+    latent_effectiveness_of_heating_air_flow_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'optional if this field has value, then the latent effectiveness for heating will be the value in N3 multiplied by this curve value',
         },
     )
-    sensible_effectiveness_of_cooling_air_flow_curve_name: str | None = Field(
+    sensible_effectiveness_of_cooling_air_flow_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
             'note': 'optional if this field has value, then the sensible effectiveness for cooling will be the value in N4 multiplied by this curve value',
         },
     )
-    latent_effectiveness_of_cooling_air_flow_curve_name: str | None = Field(
+    latent_effectiveness_of_cooling_air_flow_curve_name: (
+        UnivariateFunctionsRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -5409,7 +5524,7 @@ class HeatExchangerDesiccantBalancedFlow(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'HeatExchanger:Desiccant:BalancedFlow'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5423,7 +5538,7 @@ class HeatExchangerDesiccantBalancedFlow(IDFBaseModel):
     heat_exchanger_performance_object_type: (
         Literal['', 'HeatExchanger:Desiccant:BalancedFlow:PerformanceDataType1'] | None
     ) = Field(default='HeatExchanger:Desiccant:BalancedFlow:PerformanceDataType1')
-    heat_exchanger_performance_name: str = Field(
+    heat_exchanger_performance_name: DesiccantHXPerfDataRef = Field(
         ..., json_schema_extra={'object_list': ['DesiccantHXPerfData']}
     )
     economizer_lockout: Literal['', 'No', 'Yes'] | None = Field(
@@ -5586,7 +5701,7 @@ class HumidifierSteamElectric(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Humidifier:Steam:Electric'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5615,7 +5730,7 @@ class HumidifierSteamElectric(IDFBaseModel):
     )
     air_inlet_node_name: str | None = Field(default=None)
     air_outlet_node_name: str | None = Field(default=None)
-    water_storage_tank_name: str | None = Field(
+    water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
 
@@ -5625,7 +5740,7 @@ class HumidifierSteamGas(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Humidifier:Steam:Gas'
     name: str = Field(...)
-    availability_schedule_name: str | None = Field(
+    availability_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5655,7 +5770,7 @@ class HumidifierSteamGas(IDFBaseModel):
             'note': 'Based on the higher heating value of fuel. If "Rated Gas Use Rate" in the field above is not auto-sized and the Inlet Water Temperature Option input field is specified as FixedInletWaterTemperature...',
         },
     )
-    thermal_efficiency_modifier_curve_name: str | None = Field(
+    thermal_efficiency_modifier_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -5680,7 +5795,7 @@ class HumidifierSteamGas(IDFBaseModel):
     )
     air_inlet_node_name: str | None = Field(default=None)
     air_outlet_node_name: str | None = Field(default=None)
-    water_storage_tank_name: str | None = Field(
+    water_storage_tank_name: WaterStorageTankNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['WaterStorageTankNames']}
     )
     inlet_water_temperature_option: (
@@ -5701,7 +5816,9 @@ class HybridModelZone(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'HybridModel:Zone'
     name: str = Field(...)
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
     calculate_zone_internal_thermal_mass: Literal['', 'No', 'Yes'] | None = Field(
         default='No',
         json_schema_extra={
@@ -5720,82 +5837,90 @@ class HybridModelZone(IDFBaseModel):
             'note': 'Use measured humidity ratio data (temperature, humidity ratio, or CO2 concentration) to calculate zone people count. Only one of field Calculate Zone Internal Thermal Mass, Calculate Zone Air Infil...'
         },
     )
-    zone_measured_air_temperature_schedule_name: str | None = Field(
+    zone_measured_air_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'from Schedule:File',
         },
     )
-    zone_measured_air_humidity_ratio_schedule_name: str | None = Field(
+    zone_measured_air_humidity_ratio_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'from Schedule:File',
         },
     )
-    zone_measured_air_co2_concentration_schedule_name: str | None = Field(
+    zone_measured_air_co2_concentration_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'from Schedule:File',
         },
     )
-    zone_input_people_activity_schedule_name: str | None = Field(
+    zone_input_people_activity_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'When this field is provided and valid, the default people activity level (used to calculate people count) will be overwritten. from Schedule:File',
         },
     )
-    zone_input_people_sensible_heat_fraction_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'When this field is provided and valid, the default sensible heat fraction from people (used to calculate people count) will be overwritten. from Schedule:File',
-        },
+    zone_input_people_sensible_heat_fraction_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'When this field is provided and valid, the default sensible heat fraction from people (used to calculate people count) will be overwritten. from Schedule:File',
+            },
+        )
     )
-    zone_input_people_radiant_heat_fraction_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'When this field is provided and valid, the default radiant heat portion of the sensible heat from people (used to calculate people count) will be overwritten. from Schedule:File',
-        },
+    zone_input_people_radiant_heat_fraction_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'When this field is provided and valid, the default radiant heat portion of the sensible heat from people (used to calculate people count) will be overwritten. from Schedule:File',
+            },
+        )
     )
-    zone_input_people_co2_generation_rate_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'When this field is provided and valid, the default people CO2 generation rate (used to calculate people count) will be overwritten. from Schedule:File',
-        },
+    zone_input_people_co2_generation_rate_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'When this field is provided and valid, the default people CO2 generation rate (used to calculate people count) will be overwritten. from Schedule:File',
+            },
+        )
     )
-    zone_input_supply_air_temperature_schedule_name: str | None = Field(
+    zone_input_supply_air_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'from Schedule:File',
         },
     )
-    zone_input_supply_air_mass_flow_rate_schedule_name: str | None = Field(
+    zone_input_supply_air_mass_flow_rate_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'from Schedule:File',
         },
     )
-    zone_input_supply_air_humidity_ratio_schedule_name: str | None = Field(
+    zone_input_supply_air_humidity_ratio_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'from Schedule:File',
         },
     )
-    zone_input_supply_air_co2_concentration_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'from Schedule:File',
-        },
+    zone_input_supply_air_co2_concentration_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'from Schedule:File',
+            },
+        )
     )
     begin_month: int = Field(..., ge=1, le=12)
     begin_day_of_month: int = Field(..., ge=1, le=31)
@@ -5813,7 +5938,7 @@ class LoadProfilePlant(IDFBaseModel):
     name: str = Field(...)
     inlet_node_name: str = Field(...)
     outlet_node_name: str = Field(...)
-    load_schedule_name: str = Field(
+    load_schedule_name: ScheduleNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -5821,7 +5946,7 @@ class LoadProfilePlant(IDFBaseModel):
         },
     )
     peak_flow_rate: float = Field(..., json_schema_extra={'units': 'm3/s'})
-    flow_rate_fraction_schedule_name: str = Field(
+    flow_rate_fraction_schedule_name: ScheduleNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ScheduleNames']}
     )
     plant_loop_fluid_type: Literal['', 'Steam', 'Water'] | None = Field(default='Water')
@@ -5911,14 +6036,14 @@ class PlantLoop(IDFBaseModel):
     fluid_type: Literal['', 'Steam', 'UserDefinedFluidType', 'Water'] | None = Field(
         default='Water'
     )
-    user_defined_fluid_type: str | None = Field(
+    user_defined_fluid_type: FluidAndGlycolNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['FluidAndGlycolNames'],
             'note': 'This field is only required when Fluid Type is UserDefinedFluidType',
         },
     )
-    plant_equipment_operation_scheme_name: str = Field(
+    plant_equipment_operation_scheme_name: PlantOperationSchemesRef = Field(
         ..., json_schema_extra={'object_list': ['PlantOperationSchemes']}
     )
     loop_temperature_setpoint_node_name: str = Field(...)
@@ -5935,18 +6060,18 @@ class PlantLoop(IDFBaseModel):
     )
     plant_side_inlet_node_name: str = Field(...)
     plant_side_outlet_node_name: str = Field(...)
-    plant_side_branch_list_name: str = Field(
+    plant_side_branch_list_name: BranchListsRef = Field(
         ..., json_schema_extra={'object_list': ['BranchLists']}
     )
-    plant_side_connector_list_name: str | None = Field(
+    plant_side_connector_list_name: ConnectorListsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ConnectorLists']}
     )
     demand_side_inlet_node_name: str = Field(...)
     demand_side_outlet_node_name: str = Field(...)
-    demand_side_branch_list_name: str = Field(
+    demand_side_branch_list_name: BranchListsRef = Field(
         ..., json_schema_extra={'object_list': ['BranchLists']}
     )
-    demand_side_connector_list_name: str | None = Field(
+    demand_side_connector_list_name: ConnectorListsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ConnectorLists']}
     )
     load_distribution_scheme: (
@@ -5960,7 +6085,7 @@ class PlantLoop(IDFBaseModel):
         ]
         | None
     ) = Field(default='SequentialLoad')
-    availability_manager_list_name: str | None = Field(
+    availability_manager_list_name: SystemAvailabilityManagerListsRef | None = Field(
         default=None,
         json_schema_extra={'object_list': ['SystemAvailabilityManagerLists']},
     )
@@ -6043,7 +6168,7 @@ class TableLookup(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Table:Lookup'
     name: str = Field(...)
-    independent_variable_list_name: str = Field(
+    independent_variable_list_name: IndependentVariableListNameRef = Field(
         ..., json_schema_extra={'object_list': ['IndependentVariableListName']}
     )
     normalization_method: (

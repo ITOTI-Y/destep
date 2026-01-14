@@ -12,12 +12,17 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ScheduleNamesRef,
+    ZoneAndZoneListNamesRef,
+    ZoneListNamesRef,
+)
 
 
 class ShadowCalculationShadingZoneGroupsItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    shading_zone_group_zonelist_name: str | None = Field(
+    shading_zone_group_zonelist_name: ZoneListNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneListNames'],
@@ -483,7 +488,7 @@ class ZoneAirContaminantBalance(IDFBaseModel):
         default='No',
         json_schema_extra={'note': 'If Yes, CO2 simulation will be performed.'},
     )
-    outdoor_carbon_dioxide_schedule_name: str | None = Field(
+    outdoor_carbon_dioxide_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -496,7 +501,7 @@ class ZoneAirContaminantBalance(IDFBaseModel):
             'note': 'If Yes, generic contaminant simulation will be performed.'
         },
     )
-    outdoor_generic_contaminant_schedule_name: str | None = Field(
+    outdoor_generic_contaminant_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -585,7 +590,7 @@ class ZoneCapacitanceMultiplierResearchSpecial(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'ZoneCapacitanceMultiplier:ResearchSpecial'
     name: str = Field(...)
-    zone_or_zonelist_name: str | None = Field(
+    zone_or_zonelist_name: ZoneAndZoneListNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ZoneAndZoneListNames'],

@@ -12,12 +12,21 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    ScheduleNamesRef,
+    SpaceNamesRef,
+    ZoneEquipmentListsRef,
+    ZoneEquipmentNamesRef,
+    ZoneNamesRef,
+)
 
 
 class SpaceHVACZoneEquipmentMixerSpacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    space_name: str = Field(..., json_schema_extra={'object_list': ['SpaceNames']})
+    space_name: SpaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SpaceNames']}
+    )
     space_fraction: float | Literal['', 'Autosize'] | None = Field(
         default='Autosize',
         json_schema_extra={
@@ -36,7 +45,9 @@ class SpaceHVACZoneEquipmentMixerSpacesItem(IDFBaseModel):
 class SpaceHVACZoneEquipmentSplitterSpacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    space_name: str = Field(..., json_schema_extra={'object_list': ['SpaceNames']})
+    space_name: SpaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SpaceNames']}
+    )
     space_fraction: float | Literal['', 'Autosize'] | None = Field(
         default='Autosize',
         json_schema_extra={
@@ -55,7 +66,9 @@ class SpaceHVACZoneEquipmentSplitterSpacesItem(IDFBaseModel):
 class SpaceHVACZoneReturnMixerSpacesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    space_name: str = Field(..., json_schema_extra={'object_list': ['SpaceNames']})
+    space_name: SpaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SpaceNames']}
+    )
     space_return_air_node_name: str = Field(
         ...,
         json_schema_extra={
@@ -102,7 +115,7 @@ class ZoneHVACEquipmentListEquipmentItem(IDFBaseModel):
         'ZoneHVAC:WaterToAirHeatPump',
         'ZoneHVAC:WindowAirConditioner',
     ] = Field(...)
-    zone_equipment_name: str = Field(
+    zone_equipment_name: ZoneEquipmentNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneEquipmentNames']}
     )
     zone_equipment_cooling_sequence: int = Field(
@@ -119,14 +132,18 @@ class ZoneHVACEquipmentListEquipmentItem(IDFBaseModel):
             'note': 'Specifies the zone equipment simulation order when the zone thermostat requests heating or no load'
         },
     )
-    zone_equipment_sequential_cooling_fraction_schedule_name: str | None = Field(
+    zone_equipment_sequential_cooling_fraction_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'The fraction of the remaining cooling load this equipment will attempt to serve if the load distribution scheme is SequentialLoad, otherwise ignored.',
         },
     )
-    zone_equipment_sequential_heating_fraction_schedule_name: str | None = Field(
+    zone_equipment_sequential_heating_fraction_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -144,12 +161,16 @@ class SpaceHVACEquipmentConnections(IDFBaseModel):
     Sizing\"is Yes."""
 
     _idf_object_type: ClassVar[str] = 'SpaceHVAC:EquipmentConnections'
-    space_name: str = Field(..., json_schema_extra={'object_list': ['SpaceNames']})
+    space_name: SpaceNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['SpaceNames']}
+    )
     space_air_inlet_node_or_nodelist_name: str | None = Field(default=None)
     space_air_exhaust_node_or_nodelist_name: str | None = Field(default=None)
     space_air_node_name: str = Field(...)
     space_return_air_node_or_nodelist_name: str | None = Field(default=None)
-    space_return_air_node_1_flow_rate_fraction_schedule_name: str | None = Field(
+    space_return_air_node_1_flow_rate_fraction_schedule_name: (
+        ScheduleNamesRef | None
+    ) = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
@@ -172,7 +193,7 @@ class SpaceHVACZoneEquipmentMixer(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SpaceHVAC:ZoneEquipmentMixer'
     name: str = Field(...)
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -214,7 +235,7 @@ class SpaceHVACZoneEquipmentSplitter(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SpaceHVAC:ZoneEquipmentSplitter'
     name: str = Field(...)
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -255,7 +276,7 @@ class SpaceHVACZoneEquipmentSplitter(IDFBaseModel):
         'ZoneHVAC:WaterToAirHeatPump',
         'ZoneHVAC:WindowAirConditioner',
     ] = Field(...)
-    zone_equipment_name: str = Field(
+    zone_equipment_name: ZoneEquipmentNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ZoneEquipmentNames']}
     )
     zone_equipment_outlet_node_name: str | None = Field(
@@ -272,7 +293,7 @@ class SpaceHVACZoneEquipmentSplitter(IDFBaseModel):
             },
         )
     )
-    control_space_name: str | None = Field(
+    control_space_name: SpaceNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['SpaceNames'],
@@ -306,7 +327,7 @@ class SpaceHVACZoneReturnMixer(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'SpaceHVAC:ZoneReturnMixer'
     name: str = Field(...)
-    zone_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneNames'],
@@ -329,8 +350,10 @@ class ZoneHVACEquipmentConnections(IDFBaseModel):
     equipment connected to the zone."""
 
     _idf_object_type: ClassVar[str] = 'ZoneHVAC:EquipmentConnections'
-    zone_name: str = Field(..., json_schema_extra={'object_list': ['ZoneNames']})
-    zone_conditioning_equipment_list_name: str = Field(
+    zone_name: ZoneNamesRef = Field(
+        ..., json_schema_extra={'object_list': ['ZoneNames']}
+    )
+    zone_conditioning_equipment_list_name: ZoneEquipmentListsRef = Field(
         ...,
         json_schema_extra={
             'object_list': ['ZoneEquipmentLists'],
@@ -341,12 +364,14 @@ class ZoneHVACEquipmentConnections(IDFBaseModel):
     zone_air_exhaust_node_or_nodelist_name: str | None = Field(default=None)
     zone_air_node_name: str = Field(...)
     zone_return_air_node_or_nodelist_name: str | None = Field(default=None)
-    zone_return_air_node_1_flow_rate_fraction_schedule_name: str | None = Field(
-        default=None,
-        json_schema_extra={
-            'object_list': ['ScheduleNames'],
-            'note': 'This schedule is multiplied times the base return air flow rate. If this field is left blank, the schedule defaults to 1.0 at all times.',
-        },
+    zone_return_air_node_1_flow_rate_fraction_schedule_name: ScheduleNamesRef | None = (
+        Field(
+            default=None,
+            json_schema_extra={
+                'object_list': ['ScheduleNames'],
+                'note': 'This schedule is multiplied times the base return air flow rate. If this field is left blank, the schedule defaults to 1.0 at all times.',
+            },
+        )
     )
     zone_return_air_node_1_flow_rate_basis_node_or_nodelist_name: str | None = Field(
         default=None,

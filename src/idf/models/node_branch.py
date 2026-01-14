@@ -12,6 +12,18 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+from ._refs import (
+    BranchesRef,
+    ConstructionNamesRef,
+    OSCMNamesRef,
+    PlantConnectorsRef,
+    ScheduleNamesRef,
+    UndisturbedGroundTempModelsRef,
+    UnivariateFunctionsRef,
+    ValidBranchEquipmentNamesRef,
+    WPCValueNamesRef,
+    ZoneNamesRef,
+)
 
 
 class BranchComponentsItem(IDFBaseModel):
@@ -20,7 +32,7 @@ class BranchComponentsItem(IDFBaseModel):
     component_object_type: str = Field(
         ..., json_schema_extra={'object_list': ['validBranchEquipmentTypes']}
     )
-    component_name: str = Field(
+    component_name: ValidBranchEquipmentNamesRef = Field(
         ..., json_schema_extra={'object_list': ['validBranchEquipmentNames']}
     )
     component_inlet_node_name: str = Field(...)
@@ -30,19 +42,23 @@ class BranchComponentsItem(IDFBaseModel):
 class BranchListBranchesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    branch_name: str = Field(..., json_schema_extra={'object_list': ['Branches']})
+    branch_name: BranchesRef = Field(
+        ..., json_schema_extra={'object_list': ['Branches']}
+    )
 
 
 class ConnectorMixerBranchesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    inlet_branch_name: str = Field(..., json_schema_extra={'object_list': ['Branches']})
+    inlet_branch_name: BranchesRef = Field(
+        ..., json_schema_extra={'object_list': ['Branches']}
+    )
 
 
 class ConnectorSplitterBranchesItem(IDFBaseModel):
     """Nested object type for array items."""
 
-    outlet_branch_name: str = Field(
+    outlet_branch_name: BranchesRef = Field(
         ..., json_schema_extra={'object_list': ['Branches']}
     )
 
@@ -89,7 +105,7 @@ class Branch(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Branch'
     name: str = Field(...)
-    pressure_drop_curve_name: str | None = Field(
+    pressure_drop_curve_name: UnivariateFunctionsRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions'],
@@ -118,13 +134,13 @@ class ConnectorList(IDFBaseModel):
     connector_1_object_type: Literal['Connector:Mixer', 'Connector:Splitter'] = Field(
         ...
     )
-    connector_1_name: str = Field(
+    connector_1_name: PlantConnectorsRef = Field(
         ..., json_schema_extra={'object_list': ['PlantConnectors']}
     )
     connector_2_object_type: Literal['Connector:Mixer', 'Connector:Splitter'] | None = (
         Field(default=None)
     )
-    connector_2_name: str | None = Field(
+    connector_2_name: PlantConnectorsRef | None = Field(
         default=None, json_schema_extra={'object_list': ['PlantConnectors']}
     )
 
@@ -135,7 +151,7 @@ class ConnectorMixer(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Connector:Mixer'
     name: str = Field(...)
-    outlet_branch_name: str = Field(
+    outlet_branch_name: BranchesRef = Field(
         ..., json_schema_extra={'object_list': ['Branches']}
     )
     branches: list[ConnectorMixerBranchesItem] | None = Field(default=None)
@@ -147,7 +163,9 @@ class ConnectorSplitter(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Connector:Splitter'
     name: str = Field(...)
-    inlet_branch_name: str = Field(..., json_schema_extra={'object_list': ['Branches']})
+    inlet_branch_name: BranchesRef = Field(
+        ..., json_schema_extra={'object_list': ['Branches']}
+    )
     branches: list[ConnectorSplitterBranchesItem] | None = Field(default=None)
 
 
@@ -185,35 +203,37 @@ class OutdoorAirNode(IDFBaseModel):
             'note': 'A value less than zero indicates that the height will be ignored and the weather file conditions will be used.',
         },
     )
-    drybulb_temperature_schedule_name: str | None = Field(
+    drybulb_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values are real numbers, -100.0 to 100.0, units C',
         },
     )
-    wetbulb_temperature_schedule_name: str | None = Field(
+    wetbulb_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values are real numbers, -100.0 to 100.0, units C',
         },
     )
-    wind_speed_schedule_name: str | None = Field(
+    wind_speed_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values are real numbers, 0.0 to 40.0, units m/s',
         },
     )
-    wind_direction_schedule_name: str | None = Field(
+    wind_direction_schedule_name: ScheduleNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['ScheduleNames'],
             'note': 'Schedule values are real numbers, 0.0 to 360.0, units degree',
         },
     )
-    wind_pressure_coefficient_curve_name: str | None = Field(
+    wind_pressure_coefficient_curve_name: (
+        UnivariateFunctionsRef | WPCValueNamesRef
+    ) | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['UnivariateFunctions', 'WPCValueNames'],
@@ -268,19 +288,19 @@ class PipeIndoor(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Pipe:Indoor'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
     fluid_inlet_node_name: str = Field(...)
     fluid_outlet_node_name: str = Field(...)
     environment_type: Literal['', 'Schedule', 'Zone'] | None = Field(default='Zone')
-    ambient_temperature_zone_name: str | None = Field(
+    ambient_temperature_zone_name: ZoneNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ZoneNames']}
     )
-    ambient_temperature_schedule_name: str | None = Field(
+    ambient_temperature_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
-    ambient_air_velocity_schedule_name: str | None = Field(
+    ambient_air_velocity_schedule_name: ScheduleNamesRef | None = Field(
         default=None, json_schema_extra={'object_list': ['ScheduleNames']}
     )
     pipe_inside_diameter: float | None = Field(
@@ -296,7 +316,7 @@ class PipeOutdoor(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Pipe:Outdoor'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
     fluid_inlet_node_name: str = Field(...)
@@ -316,7 +336,7 @@ class PipeUnderground(IDFBaseModel):
 
     _idf_object_type: ClassVar[str] = 'Pipe:Underground'
     name: str = Field(...)
-    construction_name: str = Field(
+    construction_name: ConstructionNamesRef = Field(
         ..., json_schema_extra={'object_list': ['ConstructionNames']}
     )
     fluid_inlet_node_name: str = Field(...)
@@ -339,7 +359,7 @@ class PipeUnderground(IDFBaseModel):
         'Site:GroundTemperature:Undisturbed:KusudaAchenbach',
         'Site:GroundTemperature:Undisturbed:Xing',
     ] = Field(...)
-    undisturbed_ground_temperature_model_name: str = Field(
+    undisturbed_ground_temperature_model_name: UndisturbedGroundTempModelsRef = Field(
         ..., json_schema_extra={'object_list': ['UndisturbedGroundTempModels']}
     )
 
@@ -444,7 +464,7 @@ class PipingSystemUndergroundDomain(IDFBaseModel):
         'Site:GroundTemperature:Undisturbed:KusudaAchenbach',
         'Site:GroundTemperature:Undisturbed:Xing',
     ] = Field(...)
-    undisturbed_ground_temperature_model_name: str = Field(
+    undisturbed_ground_temperature_model_name: UndisturbedGroundTempModelsRef = Field(
         ..., json_schema_extra={'object_list': ['UndisturbedGroundTempModels']}
     )
     this_domain_includes_basement_surface_interaction: (
@@ -473,14 +493,14 @@ class PipingSystemUndergroundDomain(IDFBaseModel):
         default=None,
         json_schema_extra={'note': 'Required only if Domain Has Basement Interaction'},
     )
-    name_of_basement_wall_boundary_condition_model: str | None = Field(
+    name_of_basement_wall_boundary_condition_model: OSCMNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OSCMNames'],
             'note': 'Required only if Domain Has Basement Interaction',
         },
     )
-    name_of_basement_floor_boundary_condition_model: str | None = Field(
+    name_of_basement_floor_boundary_condition_model: OSCMNamesRef | None = Field(
         default=None,
         json_schema_extra={
             'object_list': ['OSCMNames'],
