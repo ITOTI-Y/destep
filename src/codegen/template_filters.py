@@ -16,11 +16,59 @@ if TYPE_CHECKING:
     from .schema_parser import ObjectSpec
 
 
+# ============================================================
+# Reference type mapping (set by ModelGenerator before rendering)
+# ============================================================
+
+_OBJECT_LIST_REF_TYPES: dict[str, str] = {}
+
+
+def set_object_list_ref_types(mapping: dict[str, str]) -> None:
+    """Set object_list to reference type mapping.
+
+    Called by ModelGenerator before template rendering.
+
+    Args:
+        mapping: Dict mapping object_list names to ref type names.
+    """
+    global _OBJECT_LIST_REF_TYPES
+    _OBJECT_LIST_REF_TYPES = mapping
+
+
+def get_ref_type_for_object_list(object_lists: list[str] | None) -> str | None:
+    """Get reference type name for object_list(s).
+
+    For fields with multiple object_lists, generates a union type.
+
+    Args:
+        object_lists: List of object list names.
+
+    Returns:
+        Reference type string or None if no mapping.
+        For multiple object_lists: "TypeA | TypeB | TypeC"
+    """
+    if not object_lists:
+        return None
+
+    ref_types = []
+    for ol in object_lists:
+        ref_type = _OBJECT_LIST_REF_TYPES.get(ol)
+        if ref_type:
+            ref_types.append(ref_type)
+
+    if not ref_types:
+        return None
+
+    # Return union type for multiple object_lists
+    return ' | '.join(ref_types)
+
+
 def python_type_filter(spec: FieldSpec) -> str:
     """Convert FieldSpec to Python type annotation string.
 
     This filter generates the complete type annotation including `| None`
-    suffix for optional fields.
+    suffix for optional fields. For fields with object_list, uses
+    reference types instead of plain str.
 
     Args:
         spec: Field specification to convert.
@@ -34,7 +82,21 @@ def python_type_filter(spec: FieldSpec) -> str:
         - string with enum -> 'Literal["A", "B"]'
         - array of numbers -> "list[float]"
         - array of objects -> "list[VertexItem]" (nested class name)
+        - string with object_list -> "ZoneNamesRef" or "TypeA | TypeB"
     """
+    # Check if field has object_list and should use ref type
+    ref_type = get_ref_type_for_object_list(spec.object_list)
+
+    if ref_type:
+        is_opt = is_optional_filter(spec)
+        if is_opt:
+            # Wrap union types in parentheses for clarity
+            if ' | ' in ref_type:
+                return f'({ref_type}) | None'
+            return f'{ref_type} | None'
+        return ref_type
+
+    # Original logic for non-reference fields
     base_type = _get_base_type_annotation(spec)
     is_opt = is_optional_filter(spec)
 
@@ -201,10 +263,56 @@ def _get_structure_signature(fields: list[FieldSpec]) -> str:
     """
     if not fields:
         return '<empty>'
-    parts = []
-    for f in sorted(fields, key=lambda x: x.name):
-        parts.append(f'{f.name}:{f.field_type}:{f.required}')
-    return '|'.join(parts)
+
+    def _get_field_signature(field: FieldSpec) -> str:
+        """Build a signature for a single field including constraints/enums."""
+        parts: list[str] = [
+            f'name={field.name}',
+            f'type={field.field_type}',
+            f'required={field.required}',
+        ]
+
+        if field.enum_values:
+            enum_strings = [str(v) for v in field.enum_values]
+            parts.append('enum=' + '|'.join(sorted(enum_strings)))
+        if field.object_list:
+            parts.append('object_list=' + '|'.join(sorted(field.object_list)))
+        if field.data_type:
+            parts.append(f'data_type={field.data_type}')
+
+        # Numeric constraints
+        if field.minimum is not None:
+            parts.append(f'min={field.minimum}')
+        if field.maximum is not None:
+            parts.append(f'max={field.maximum}')
+        if field.exclusive_minimum is not None:
+            parts.append(f'gt={field.exclusive_minimum}')
+        if field.exclusive_maximum is not None:
+            parts.append(f'lt={field.exclusive_maximum}')
+
+        # anyOf alternatives
+        if field.anyof_specs:
+            anyof_sigs = []
+            for alt in field.anyof_specs:
+                alt_parts = [f'type={alt.field_type}']
+                if alt.enum_values:
+                    alt_enum_strings = [str(v) for v in alt.enum_values]
+                    alt_parts.append('enum=' + '|'.join(sorted(alt_enum_strings)))
+                anyof_sigs.append(';'.join(alt_parts))
+            parts.append('anyof=' + '|'.join(sorted(anyof_sigs)))
+
+        # Array / nested object descriptors
+        if field.items_spec:
+            parts.append('items=' + _get_field_signature(field.items_spec))
+        if field.nested_fields:
+            parts.append('nested=' + _get_structure_signature(field.nested_fields))
+
+        return ';'.join(parts)
+
+    field_signatures = [
+        _get_field_signature(f) for f in sorted(fields, key=lambda x: x.name)
+    ]
+    return '|'.join(field_signatures)
 
 
 def is_optional_filter(spec: FieldSpec) -> bool:
@@ -387,6 +495,43 @@ def format_docstring_filter(text: str | None, width: int = 76) -> str:
 
     wrapped = textwrap.fill(text, width=width)
     return wrapped
+
+
+def collect_used_ref_types(objects: list[ObjectSpec]) -> list[str]:
+    """Collect all reference types used by objects.
+
+    Scans all fields in objects for object_list references,
+    including nested fields in array items.
+
+    Args:
+        objects: List of ObjectSpec instances.
+
+    Returns:
+        Sorted list of unique reference type names used.
+    """
+    used_types: set[str] = set()
+
+    def _collect_from_field(field: FieldSpec) -> None:
+        """Helper to collect ref types from a single field."""
+        if field.object_list:
+            for ol in field.object_list:
+                ref_type = _OBJECT_LIST_REF_TYPES.get(ol)
+                if ref_type:
+                    used_types.add(ref_type)
+
+    for obj in objects:
+        for field in obj.fields:
+            _collect_from_field(field)
+            # Also check nested fields in array items
+            if (
+                field.field_type == 'array'
+                and field.items_spec
+                and field.items_spec.nested_fields
+            ):
+                for nested_field in field.items_spec.nested_fields:
+                    _collect_from_field(nested_field)
+
+    return sorted(used_types)
 
 
 # Registry of all template filters

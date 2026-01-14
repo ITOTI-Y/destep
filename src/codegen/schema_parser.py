@@ -297,7 +297,14 @@ class SchemaParser:
         self._load_schema()
         if self._raw_schema is None:
             return 'unknown'
-        return self._raw_schema.get('epJSON_schema_version', 'unknown')
+        version = self._raw_schema.get('properties', {}).get('Version', {})
+        return (
+            version.get('patternProperties', {})
+            .get('.*', {})
+            .get('properties', {})
+            .get('version_identifier', {})
+            .get('default', 'unknown')
+        )
 
     def get_groups(self) -> dict[str, list[str]]:
         """Get all object types organized by group.

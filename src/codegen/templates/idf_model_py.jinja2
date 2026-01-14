@@ -49,11 +49,6 @@ class {{ obj.class_name }}(IDFBaseModel):
 {{ render_field(spec) }}
 {% endfor %}
 {%- endmacro %}
-
-
-{# ============================================================================
-   FILE HEADER
-   ============================================================================ #}
 """Auto-generated EnergyPlus IDF models.
 
 DO NOT EDIT MANUALLY.
@@ -67,17 +62,18 @@ from typing import Any, ClassVar, Literal  # noqa: F401
 from pydantic import Field
 
 from ._base import IDFBaseModel
+{% if has_refs %}
+from ._refs import (
+{% for ref_type in used_ref_types %}
+    {{ ref_type }},
+{% endfor %}
+)
+{% endif %}
 
-{# ============================================================================
-   NESTED CLASS DEFINITIONS
-   These are generated first so they can be referenced by main classes.
-   ============================================================================ #}
 {% for nested in nested_classes %}
 {{ render_nested_class(nested) }}
 {% endfor %}
-{# ============================================================================
-   MAIN OBJECT CLASS DEFINITIONS
-   ============================================================================ #}
+
 {% for obj in objects %}
 {{ render_object_class(obj) }}
 {% endfor %}

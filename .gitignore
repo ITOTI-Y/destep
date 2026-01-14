@@ -12,5 +12,5 @@ wheels/
 output/
 examples/
 log/
-src/idf/models/*
-!src/idf/models/_base.py
+
+_dev/
