@@ -13,6 +13,7 @@ dependencies = [
     "pydantic>=2.12.5",
     "pypinyin>=0.55.0",
     "sqlalchemy>=2.0.45",
+    "timezonefinder>=8.2.1",
     "typer>=0.21.1",
 ]
 
