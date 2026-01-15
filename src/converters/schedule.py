@@ -416,9 +416,7 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
 
             definition = SCHEDULE_TYPE_LIMITS_DEFS.get(name)
             if definition is None:
-                logger.warning(
-                    f'Unknown ScheduleTypeLimits: {name}, using Any Number'
-                )
+                logger.warning(f'Unknown ScheduleTypeLimits: {name}, using Any Number')
                 definition = SCHEDULE_TYPE_LIMITS_DEFS['Any Number']
                 name = 'Any Number'
 
