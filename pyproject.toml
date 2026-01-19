@@ -10,10 +10,14 @@ dependencies = [
     "joblib>=1.5.3",
     "jpype1>=1.6.0",
     "loguru>=0.7.3",
+    "mapbox-earcut>=2.0.0",
     "pydantic>=2.12.5",
     "pypinyin>=0.55.0",
+    "scalene>=2.0.1",
+    "scipy>=1.17.0",
     "sqlalchemy>=2.0.45",
     "timezonefinder>=8.2.1",
+    "trimesh>=4.11.0",
     "typer>=0.21.1",
 ]
 
@@ -42,3 +46,8 @@ ignore = [
 quote-style = "single"
 indent-style = "space"
 docstring-code-format = true
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.408",
+]

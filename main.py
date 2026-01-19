@@ -4,8 +4,6 @@ from typing import Annotated
 from typer import Option, Typer
 
 from src.config import PathConfig
-from src.database import DataExtractor
-from src.database.schema_checker import SchemaChecker
 from src.utils import setup_logging
 
 setup_logging()
@@ -24,6 +22,8 @@ def extract(
         Path, Option('--driver', '-d', help='Path to the driver directory')
     ] = Path('driver'),
 ):
+    from src.database import DataExtractor
+
     path_config = PathConfig()
     output_dir = output_dir or path_config.output_dir
     driver_path = driver_path or path_config.ucanaccess_path
@@ -48,6 +48,8 @@ def check_schema(
         Path, Option('--driver', '-d', help='Path to the driver directory')
     ] = Path('driver'),
 ):
+    from src.database.schema_checker import SchemaChecker
+
     """Check database schema against SQLAlchemy models."""
     path_config = PathConfig()
     output_dir = output_dir or path_config.output_dir
@@ -80,8 +82,34 @@ def codegen(
 
 
 @app.command()
-def main():
-    pass
+def convert():
+    from src.converters import (
+        BuildingConverter,
+        ConstructionConverter,
+        ScheduleConverter,
+        SurfaceConverter,
+        ZoneConverter,
+    )
+    from src.database import SQLiteManager
+    from src.idf import IDF
+    from src.utils.pinyin import PinyinConverter
+
+    with SQLiteManager(Path('output/destep.sqlite')) as db:
+        session = db.session
+        idf = IDF()
+        pinyin = PinyinConverter()
+        building_converter = BuildingConverter(session, idf, pinyin)
+        building_converter.convert_all()
+        zone_converter = ZoneConverter(session, idf, pinyin)
+        zone_converter.convert_all()
+        construction_converter = ConstructionConverter(session, idf, pinyin)
+        construction_converter.convert_all()
+        schedule_converter = ScheduleConverter(session, idf, pinyin)
+        schedule_converter.convert_all()
+        surface_converter = SurfaceConverter(
+            session, idf, pinyin, zone_converter, construction_converter
+        )
+        surface_converter.convert_all()
 
 
 if __name__ == '__main__':

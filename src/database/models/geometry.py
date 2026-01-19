@@ -22,12 +22,18 @@ class Geometry(Base):
     )
     name: Mapped[str | None] = mapped_column(String(50), comment='Geometry name')
     boundary_loop_id: Mapped[int | None] = mapped_column(
-        Integer, comment='Boundary loop ID'
+        Integer, ForeignKey('loop_point.loop_id'), comment='Boundary loop ID'
     )
 
     # Relationships
     surfaces: Mapped[list[Surface]] = relationship(
         'Surface', back_populates='geometry_ref'
+    )
+    loop_points: Mapped[list[LoopPoint]] = relationship(
+        'LoopPoint',
+        primaryjoin='Geometry.boundary_loop_id == foreign(LoopPoint.loop_id)',
+        viewonly=True,
+        order_by='LoopPoint.point_no',
     )
 
 
@@ -91,7 +97,9 @@ class LoopPoint(Base):
 
     # Relationships
     point_ref: Mapped[Point | None] = relationship('Point')
-    geometry_ref: Mapped[Geometry | None] = relationship('Geometry')
+    geometry_ref: Mapped[Geometry | None] = relationship(
+        'Geometry', foreign_keys=[of_geometry]
+    )
 
 
 class Shading(Base):

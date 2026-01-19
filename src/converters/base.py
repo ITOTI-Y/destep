@@ -46,16 +46,18 @@ class UnitConverter:
         return value * UnitConverter.MM_TO_M
 
     @staticmethod
-    def round_coord(value: float, decimals: int = 4) -> float:
+    def round_coord(value: float | None, decimals: int = 3) -> float:
         """Round coordinate value to specified decimal places.
 
         Args:
             value: Coordinate value.
-            decimals: Number of decimal places (default 4 per plan.md).
+            decimals: Number of decimal places (default 3).
 
         Returns:
             Rounded value.
         """
+        if value is None:
+            raise ValueError(f'Value is error: {value}')
         return round(value, decimals)
 
 

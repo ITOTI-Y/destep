@@ -19,6 +19,14 @@
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "args": ["codegen"]
-        }
+        },
+        {
+            "name": "Convert",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": ["convert"]
+        },
     ]
 }

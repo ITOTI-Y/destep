@@ -264,6 +264,9 @@ class IDF:
         IDF format requires positional fields, so we must output all fields
         up to the last non-empty field (including empty intermediate fields).
 
+        Handles extensible fields like 'vertices' by expanding each item's
+        coordinates into separate lines.
+
         Args:
             obj: IDF object to format.
             object_type: Object type name.
@@ -275,31 +278,79 @@ class IDF:
         lines: list[str] = []
         obj_dict = obj.model_dump(by_alias=True)
 
-        all_field_values: list[tuple[str, str]] = []
+        # Separate regular fields and extensible fields (like vertices)
+        regular_fields: list[tuple[str, str]] = []
+        extensible_items: list[dict] = []
+
         for field_name in field_order:
             value = obj_dict.get(field_name)
-            formatted = self._format_value(value)
-            all_field_values.append((field_name, formatted))
+            # Check if this is an extensible field (list of vertex items)
+            if isinstance(value, list) and value and isinstance(value[0], dict):
+                extensible_items = value
+            else:
+                formatted = self._format_value(value)
+                regular_fields.append((field_name, formatted))
 
+        # Find last non-empty regular field
         last_non_empty_idx = -1
-        for i, (_, value) in enumerate(all_field_values):
+        for i, (_, value) in enumerate(regular_fields):
             if value:
                 last_non_empty_idx = i
 
-        if last_non_empty_idx < 0:
+        # Handle case with no regular fields
+        if last_non_empty_idx < 0 and not extensible_items:
             lines.append(f'{object_type};')
             return lines
 
-        field_values = all_field_values[: last_non_empty_idx + 1]
-
+        # Build output
         lines.append(f'{object_type},')
-        for i, (field_name, value) in enumerate(field_values):
-            is_last = i == len(field_values) - 1
+
+        # Output regular fields (up to last non-empty or all if we have extensible)
+        if extensible_items:
+            # Include all regular fields when we have extensible items
+            fields_to_output = regular_fields
+        else:
+            fields_to_output = regular_fields[: last_non_empty_idx + 1]
+
+        for i, (field_name, value) in enumerate(fields_to_output):
+            is_last = i == len(fields_to_output) - 1 and not extensible_items
             terminator = ';' if is_last else ','
             comment = f'!- {field_name}'
             lines.append(f'    {value}{terminator}  {comment}')
 
+        # Output extensible items (vertices)
+        if extensible_items:
+            for idx, item in enumerate(extensible_items):
+                is_last_item = idx == len(extensible_items) - 1
+                vertex_line = self._format_vertex_item(item, idx + 1, is_last_item)
+                lines.append(vertex_line)
+
         return lines
+
+    def _format_vertex_item(self, item: dict, vertex_num: int, is_last: bool) -> str:
+        """Format a single vertex item for IDF output.
+
+        Args:
+            item: Dictionary with vertex_x_coordinate, vertex_y_coordinate,
+                  vertex_z_coordinate keys.
+            vertex_num: 1-based vertex number for comment.
+            is_last: Whether this is the last vertex.
+
+        Returns:
+            Formatted vertex line.
+        """
+        x = item.get('vertex_x_coordinate', 0)
+        y = item.get('vertex_y_coordinate', 0)
+        z = item.get('vertex_z_coordinate', 0)
+
+        x_str = f'{x:.6g}' if isinstance(x, float) else str(x)
+        y_str = f'{y:.6g}' if isinstance(y, float) else str(y)
+        z_str = f'{z:.6g}' if isinstance(z, float) else str(z)
+
+        terminator = ';' if is_last else ','
+        comment = f'!- X,Y,Z ==> Vertex {vertex_num} {{m}}'
+
+        return f'    {x_str}, {y_str}, {z_str}{terminator}  {comment}'
 
     @staticmethod
     def _format_value(value: object) -> str:

@@ -7,12 +7,12 @@ Converts DeST construction data (walls, floors, roofs) to:
 Only constructions referenced by MainEnclosure are converted.
 
 DeST construction types (MainEnclosure.kind):
-- 1: 外墙 (SysOutwall)
-- 2: 内墙 (SysInwall)
-- 3: 屋顶 (SysRoof)
-- 4: 楼地 (SysGroundfloor)
-- 5: 地板/天花板 (SysMiddlefloor)
-- 6: 挑空楼板 (SysAirfloor)
+- 1: Exterior Wall (SysOutwall)
+- 2: Interior Wall (SysInwall)
+- 3: Roof (SysRoof)
+- 4: Ground Floor (SysGroundfloor)
+- 5: Middle Floor (SysMiddlefloor)
+- 6: Air Floor (SysAirfloor)
 """
 
 from __future__ import annotations
@@ -50,28 +50,28 @@ if TYPE_CHECKING:
     pass
 
 
-class ConstructionKind(IntEnum):
+class EnclosureKind(IntEnum):
     """DeST construction kind enumeration (MainEnclosure.kind).
 
     These map to different sys_* tables in the DeST database.
     """
 
-    OUTWALL = 1  # 外墙
-    INWALL = 2  # 内墙
-    ROOF = 3  # 屋顶
-    GROUNDFLOOR = 4  # 楼地
-    MIDDLEFLOOR = 5  # 地板/天花板
-    AIRFLOOR = 6  # 挑空楼板
+    OUTWALL = 1
+    INWALL = 2
+    ROOF = 3
+    GROUNDFLOOR = 4
+    FLOOR_CEILLING = 5
+    AIRFLOOR = 6
 
 
-# Mapping from construction kind to IDF construction name prefix
+# Mapping from enclosure kind to IDF construction name prefix
 CONSTRUCTION_KIND_PREFIX: dict[int, str] = {
-    ConstructionKind.OUTWALL: 'ExtWall',
-    ConstructionKind.INWALL: 'IntWall',
-    ConstructionKind.ROOF: 'Roof',
-    ConstructionKind.GROUNDFLOOR: 'GroundFloor',
-    ConstructionKind.MIDDLEFLOOR: 'IntFloor',
-    ConstructionKind.AIRFLOOR: 'AirFloor',
+    EnclosureKind.OUTWALL: 'ExtWall',
+    EnclosureKind.INWALL: 'IntWall',
+    EnclosureKind.ROOF: 'Roof',
+    EnclosureKind.GROUNDFLOOR: 'GroundFloor',
+    EnclosureKind.FLOOR_CEILLING: 'Floor_or_Ceiling',
+    EnclosureKind.AIRFLOOR: 'AirFloor',
 }
 
 
@@ -192,22 +192,20 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
         Returns:
             True if conversion succeeded.
         """
-        # Check if already converted
         if (kind, construction_id) in self._created_constructions:
             return True
 
-        # Route to type-specific conversion methods
-        if kind == ConstructionKind.OUTWALL:
+        if kind == EnclosureKind.OUTWALL:
             return self._convert_outwall(construction_id)
-        elif kind == ConstructionKind.INWALL:
+        elif kind == EnclosureKind.INWALL:
             return self._convert_inwall(construction_id)
-        elif kind == ConstructionKind.ROOF:
+        elif kind == EnclosureKind.ROOF:
             return self._convert_roof(construction_id)
-        elif kind == ConstructionKind.GROUNDFLOOR:
+        elif kind == EnclosureKind.GROUNDFLOOR:
             return self._convert_groundfloor(construction_id)
-        elif kind == ConstructionKind.MIDDLEFLOOR:
+        elif kind == EnclosureKind.FLOOR_CEILLING:
             return self._convert_middlefloor(construction_id)
-        elif kind == ConstructionKind.AIRFLOOR:
+        elif kind == EnclosureKind.AIRFLOOR:
             return self._convert_airfloor(construction_id)
         else:
             logger.warning(f'Unknown construction kind {kind}, skipping')
@@ -235,7 +233,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return False
 
         return self._create_construction(
-            ConstructionKind.OUTWALL,
+            EnclosureKind.OUTWALL,
             construction_id,
             construction.cname or construction.name,
             layers,
@@ -262,7 +260,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return False
 
         return self._create_construction(
-            ConstructionKind.INWALL,
+            EnclosureKind.INWALL,
             construction_id,
             construction.cname or construction.name,
             layers,
@@ -289,7 +287,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return False
 
         return self._create_construction(
-            ConstructionKind.ROOF,
+            EnclosureKind.ROOF,
             construction_id,
             construction.cname or construction.name,
             layers,
@@ -316,7 +314,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return False
 
         return self._create_construction(
-            ConstructionKind.GROUNDFLOOR,
+            EnclosureKind.GROUNDFLOOR,
             construction_id,
             construction.cname or construction.name,
             layers,
@@ -343,7 +341,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return False
 
         return self._create_construction(
-            ConstructionKind.MIDDLEFLOOR,
+            EnclosureKind.FLOOR_CEILLING,
             construction_id,
             construction.cname or construction.name,
             layers,
@@ -370,7 +368,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return False
 
         return self._create_construction(
-            ConstructionKind.AIRFLOOR,
+            EnclosureKind.AIRFLOOR,
             construction_id,
             construction.cname or construction.name,
             layers,
