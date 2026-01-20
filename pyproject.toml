@@ -15,6 +15,7 @@ dependencies = [
     "pypinyin>=0.55.0",
     "scalene>=2.0.1",
     "scipy>=1.17.0",
+    "shapely>=2.1.2",
     "sqlalchemy>=2.0.45",
     "timezonefinder>=8.2.1",
     "trimesh>=4.11.0",

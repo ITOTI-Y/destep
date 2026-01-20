@@ -42,7 +42,6 @@ class ZoneConverter(BaseConverter[Room]):
             pinyin: PinyinConverter for Chinese name conversion.
         """
         super().__init__(session, idf, pinyin)
-        # Track created zones to avoid duplicates
         self._created_zones: set[int] = set()
 
     def convert_all(self) -> None:
@@ -67,11 +66,9 @@ class ZoneConverter(BaseConverter[Room]):
         """
         room = instance
 
-        # Skip if already converted
         if room.id in self._created_zones:
             return True
 
-        # Skip empty rooms (no area or volume)
         if self._is_empty_room(room):
             logger.warning(
                 f'Skipping empty room {room.id} (name={room.name}): '
@@ -80,18 +77,14 @@ class ZoneConverter(BaseConverter[Room]):
             self.stats.skipped += 1
             return False
 
-        # Generate zone name
         zone_name = self.make_name('Zone', room.id, room.name)
 
-        # Get multiplier from storey
         multiplier = self._get_multiplier(room)
 
-        # Convert coordinates from mm to m
         x_origin = UnitConverter.round_coord(UnitConverter.mm_to_m(room.x))
         y_origin = UnitConverter.round_coord(UnitConverter.mm_to_m(room.y))
         z_origin = UnitConverter.round_coord(UnitConverter.mm_to_m(room.z))
 
-        # Create Zone object
         zone = Zone(
             name=zone_name,
             x_origin=x_origin,
@@ -129,15 +122,12 @@ class ZoneConverter(BaseConverter[Room]):
         Returns:
             True if room is empty.
         """
-        # Check area
         if room.area is None or room.area <= 0:
             return True
 
-        # Check volume
         if room.volume is None or room.volume <= 0:
             return True
 
-        # Check if room has surfaces
         return not room.surfaces
 
     def _get_multiplier(self, room: Room) -> int:
@@ -152,7 +142,6 @@ class ZoneConverter(BaseConverter[Room]):
         if room.storey is None:
             return 1
 
-        # Get multiplier from storey
         if room.storey.multiple is not None and room.storey.multiple > 1:
             return room.storey.multiple
 
@@ -172,7 +161,6 @@ class ZoneConverter(BaseConverter[Room]):
         if room_id not in self._created_zones:
             return None
 
-        # Query room to get name
         stmt = select(Room).where(Room.id == room_id)
         room = self.session.execute(stmt).scalars().first()
         if room is None:

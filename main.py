@@ -104,12 +104,12 @@ def convert():
         zone_converter.convert_all()
         construction_converter = ConstructionConverter(session, idf, pinyin)
         construction_converter.convert_all()
-        schedule_converter = ScheduleConverter(session, idf, pinyin)
-        schedule_converter.convert_all()
         surface_converter = SurfaceConverter(
             session, idf, pinyin, zone_converter, construction_converter
         )
         surface_converter.convert_all()
+        schedule_converter = ScheduleConverter(session, idf, pinyin)
+        schedule_converter.convert_all()
 
 
 if __name__ == '__main__':
