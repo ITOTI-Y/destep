@@ -22,7 +22,7 @@ class Geometry(Base):
     )
     name: Mapped[str | None] = mapped_column(String(50), comment='Geometry name')
     boundary_loop_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey('loop_point.loop_id'), comment='Boundary loop ID'
+        Integer, comment='Boundary loop ID'
     )
 
     # Relationships

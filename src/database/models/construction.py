@@ -9,7 +9,7 @@ from ._base import Base
 
 if TYPE_CHECKING:
     from .building import Room, Storey
-    from .geometry import Surface
+    from .geometry import Plane, Surface
     from .misc import UserDefDll
 
 
@@ -434,7 +434,9 @@ class MainEnclosure(Base):
     side2: Mapped[int | None] = mapped_column(
         Integer, ForeignKey('surface.surface_id'), comment='Side 2'
     )
-    middle_plane: Mapped[int | None] = mapped_column(Integer, comment='Middle plane')
+    middle_plane: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey('plane.plane_id'), comment='Middle plane'
+    )
     kind: Mapped[int | None] = mapped_column(Integer, comment='Enclosure kind')
     construction: Mapped[int | None] = mapped_column(Integer, comment='Construction ID')
     user_def_dll: Mapped[int | None] = mapped_column(
@@ -459,6 +461,7 @@ class MainEnclosure(Base):
         'Surface', foreign_keys=[side2]
     )
     user_def_dll_ref: Mapped[UserDefDll | None] = relationship('UserDefDll')
+    middle_plane_ref: Mapped[Plane | None] = relationship('Plane')
     storey: Mapped[Storey | None] = relationship('Storey')
 
 

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass
+from enum import IntEnum
 from typing import Literal
 
 import mapbox_earcut as earcut
 import numpy as np
 import trimesh
+from loguru import logger
 from shapely import Polygon
 from shapely.ops import unary_union
 from sqlalchemy import select
@@ -27,8 +28,9 @@ from src.idf.models.thermal_zones import (
 from src.utils.pinyin import PinyinConverter
 
 
-@dataclass
-class SurfaceType:
+class SurfaceType(IntEnum):
+    """DeST surface type enumeration."""
+
     INTERIOR_WALL = 0
     EXTERIOR_WALL = 1
     GROUND_FLOOR = 2
@@ -100,11 +102,12 @@ class SurfaceConverter(BaseConverter[Room]):
         rooms = self.session.execute(stmt).scalars().all()
         for room in rooms:
             if self.convert_one(room):
+                logger.info(f'Converted room {room.id}')
                 self.stats.converted += 1
-
-        self._validate_zone_geometry_closure(
-            self._surface_ordered_vertices, output_path='debug.glb'
-        )
+            else:
+                logger.warning(
+                    f'Failed to convert room {room.id} or zone is not waterweight'
+                )
 
     def convert_one(self, instance: Room) -> bool:
         room = instance
@@ -121,10 +124,8 @@ class SurfaceConverter(BaseConverter[Room]):
         )
         _reference_points = self._get_reference_points(
             [
-                surface_by_types[SurfaceType.GROUND_FLOOR],
-                surface_by_types[SurfaceType.AIR_FLOOR],
-                surface_by_types[SurfaceType.MIDDLE_FLOOR],
-                surface_by_types[SurfaceType.CEILING],
+                surface_by_types[SurfaceType.INTERIOR_WALL],
+                surface_by_types[SurfaceType.EXTERIOR_WALL],
             ]
         )
         normals = self._get_outside_normals(surfaces, interior_points)
@@ -186,16 +187,25 @@ class SurfaceConverter(BaseConverter[Room]):
         )
 
     def _calculate_interior_points(self, surfaces: list[Surface]) -> np.ndarray:
+        """Calculate interior points from floor surfaces for normal orientation."""
+        if not surfaces:
+            return np.array([]).reshape(0, 3)
+
         interior_points = []
         for surface in surfaces:
-            vertices = self._get_surface_vertices(surface)
-        avg_z = np.mean(vertices[:, 2])
-        face_indices = self._triangulate_polygon(vertices, np.array([0, 0, 1]))
-        for face_index in face_indices:
-            triangle_vertices = vertices[face_index]
-            centroid = triangle_vertices.mean(axis=0)
-            interior_points.append([centroid[0], centroid[1], avg_z])
-        return np.array(interior_points)
+            vertices = self._get_surface_plane_vertices(surface)
+            if len(vertices) < 3:
+                continue
+            avg_z = np.mean(vertices[:, 2])
+            face_indices = self._triangulate_polygon(vertices, np.array([0, 0, 1]))
+            for face_index in face_indices:
+                triangle_vertices = vertices[face_index]
+                centroid = triangle_vertices.mean(axis=0)
+                interior_points.append([centroid[0], centroid[1], avg_z])
+
+        return (
+            np.array(interior_points) if interior_points else np.array([]).reshape(0, 3)
+        )
 
     def _triangulate_polygon(self, pts: np.ndarray, normal: np.ndarray) -> np.ndarray:
         pts_2d = self._project_to_2d(pts, normal)
@@ -228,14 +238,41 @@ class SurfaceConverter(BaseConverter[Room]):
         return np.column_stack([pts_centered @ u, pts_centered @ v])
 
     def _get_surface_vertices(self, surface: Surface) -> np.ndarray:
-        vertices: list = []
-        for lp in surface.geometry_ref.loop_points:  # type: ignore
-            vertices.append([lp.point_ref.x, lp.point_ref.y, lp.point_ref.z])  # type: ignore
-        return np.array(vertices)
+        """Extract 3D vertices from a surface geometry."""
+
+        assert surface.geometry_ref is not None
+
+        loop_points = surface.geometry_ref.loop_points
+        vertices = []
+        for lp in loop_points:
+            if lp.point_ref is None:
+                continue
+            vertices.append([lp.point_ref.x, lp.point_ref.y, lp.point_ref.z])
+
+        return np.array(vertices).reshape(-1, 3)
+
+    def _get_surface_plane_vertices(self, surface: Surface) -> np.ndarray:
+        """Extract 3D vertices from a surface plane geometry."""
+        enclosure, _ = self._surface_to_enclosure[surface.surface_id]
+        middle_plane = enclosure.middle_plane_ref
+        if middle_plane is None:
+            raise ValueError(f'Surface {surface.surface_id} has no middle plane')
+
+        assert middle_plane.geometry_ref is not None
+
+        loop_points = middle_plane.geometry_ref.loop_points
+        vertices = []
+        for lp in loop_points:
+            if lp.point_ref is None:
+                continue
+            vertices.append([lp.point_ref.x, lp.point_ref.y, lp.point_ref.z])
+
+        return np.array(vertices).reshape(-1, 3)
 
     def _get_outside_normals(
         self, surfaces: list[Surface], interior_points: np.ndarray
     ) -> np.ndarray:
+        """Calculate outward-facing normals for surfaces."""
         normals: np.ndarray = np.zeros((len(surfaces), 3))
         for i, surface in enumerate(surfaces):
             if surface.type == SurfaceType.CEILING:
@@ -247,20 +284,43 @@ class SurfaceConverter(BaseConverter[Room]):
             ]:
                 normals[i] = [0, 0, -1]
             else:
-                vertices = self._get_surface_vertices(surface)
-                centroid = vertices.mean(axis=0)
-                interior_vector = (
-                    interior_points[
-                        np.argmin(np.linalg.norm(interior_points - centroid, axis=1))
-                    ]
-                    - centroid
+                vertices = self._get_surface_plane_vertices(surface)
+                current_center = vertices.mean(axis=0)
+                normal_vector = self._find_polygon_normal(vertices)
+
+                assert normal_vector is not None
+
+                enclosure, is_side1 = self._surface_to_enclosure[surface.surface_id]
+                other_surface = (
+                    enclosure.surface_side2 if is_side1 else enclosure.surface_side1
                 )
-                v1, v2 = vertices[1] - vertices[0], vertices[2] - vertices[0]
-                normal_vector = np.cross(v1, v2)
-                if np.dot(normal_vector, interior_vector) > 0:
+
+                assert other_surface is not None
+
+                if not self._is_outside_direction(
+                    normal_vector, current_center, other_surface
+                ):
                     normal_vector = -normal_vector
-                normals[i] = normal_vector / np.linalg.norm(normal_vector)
+
+                normals[i] = normal_vector
         return normals
+
+    def _is_outside_direction(
+        self, normal: np.ndarray, current_center: np.ndarray, other_surface: Surface
+    ) -> bool:
+        other_vertices = self._get_surface_vertices(other_surface)
+        other_normal = self._find_polygon_normal(other_vertices)
+        if other_normal is None:
+            return True
+        d = -np.dot(other_normal, other_vertices[0])
+
+        denom = np.dot(normal, other_normal)
+        if abs(denom) < 1e-10:
+            return True  # parallel, no intersection
+
+        t = -(np.dot(other_normal, current_center) + d) / denom
+
+        return t > 0
 
     def _get_reference_points(
         self, surfaces_by_type: list[list[Surface]]
@@ -269,31 +329,43 @@ class SurfaceConverter(BaseConverter[Room]):
         for surfaces in surfaces_by_type:
             if not surfaces:
                 continue
-            pts = self._merge_and_simplify(surfaces)
-            reference_points.extend(pts)
-        return np.array(reference_points)
+            for surface in surfaces:
+                pts = self._get_surface_plane_vertices(surface)
+                reference_points.extend(pts)
+        return np.unique(np.array(reference_points), axis=0)
+
+    def _find_polygon_normal(self, pts: np.ndarray) -> np.ndarray | None:
+        """Find surface normal from polygon vertices using Newell's method (O(n))."""
+        n = len(pts)
+        if n < 3:
+            return None
+
+        normal = np.zeros(3)
+        for i in range(n):
+            curr = pts[i]
+            next_pt = pts[(i + 1) % n]
+            normal[0] += (curr[1] - next_pt[1]) * (curr[2] + next_pt[2])
+            normal[1] += (curr[2] - next_pt[2]) * (curr[0] + next_pt[0])
+            normal[2] += (curr[0] - next_pt[0]) * (curr[1] + next_pt[1])
+
+        norm_length = np.linalg.norm(normal)
+        if norm_length < 1e-10:
+            return None
+
+        return normal / norm_length
 
     def _merge_and_simplify(
         self, surfaces: list[Surface], tol: float = 1e-6
     ) -> np.ndarray:
+        """Merge multiple coplanar surfaces and simplify the result."""
         if not surfaces:
             return np.array([])
 
-        pts_3d = self._get_surface_vertices(surfaces[0])
+        pts_3d = self._get_surface_plane_vertices(surfaces[0])
+        if len(pts_3d) < 3:
+            return np.array([])
 
-        normal = None
-        for i in range(len(pts_3d)):
-            for j in range(i + 1, len(pts_3d)):
-                for k in range(j + 1, len(pts_3d)):
-                    cross = np.cross(pts_3d[j] - pts_3d[i], pts_3d[k] - pts_3d[i])
-                    norm = np.linalg.norm(cross)
-                    if norm > 1e-10:
-                        normal = cross / norm
-                        break
-                if normal is not None:
-                    break
-            if normal is not None:
-                break
+        normal = self._find_polygon_normal(pts_3d)
         if normal is None:
             return np.array([])
 
@@ -311,9 +383,14 @@ class SurfaceConverter(BaseConverter[Room]):
 
         polys = []
         for surface in surfaces:
-            pts = self._get_surface_vertices(surface)
+            pts = self._get_surface_plane_vertices(surface)
+            if len(pts) < 3:
+                continue
             pts_2d = np.column_stack([np.dot(pts - origin, u), np.dot(pts - origin, v)])
             polys.append(Polygon(pts_2d))
+
+        if not polys:
+            return np.array([])
 
         merged = unary_union(polys).simplify(tol, preserve_topology=True)
 
@@ -330,7 +407,11 @@ class SurfaceConverter(BaseConverter[Room]):
         self, surface: Surface, normal: np.ndarray, reference_points: np.ndarray
     ) -> np.ndarray:
         """Order vertices per EnergyPlus GlobalGeometryRules: UpperLeftCorner + Counterclockwise."""
-        points = self._get_surface_vertices(surface)
+        unique_z = sorted(np.unique(reference_points[:, 2]))
+        if len(unique_z) > 2:
+            raise ValueError(f'Reference_points has multiple Z levels: {unique_z}')
+
+        points = self._get_surface_plane_vertices(surface)
 
         signed_area = self._compute_signed_area(points, normal)
         if signed_area < 0:
@@ -338,13 +419,6 @@ class SurfaceConverter(BaseConverter[Room]):
 
         top_left_index = self._get_top_left_corner_from_normal(points, normal)
         points = np.roll(points, -top_left_index, axis=0)
-        if surface.type in [SurfaceType.INTERIOR_WALL, SurfaceType.EXTERIOR_WALL]:
-            for i, point in enumerate(points):
-                closest_index = np.argmin(
-                    np.linalg.norm(reference_points - point, axis=1)
-                )
-                closest_point = reference_points[closest_index]
-                points[i] = closest_point
         return points
 
     def _compute_signed_area(self, points: np.ndarray, normal: np.ndarray) -> float:
@@ -379,7 +453,14 @@ class SurfaceConverter(BaseConverter[Room]):
 
         return area / 2.0
 
-    def _get_top_left_corner_from_normal(self, points, normal) -> np.ndarray:
+    def _get_top_left_corner_from_normal(
+        self, points: np.ndarray, normal: np.ndarray
+    ) -> int:
+        """Find top-left corner index for EnergyPlus vertex ordering.
+
+        EnergyPlus requires vertices to start from the upper-left corner
+        when viewed from outside the surface.
+        """
         world_up = np.array([0, 0, 1])
 
         if abs(np.dot(normal, world_up)) > 0.99:
@@ -389,7 +470,10 @@ class SurfaceConverter(BaseConverter[Room]):
                 world_up = np.array([0, -1, 0])
 
         right = np.cross(world_up, normal)
-        right /= np.linalg.norm(right)
+        right_norm = np.linalg.norm(right)
+        if right_norm < 1e-10:
+            return 0
+        right /= right_norm
 
         up = np.cross(normal, right)
         up /= np.linalg.norm(up)
@@ -403,7 +487,7 @@ class SurfaceConverter(BaseConverter[Room]):
         sort_keys = np.column_stack((-y_coords, x_coords))
         top_left_index = np.lexsort((sort_keys[:, 1], sort_keys[:, 0]))[0]
 
-        return top_left_index
+        return int(top_left_index)
 
     def _determine_boundary_condition(
         self, surface: Surface
@@ -501,19 +585,24 @@ class SurfaceConverter(BaseConverter[Room]):
         ],
         output_path: str | None = None,
     ) -> bool:
-        import trimesh
-
+        """Validate that zone surfaces form a closed (watertight) geometry."""
         scene = self._surfaces_to_mesh(surfaces_ordered_vertices)
         if scene is None:
+            logger.debug('Validation failed: scene is None')
             return False
 
         meshes = list(scene.geometry.values())
         if not meshes:
+            logger.debug('Validation failed: no meshes')
             return False
 
         mesh = trimesh.util.concatenate(meshes)
         if mesh is None or len(mesh.faces) < 4:
+            logger.debug(f'Validation failed: faces={len(mesh.faces) if mesh else 0}')
             return False
+
+        mesh.merge_vertices()
+        mesh.fix_normals()
 
         if mesh.is_watertight:
             return True
@@ -529,8 +618,14 @@ class SurfaceConverter(BaseConverter[Room]):
 
         for i, (surface_obj, pts, normal) in enumerate(surfaces):
             surface_name = surface_obj.name or f'surface_{i}'
-            faces = self._triangulate_polygon(pts, normal)
-
+            try:
+                faces = self._triangulate_polygon(pts, normal)
+            except Exception as e:
+                self.stats.add_warning(
+                    f'Failed to triangulate surface {surface_name}: {e}'
+                )
+                self.stats.skipped += 1
+                continue
             mesh = trimesh.Trimesh(vertices=pts, faces=faces)
             scene.add_geometry(mesh, node_name=surface_name)
 

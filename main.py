@@ -13,25 +13,25 @@ app = Typer()
 @app.command()
 def extract(
     accdb_path: Annotated[
-        Path, Option('--accdb-path', '-a', help='Path to the Access database')
+        Path, Option('--accdb', '-a', help='Path to the Access database')
     ] = Path('examples/LH_Guangzhou_2015.accdb'),
-    output_dir: Annotated[
-        Path, Option('--output-dir', '-o', help='Path to the output directory')
-    ] = Path('output'),
-    driver_path: Annotated[
+    output_path: Annotated[
+        Path, Option('--output', '-o', help='Path to the output SQLite database')
+    ] = Path('output/destep.sqlite'),
+    driver_dir: Annotated[
         Path, Option('--driver', '-d', help='Path to the driver directory')
     ] = Path('driver'),
 ):
     from src.database import DataExtractor
 
     path_config = PathConfig()
-    output_dir = output_dir or path_config.output_dir
-    driver_path = driver_path or path_config.ucanaccess_path
+    output_path = output_path or path_config.output_dir / 'destep.sqlite'
+    driver_dir = driver_dir or path_config.ucanaccess_path
 
     extractor = DataExtractor(
         accdb_path=accdb_path,
-        sqlite_path=output_dir / 'destep.sqlite',
-        ucanaccess_path=driver_path,
+        sqlite_path=output_path,
+        ucanaccess_path=driver_dir,
     )
     extractor.extract_all()
 
@@ -82,7 +82,14 @@ def codegen(
 
 
 @app.command()
-def convert():
+def convert(
+    output_path: Annotated[
+        Path, Option('--output-path', '-o', help='Path to the output IDF file')
+    ] = Path('output/destep.idf'),
+    sqlite_path: Annotated[
+        Path, Option('--sqlite-path', '-s', help='Path to the SQLite database')
+    ] = Path('output/destep.sqlite'),
+):
     from src.converters import (
         BuildingConverter,
         ConstructionConverter,
@@ -94,7 +101,7 @@ def convert():
     from src.idf import IDF
     from src.utils.pinyin import PinyinConverter
 
-    with SQLiteManager(Path('output/destep.sqlite')) as db:
+    with SQLiteManager(sqlite_path) as db:
         session = db.session
         idf = IDF()
         pinyin = PinyinConverter()
@@ -110,6 +117,7 @@ def convert():
         surface_converter.convert_all()
         schedule_converter = ScheduleConverter(session, idf, pinyin)
         schedule_converter.convert_all()
+        idf.save(output_path)
 
 
 if __name__ == '__main__':
