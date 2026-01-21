@@ -8,8 +8,6 @@ import mapbox_earcut as earcut
 import numpy as np
 import trimesh
 from loguru import logger
-from shapely import Polygon
-from shapely.ops import unary_union
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -26,6 +24,9 @@ from src.idf.models.thermal_zones import (
     BuildingSurfaceDetailedVerticesItem,
 )
 from src.utils.pinyin import PinyinConverter
+
+# Tolerance for floating point comparisons
+EPSILON = 1e-10
 
 
 class SurfaceType(IntEnum):
@@ -61,7 +62,7 @@ class SurfaceConverter(BaseConverter[Room]):
         self._surface_to_fenestration: dict[int, Window | Door] = {}
         self._build_fenestration_lookup()
 
-        self._created_surfaces: dict[int, BuildingSurfaceDetailed] = {}
+        self._created_surfaces: dict[str, BuildingSurfaceDetailed] = {}
 
         self._surface_ordered_vertices: list[
             tuple[BuildingSurfaceDetailed, np.ndarray, np.ndarray]
@@ -108,6 +109,11 @@ class SurfaceConverter(BaseConverter[Room]):
                 logger.warning(
                     f'Failed to convert room {room.id} or zone is not waterweight'
                 )
+
+        if not self._surface_reference_check():
+            raise ValueError('Surface reference check failed')
+        else:
+            logger.info('Surface reference check passed')
 
     def convert_one(self, instance: Room) -> bool:
         room = instance
@@ -173,7 +179,7 @@ class SurfaceConverter(BaseConverter[Room]):
                     (idf_surface, ordered_points, normal)
                 )
                 self.idf.add(idf_surface)
-                self._created_surfaces[surface.surface_id] = idf_surface
+                self._created_surfaces[surface_name] = idf_surface
 
             except Exception as e:
                 self.stats.add_warning(
@@ -221,7 +227,7 @@ class SurfaceConverter(BaseConverter[Room]):
         for i in range(1, len(pts)):
             candidate = pts[i] - pts[0]
             candidate = candidate - np.dot(candidate, n) * n
-            if np.linalg.norm(candidate) > 1e-10:
+            if np.linalg.norm(candidate) > EPSILON:
                 u = candidate / np.linalg.norm(candidate)
                 break
 
@@ -237,19 +243,19 @@ class SurfaceConverter(BaseConverter[Room]):
 
         return np.column_stack([pts_centered @ u, pts_centered @ v])
 
+    def _extract_vertices_from_geometry(self, geometry) -> np.ndarray:
+        """Extract 3D vertices from a geometry object with loop_points."""
+        vertices = [
+            [lp.point_ref.x, lp.point_ref.y, lp.point_ref.z]
+            for lp in geometry.loop_points
+            if lp.point_ref is not None
+        ]
+        return np.array(vertices).reshape(-1, 3)
+
     def _get_surface_vertices(self, surface: Surface) -> np.ndarray:
         """Extract 3D vertices from a surface geometry."""
-
         assert surface.geometry_ref is not None
-
-        loop_points = surface.geometry_ref.loop_points
-        vertices = []
-        for lp in loop_points:
-            if lp.point_ref is None:
-                continue
-            vertices.append([lp.point_ref.x, lp.point_ref.y, lp.point_ref.z])
-
-        return np.array(vertices).reshape(-1, 3)
+        return self._extract_vertices_from_geometry(surface.geometry_ref)
 
     def _get_surface_plane_vertices(self, surface: Surface) -> np.ndarray:
         """Extract 3D vertices from a surface plane geometry."""
@@ -257,17 +263,8 @@ class SurfaceConverter(BaseConverter[Room]):
         middle_plane = enclosure.middle_plane_ref
         if middle_plane is None:
             raise ValueError(f'Surface {surface.surface_id} has no middle plane')
-
         assert middle_plane.geometry_ref is not None
-
-        loop_points = middle_plane.geometry_ref.loop_points
-        vertices = []
-        for lp in loop_points:
-            if lp.point_ref is None:
-                continue
-            vertices.append([lp.point_ref.x, lp.point_ref.y, lp.point_ref.z])
-
-        return np.array(vertices).reshape(-1, 3)
+        return self._extract_vertices_from_geometry(middle_plane.geometry_ref)
 
     def _get_outside_normals(
         self, surfaces: list[Surface], interior_points: np.ndarray
@@ -315,7 +312,7 @@ class SurfaceConverter(BaseConverter[Room]):
         d = -np.dot(other_normal, other_vertices[0])
 
         denom = np.dot(normal, other_normal)
-        if abs(denom) < 1e-10:
+        if abs(denom) < EPSILON:
             return True  # parallel, no intersection
 
         t = -(np.dot(other_normal, current_center) + d) / denom
@@ -349,59 +346,10 @@ class SurfaceConverter(BaseConverter[Room]):
             normal[2] += (curr[0] - next_pt[0]) * (curr[1] + next_pt[1])
 
         norm_length = np.linalg.norm(normal)
-        if norm_length < 1e-10:
+        if norm_length < EPSILON:
             return None
 
         return normal / norm_length
-
-    def _merge_and_simplify(
-        self, surfaces: list[Surface], tol: float = 1e-6
-    ) -> np.ndarray:
-        """Merge multiple coplanar surfaces and simplify the result."""
-        if not surfaces:
-            return np.array([])
-
-        pts_3d = self._get_surface_plane_vertices(surfaces[0])
-        if len(pts_3d) < 3:
-            return np.array([])
-
-        normal = self._find_polygon_normal(pts_3d)
-        if normal is None:
-            return np.array([])
-
-        origin = pts_3d[0]
-        u = None
-        for i in range(1, len(pts_3d)):
-            candidate = pts_3d[i] - origin
-            candidate = candidate - np.dot(candidate, normal) * normal
-            if np.linalg.norm(candidate) > 1e-10:
-                u = candidate / np.linalg.norm(candidate)
-                break
-        if u is None:
-            return np.array([])
-        v = np.cross(normal, u)
-
-        polys = []
-        for surface in surfaces:
-            pts = self._get_surface_plane_vertices(surface)
-            if len(pts) < 3:
-                continue
-            pts_2d = np.column_stack([np.dot(pts - origin, u), np.dot(pts - origin, v)])
-            polys.append(Polygon(pts_2d))
-
-        if not polys:
-            return np.array([])
-
-        merged = unary_union(polys).simplify(tol, preserve_topology=True)
-
-        def to_3d(coords_2d):
-            return np.array([origin + c[0] * u + c[1] * v for c in coords_2d])
-
-        if merged.geom_type == 'Polygon':
-            return to_3d(merged.exterior.coords[:-1])
-        elif merged.geom_type == 'MultiPolygon':
-            return np.vstack([to_3d(p.exterior.coords[:-1]) for p in merged.geoms])
-        return np.array([])
 
     def _order_points(
         self, surface: Surface, normal: np.ndarray, reference_points: np.ndarray
@@ -431,25 +379,14 @@ class SurfaceConverter(BaseConverter[Room]):
         if n < 3:
             return 0.0
 
-        n_unit = normal / np.linalg.norm(normal)
+        pts_2d = self._project_to_2d(points, normal)
 
-        ref = np.array([0, 0, 1]) if abs(n_unit[2]) < 0.9 else np.array([1, 0, 0])
-
-        u = np.cross(ref, n_unit)
-        u = u / np.linalg.norm(u)
-        v = np.cross(n_unit, u)
-
-        origin = points[0]
-        pts_2d = []
-        for p in points:
-            rel = p - origin
-            pts_2d.append([np.dot(rel, u), np.dot(rel, v)])
-
+        # Shoelace formula
         area = 0.0
         for i in range(n):
             j = (i + 1) % n
-            area += pts_2d[i][0] * pts_2d[j][1]
-            area -= pts_2d[j][0] * pts_2d[i][1]
+            area += pts_2d[i, 0] * pts_2d[j, 1]
+            area -= pts_2d[j, 0] * pts_2d[i, 1]
 
         return area / 2.0
 
@@ -471,7 +408,7 @@ class SurfaceConverter(BaseConverter[Room]):
 
         right = np.cross(world_up, normal)
         right_norm = np.linalg.norm(right)
-        if right_norm < 1e-10:
+        if right_norm < EPSILON:
             return 0
         right /= right_norm
 
@@ -497,15 +434,11 @@ class SurfaceConverter(BaseConverter[Room]):
             raise ValueError(f'Surface {surface.surface_id} has no enclosure info')
         enclosure, is_side1 = enclosure_info
         kind = enclosure.kind
-        if kind == EnclosureKind.OUTWALL or kind == EnclosureKind.ROOF:
+        if kind in (EnclosureKind.OUTWALL, EnclosureKind.ROOF, EnclosureKind.AIRFLOOR):
             return ('Outdoors', None)
         elif kind == EnclosureKind.GROUNDFLOOR:
             return ('Ground', None)
-        elif kind == EnclosureKind.FLOOR_CEILLING:
-            return ('Surface', enclosure.side2 if is_side1 else enclosure.side1)
-        elif kind == EnclosureKind.AIRFLOOR:
-            return ('Outdoors', None)
-        elif kind == EnclosureKind.INWALL:
+        elif kind in (EnclosureKind.FLOOR_CEILLING, EnclosureKind.INWALL):
             return ('Surface', enclosure.side2 if is_side1 else enclosure.side1)
         else:
             raise ValueError(f'Unknown enclosure kind {kind}')
@@ -518,15 +451,9 @@ class SurfaceConverter(BaseConverter[Room]):
             raise ValueError(f'Surface {surface.surface_id} has no enclosure info')
         if enclosure.kind == EnclosureKind.ROOF:
             return 'Roof'
-        elif (
-            enclosure.kind == EnclosureKind.GROUNDFLOOR
-            or enclosure.kind == EnclosureKind.AIRFLOOR
-        ):
+        elif enclosure.kind in (EnclosureKind.GROUNDFLOOR, EnclosureKind.AIRFLOOR):
             return 'Floor'
-        elif (
-            enclosure.kind == EnclosureKind.INWALL
-            or enclosure.kind == EnclosureKind.OUTWALL
-        ):
+        elif enclosure.kind in (EnclosureKind.INWALL, EnclosureKind.OUTWALL):
             return 'Wall'
         elif enclosure.kind == EnclosureKind.FLOOR_CEILLING:
             if surface.type == SurfaceType.CEILING:
@@ -630,6 +557,15 @@ class SurfaceConverter(BaseConverter[Room]):
             scene.add_geometry(mesh, node_name=surface_name)
 
         return scene
+
+    def _surface_reference_check(self) -> bool:
+        for _, surface in self._created_surfaces.items():
+            if surface.outside_boundary_condition_object is None:
+                continue
+            other_surface_name = surface.outside_boundary_condition_object
+            if other_surface_name not in self._created_surfaces:
+                return False
+        return True
 
     def get_surface_name(self, surface_id: int) -> str | None:
         stmt = select(Surface).where(Surface.surface_id == surface_id)
