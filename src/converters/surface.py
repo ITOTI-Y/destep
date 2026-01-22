@@ -64,10 +64,6 @@ class SurfaceConverter(BaseConverter[Room]):
 
         self._created_surfaces: dict[str, BuildingSurfaceDetailed] = {}
 
-        self._surface_ordered_vertices: list[
-            tuple[BuildingSurfaceDetailed, np.ndarray, np.ndarray]
-        ] = []
-
     def _build_enclosure_lookup(self) -> None:
         """Build lookup table from Surface ID to MainEnclosure."""
         stmt = select(MainEnclosure)
@@ -125,21 +121,12 @@ class SurfaceConverter(BaseConverter[Room]):
         surface_by_types = defaultdict(list)
         for surface in surfaces:
             surface_by_types[surface.type].append(surface)
-        interior_points = self._calculate_interior_points(
-            surface_by_types[SurfaceType.MIDDLE_FLOOR]
-        )
-        _reference_points = self._get_reference_points(
-            [
-                surface_by_types[SurfaceType.INTERIOR_WALL],
-                surface_by_types[SurfaceType.EXTERIOR_WALL],
-            ]
-        )
-        normals = self._get_outside_normals(surfaces, interior_points)
+        normals = self._get_outside_normals(surfaces)
         _step_surface_ordered_vertices = []
 
         for surface, normal in zip(surfaces, normals, strict=True):
             try:
-                ordered_points = self._order_points(surface, normal, _reference_points)
+                ordered_points = self._order_points(surface, normal)
                 boundary_condition, boundary_condition_object = (
                     self._determine_boundary_condition(surface)
                 )
@@ -180,6 +167,7 @@ class SurfaceConverter(BaseConverter[Room]):
                 )
                 self.idf.add(idf_surface)
                 self._created_surfaces[surface_name] = idf_surface
+                self.lookup_table.SURFACE_TO_NAME[surface.surface_id] = surface_name
 
             except Exception as e:
                 self.stats.add_warning(
@@ -187,30 +175,8 @@ class SurfaceConverter(BaseConverter[Room]):
                 )
                 self.stats.skipped += 1
                 continue
-        self._surface_ordered_vertices.extend(_step_surface_ordered_vertices)
         return bool(
             self._validate_zone_geometry_closure(_step_surface_ordered_vertices)
-        )
-
-    def _calculate_interior_points(self, surfaces: list[Surface]) -> np.ndarray:
-        """Calculate interior points from floor surfaces for normal orientation."""
-        if not surfaces:
-            return np.array([]).reshape(0, 3)
-
-        interior_points = []
-        for surface in surfaces:
-            vertices = self._get_surface_plane_vertices(surface)
-            if len(vertices) < 3:
-                continue
-            avg_z = np.mean(vertices[:, 2])
-            face_indices = self._triangulate_polygon(vertices, np.array([0, 0, 1]))
-            for face_index in face_indices:
-                triangle_vertices = vertices[face_index]
-                centroid = triangle_vertices.mean(axis=0)
-                interior_points.append([centroid[0], centroid[1], avg_z])
-
-        return (
-            np.array(interior_points) if interior_points else np.array([]).reshape(0, 3)
         )
 
     def _triangulate_polygon(self, pts: np.ndarray, normal: np.ndarray) -> np.ndarray:
@@ -266,9 +232,7 @@ class SurfaceConverter(BaseConverter[Room]):
         assert middle_plane.geometry_ref is not None
         return self._extract_vertices_from_geometry(middle_plane.geometry_ref)
 
-    def _get_outside_normals(
-        self, surfaces: list[Surface], interior_points: np.ndarray
-    ) -> np.ndarray:
+    def _get_outside_normals(self, surfaces: list[Surface]) -> np.ndarray:
         """Calculate outward-facing normals for surfaces."""
         normals: np.ndarray = np.zeros((len(surfaces), 3))
         for i, surface in enumerate(surfaces):
@@ -299,6 +263,9 @@ class SurfaceConverter(BaseConverter[Room]):
                 ):
                     normal_vector = -normal_vector
 
+                assert enclosure.middle_plane_ref is not None
+                plane_id = enclosure.middle_plane_ref.plane_id
+                self.lookup_table.PLANE_TO_NORMAL[plane_id] = normal_vector
                 normals[i] = normal_vector
         return normals
 
@@ -351,13 +318,8 @@ class SurfaceConverter(BaseConverter[Room]):
 
         return normal / norm_length
 
-    def _order_points(
-        self, surface: Surface, normal: np.ndarray, reference_points: np.ndarray
-    ) -> np.ndarray:
+    def _order_points(self, surface: Surface, normal: np.ndarray) -> np.ndarray:
         """Order vertices per EnergyPlus GlobalGeometryRules: UpperLeftCorner + Counterclockwise."""
-        unique_z = sorted(np.unique(reference_points[:, 2]))
-        if len(unique_z) > 2:
-            raise ValueError(f'Reference_points has multiple Z levels: {unique_z}')
 
         points = self._get_surface_plane_vertices(surface)
 

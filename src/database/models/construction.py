@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Float, ForeignKey, Integer, Numeric, String
+from sqlalchemy import Float, ForeignKey, Integer, Numeric, String, event, insert
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
@@ -34,8 +34,10 @@ class SysMaterial(Base):
     specific_heat: Mapped[float | None] = mapped_column(
         Float, comment='Specific heat (J/kg·K)'
     )
-    s: Mapped[float | None] = mapped_column(Float, comment='S value')
-    steam: Mapped[float | None] = mapped_column(Float, comment='Steam coefficient')
+    s: Mapped[float | None] = mapped_column(Float, comment='S value (W/m²·K)')
+    steam: Mapped[float | None] = mapped_column(
+        Float, comment='Steam coefficient g/(m·h·mmHg)'
+    )
     pattern: Mapped[str | None] = mapped_column(String(50), comment='Pattern')
     eraseflag: Mapped[int | None] = mapped_column(Integer, comment='Erase flag')
     flag: Mapped[int | None] = mapped_column(Integer, comment='Flag')
@@ -59,6 +61,28 @@ class SysMaterial(Base):
     )
     airfloor_materials: Mapped[list[SysAirfloorMaterial]] = relationship(
         'SysAirfloorMaterial', back_populates='material'
+    )
+
+
+@event.listens_for(SysMaterial.__table__, 'after_create')
+def insert_default_material(target, connection, **kw):
+    connection.execute(
+        insert(SysMaterial).values(
+            material_id=0,
+            color=136,
+            group_id='其他',
+            name='Air',
+            cname='空气',
+            conductivity=0.026,
+            density=1.184,
+            specific_heat=1005,
+            s=0.047,
+            steam=0.096,
+            pattern='',
+            eraseflag=0,
+            flag=0,
+            anotation='Temperature 25°C air',
+        )
     )
 
 
@@ -428,10 +452,10 @@ class MainEnclosure(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='Enclosure ID')
     name: Mapped[str | None] = mapped_column(String(50), comment='Enclosure name')
-    side1: Mapped[int | None] = mapped_column(
+    side1: Mapped[int] = mapped_column(
         Integer, ForeignKey('surface.surface_id'), comment='Side 1'
     )
-    side2: Mapped[int | None] = mapped_column(
+    side2: Mapped[int] = mapped_column(
         Integer, ForeignKey('surface.surface_id'), comment='Side 2'
     )
     middle_plane: Mapped[int | None] = mapped_column(
