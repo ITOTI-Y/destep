@@ -85,19 +85,14 @@ class BuildingConverter(BaseConverter[DestBuilding]):
         2. Add Site:Location from Environment data
         3. Create single Building object from first DeST Building
         """
-        # Always add GlobalGeometryRules first
         self._add_global_geometry_rules()
-
-        # Add Site:Location from Environment
         self._add_site_location()
 
-        # Query buildings - we only need the first one for IDF
         stmt = select(DestBuilding)
         buildings = self.session.execute(stmt).scalars().all()
         self.stats.total = len(buildings)
 
         if buildings:
-            # Only convert the first building (IDF supports only one)
             if self.convert_one(buildings[0]):
                 self.stats.converted += 1
             else:
@@ -110,7 +105,6 @@ class BuildingConverter(BaseConverter[DestBuilding]):
                 )
                 self.stats.skipped = len(buildings) - 1
         else:
-            # Create default building if none exists
             self._add_default_building()
 
         self.log_stats()
@@ -127,13 +121,12 @@ class BuildingConverter(BaseConverter[DestBuilding]):
         try:
             name = self.make_name('Building', instance.building_id, instance.name)
 
-            # Get north axis from Environment if available
             north_axis = self._get_north_axis()
 
             idf_building = IDFBuilding(
                 name=name,
                 north_axis=north_axis,
-                terrain='City',  # Default terrain for urban buildings
+                terrain='City',
                 solar_distribution='FullExterior',
             )
 
@@ -161,8 +154,6 @@ class BuildingConverter(BaseConverter[DestBuilding]):
             stmt = select(Environment)
             env = self.session.execute(stmt).scalars().first()
             if env and env.south_direction is not None:
-                # Convert south direction to north axis
-                # south_direction = 0 means building faces true South
                 return env.south_direction
         except Exception as e:
             logger.warning(f'Could not get north axis from Environment: {e}')
@@ -205,15 +196,12 @@ class BuildingConverter(BaseConverter[DestBuilding]):
                 self._add_default_site_location()
                 return
 
-            # Use city name or environment name for location name
             location_name = env.city_name or env.name or 'Site Location'
 
-            # Get coordinates with defaults
             latitude = env.latitude if env.latitude is not None else 39.9
             longitude = env.longitude if env.longitude is not None else 116.4
             elevation = env.elevation if env.elevation is not None else 50.0
 
-            # Calculate time zone from coordinates
             time_zone = get_utc_offset_from_coordinates(latitude, longitude)
 
             location = SiteLocation(

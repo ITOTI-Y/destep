@@ -20,6 +20,8 @@ if TYPE_CHECKING:
     from src.idf import IDF
     from src.utils.pinyin import PinyinConverter
 
+    from .manager import LookupTable
+
 
 class ZoneConverter(BaseConverter[Room]):
     """Converter for DeST Room to EnergyPlus Zone.
@@ -32,6 +34,7 @@ class ZoneConverter(BaseConverter[Room]):
         self,
         session: Session,
         idf: IDF,
+        lookup_table: LookupTable,
         pinyin: PinyinConverter | None = None,
     ) -> None:
         """Initialize converter.
@@ -41,7 +44,7 @@ class ZoneConverter(BaseConverter[Room]):
             idf: IDF instance to add converted objects to.
             pinyin: PinyinConverter for Chinese name conversion.
         """
-        super().__init__(session, idf, pinyin)
+        super().__init__(session, idf, lookup_table, pinyin)
         self._created_zones: set[int] = set()
 
     def convert_all(self) -> None:
@@ -98,6 +101,7 @@ class ZoneConverter(BaseConverter[Room]):
         )
 
         self.idf.add(zone)
+        self.lookup_table.ROOM_TO_ZONE[room.id] = zone_name
         self._created_zones.add(room.id)
         self.stats.converted += 1
 

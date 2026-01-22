@@ -20,6 +20,8 @@ from src.utils.pinyin import PinyinConverter
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
+    from .manager import LookupTable
+
 T = TypeVar('T')
 
 
@@ -122,6 +124,7 @@ class BaseConverter[T](ABC):
         self,
         session: Session,
         idf: IDF,
+        lookup_table: LookupTable,
         pinyin: PinyinConverter | None = None,
     ) -> None:
         """Initialize converter with database session and IDF container.
@@ -136,6 +139,7 @@ class BaseConverter[T](ABC):
         self.idf = idf
         self.pinyin = pinyin or PinyinConverter()
         self.stats = ConversionStats()
+        self.lookup_table = lookup_table
 
     @abstractmethod
     def convert_all(self) -> None:

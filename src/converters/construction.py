@@ -47,7 +47,7 @@ from src.idf.models.constructions import Construction, Material
 from src.utils.pinyin import PinyinConverter
 
 if TYPE_CHECKING:
-    pass
+    from .manager import LookupTable
 
 
 class EnclosureKind(IntEnum):
@@ -105,6 +105,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
         self,
         session: Session,
         idf: IDF,
+        lookup_table: LookupTable,
         pinyin: PinyinConverter | None = None,
     ) -> None:
         """Initialize ConstructionConverter.
@@ -112,9 +113,10 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
         Args:
             session: SQLAlchemy database session.
             idf: IDF instance to add converted objects to.
+            lookup_table: LookupTable instance to store conversion results.
             pinyin: PinyinConverter for Chinese name conversion.
         """
-        super().__init__(session, idf, pinyin)
+        super().__init__(session, idf, lookup_table, pinyin)
         self._created_constructions: dict[
             tuple[int, int], str
         ] = {}  # (kind, id) -> name
@@ -429,8 +431,10 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
 
             construction = Construction(name=construction_name, **layer_kwargs)
             self.idf.add(construction)
+            self.lookup_table.CONSTRUCTION_TO_NAME[(kind, construction_id)] = (
+                construction_name
+            )
 
-            # Record the mapping
             self._created_constructions[(kind, construction_id)] = construction_name
 
             logger.debug(

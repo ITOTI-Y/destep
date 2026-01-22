@@ -90,33 +90,13 @@ def convert(
         Path, Option('--sqlite-path', '-s', help='Path to the SQLite database')
     ] = Path('output/destep.sqlite'),
 ):
-    from src.converters import (
-        BuildingConverter,
-        ConstructionConverter,
-        ScheduleConverter,
-        SurfaceConverter,
-        ZoneConverter,
-    )
+    from src.converters import ConverterManager
     from src.database import SQLiteManager
-    from src.idf import IDF
-    from src.utils.pinyin import PinyinConverter
 
     with SQLiteManager(sqlite_path) as db:
         session = db.session
-        idf = IDF()
-        pinyin = PinyinConverter()
-        building_converter = BuildingConverter(session, idf, pinyin)
-        building_converter.convert_all()
-        zone_converter = ZoneConverter(session, idf, pinyin)
-        zone_converter.convert_all()
-        construction_converter = ConstructionConverter(session, idf, pinyin)
-        construction_converter.convert_all()
-        surface_converter = SurfaceConverter(
-            session, idf, pinyin, zone_converter, construction_converter
-        )
-        surface_converter.convert_all()
-        schedule_converter = ScheduleConverter(session, idf, pinyin)
-        schedule_converter.convert_all()
+        converter_manager = ConverterManager(session)
+        idf = converter_manager.convert()
         idf.save(output_path)
 
 

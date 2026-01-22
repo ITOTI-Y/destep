@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from enum import IntEnum
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import mapbox_earcut as earcut
 import numpy as np
@@ -25,6 +25,9 @@ from src.idf.models.thermal_zones import (
 )
 from src.utils.pinyin import PinyinConverter
 
+if TYPE_CHECKING:
+    from .manager import LookupTable
+
 # Tolerance for floating point comparisons
 EPSILON = 1e-10
 
@@ -45,15 +48,12 @@ class SurfaceConverter(BaseConverter[Room]):
         self,
         session: Session,
         idf: IDF,
+        lookup_table: LookupTable,
         pinyin: PinyinConverter | None = None,
         zone_converter: ZoneConverter | None = None,
         construction_converter: ConstructionConverter | None = None,
     ) -> None:
-        super().__init__(session, idf, pinyin)
-        self.zone_converter = zone_converter or ZoneConverter(session, idf, pinyin)
-        self.construction_converter = construction_converter or ConstructionConverter(
-            session, idf, pinyin
-        )
+        super().__init__(session, idf, lookup_table, pinyin)
         self._surface_pairings: dict[int, int] = {}
 
         self._surface_to_enclosure: dict[int, tuple[MainEnclosure, bool]] = {}
@@ -472,24 +472,19 @@ class SurfaceConverter(BaseConverter[Room]):
             raise ValueError(f'Surface {surface.surface_id} has no enclosure info')
 
         name = None
-        if self.construction_converter:
-            name = self.construction_converter.get_construction_name(
-                enclosure.kind, enclosure.construction
-            )
-        if name is None:
-            raise ValueError(
-                f'Construction name not found for surface {surface.surface_id}'
-            )
+        name = self.lookup_table.CONSTRUCTION_TO_NAME.get(
+            (enclosure.kind, enclosure.construction)
+        )
+        assert name is not None, (
+            f'Construction name not found for surface {surface.surface_id}'
+        )
         return name
 
     def _get_zone_name(self, room_id: int) -> str:
         """Get IDF zone name for a room."""
-        if self.zone_converter:
-            name = self.zone_converter.get_zone_name(room_id)
-            if name is None:
-                raise ValueError(f'Zone name not found for room {room_id}')
-            return name
-        raise ValueError(f'Zone converter not found for room {room_id}')
+        name = self.lookup_table.ROOM_TO_ZONE.get(room_id)
+        assert name is not None, f'Zone name not found for room {room_id}'
+        return name
 
     def _get_sun_exposure(
         self, boundary_condition: str
