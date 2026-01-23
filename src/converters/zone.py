@@ -94,7 +94,6 @@ class ZoneConverter(BaseConverter[Room]):
             y_origin=y_origin,
             z_origin=z_origin,
             multiplier=multiplier if multiplier and multiplier > 1 else None,
-            # Let EnergyPlus autocalculate these from geometry
             ceiling_height='Autocalculate',
             volume='Autocalculate',
             floor_area='Autocalculate',

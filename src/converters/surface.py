@@ -11,7 +11,7 @@ from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from src.converters.base import BaseConverter
+from src.converters.base import BaseConverter, UnitConverter
 from src.converters.construction import ConstructionConverter, EnclosureKind
 from src.converters.zone import ZoneConverter
 from src.database.models import MainEnclosure
@@ -28,7 +28,6 @@ from src.utils.pinyin import PinyinConverter
 if TYPE_CHECKING:
     from .manager import LookupTable
 
-# Tolerance for floating point comparisons
 EPSILON = 1e-10
 
 
@@ -329,6 +328,7 @@ class SurfaceConverter(BaseConverter[Room]):
 
         top_left_index = self._get_top_left_corner_from_normal(points, normal)
         points = np.roll(points, -top_left_index, axis=0)
+        points = UnitConverter.round_coord_array(points)
         return points
 
     def _compute_signed_area(self, points: np.ndarray, normal: np.ndarray) -> float:

@@ -12,6 +12,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
+import numpy as np
 from loguru import logger
 
 from src.idf import IDF
@@ -32,6 +33,7 @@ class UnitConverter:
     """
 
     MM_TO_M = 0.001
+    DECIMAL_PLACES = 3
 
     @staticmethod
     def mm_to_m(value: float | None) -> float:
@@ -48,19 +50,27 @@ class UnitConverter:
         return value * UnitConverter.MM_TO_M
 
     @staticmethod
-    def round_coord(value: float | None, decimals: int = 3) -> float:
+    def round_coord(value: float | None) -> float:
         """Round coordinate value to specified decimal places.
 
         Args:
             value: Coordinate value.
-            decimals: Number of decimal places (default 3).
 
         Returns:
             Rounded value.
         """
         if value is None:
             raise ValueError(f'Value is error: {value}')
-        return round(value, decimals)
+        return round(value, UnitConverter.DECIMAL_PLACES)
+
+    @staticmethod
+    def round_coord_array(value: np.ndarray) -> np.ndarray:
+        """Round coordinate array to specified decimal places.
+
+        Args:
+            value: Coordinate array.
+        """
+        return np.round(value, UnitConverter.DECIMAL_PLACES)
 
 
 @dataclass

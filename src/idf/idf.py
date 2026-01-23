@@ -291,23 +291,18 @@ class IDF:
                 formatted = self._format_value(value)
                 regular_fields.append((field_name, formatted))
 
-        # Find last non-empty regular field
         last_non_empty_idx = -1
         for i, (_, value) in enumerate(regular_fields):
             if value:
                 last_non_empty_idx = i
 
-        # Handle case with no regular fields
         if last_non_empty_idx < 0 and not extensible_items:
             lines.append(f'{object_type};')
             return lines
 
-        # Build output
         lines.append(f'{object_type},')
 
-        # Output regular fields (up to last non-empty or all if we have extensible)
         if extensible_items:
-            # Include all regular fields when we have extensible items
             fields_to_output = regular_fields
         else:
             fields_to_output = regular_fields[: last_non_empty_idx + 1]
@@ -318,39 +313,33 @@ class IDF:
             comment = f'!- {field_name}'
             lines.append(f'    {value}{terminator}  {comment}')
 
-        # Output extensible items (vertices)
         if extensible_items:
             for idx, item in enumerate(extensible_items):
                 is_last_item = idx == len(extensible_items) - 1
-                vertex_line = self._format_vertex_item(item, idx + 1, is_last_item)
-                lines.append(vertex_line)
+                vertex_line = self._format_list_item(item, idx + 1, is_last_item)
+                lines.extend(vertex_line)
 
         return lines
 
-    def _format_vertex_item(self, item: dict, vertex_num: int, is_last: bool) -> str:
-        """Format a single vertex item for IDF output.
+    def _format_list_item(self, item: dict, item_num: int, is_last: bool) -> list[str]:
+        """Format a single list item for IDF output.
 
         Args:
-            item: Dictionary with vertex_x_coordinate, vertex_y_coordinate,
-                  vertex_z_coordinate keys.
-            vertex_num: 1-based vertex number for comment.
+            item: Dictionary with item keys.
+            item_num: 1-based item number for comment.
             is_last: Whether this is the last vertex.
 
         Returns:
-            Formatted vertex line.
+            Formatted item lines.
         """
-        x = item.get('vertex_x_coordinate', 0)
-        y = item.get('vertex_y_coordinate', 0)
-        z = item.get('vertex_z_coordinate', 0)
+        result = []
+        for i, (name, value) in enumerate(item.items()):
+            terminator = ';' if is_last and i == len(item) - 1 else ','
+            value_str = self._format_value(value)
+            comment = f'!- {name}_{item_num}'
+            result.append(f'    {value_str}{terminator}  {comment}')
 
-        x_str = f'{x:.6g}' if isinstance(x, float) else str(x)
-        y_str = f'{y:.6g}' if isinstance(y, float) else str(y)
-        z_str = f'{z:.6g}' if isinstance(z, float) else str(z)
-
-        terminator = ';' if is_last else ','
-        comment = f'!- X,Y,Z ==> Vertex {vertex_num} {{m}}'
-
-        return f'    {x_str}, {y_str}, {z_str}{terminator}  {comment}'
+        return result
 
     @staticmethod
     def _format_value(value: object) -> str:

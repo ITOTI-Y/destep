@@ -14,7 +14,7 @@ app = Typer()
 def extract(
     accdb_path: Annotated[
         Path, Option('--accdb', '-a', help='Path to the Access database')
-    ] = Path('examples/LH_Guangzhou_2015.accdb'),
+    ] = Path('database/CoA_Abagaqi_2015.accdb'),
     output_path: Annotated[
         Path, Option('--output', '-o', help='Path to the output SQLite database')
     ] = Path('output/destep.sqlite'),

@@ -17,7 +17,7 @@ from src.idf.models import (
 )
 from src.utils.pinyin import PinyinConverter
 
-from .base import BaseConverter
+from .base import BaseConverter, UnitConverter
 from .construction import EnclosureKind
 
 if TYPE_CHECKING:
@@ -169,6 +169,7 @@ class FenestrationConverter(BaseConverter[Window | Door]):
 
         top_left_index = self._get_top_left_corner_from_normal(points, normal)
         points = np.roll(points, -top_left_index, axis=0)
+        points = UnitConverter.round_coord_array(points)
         return points
 
     def _create_window_construction(self, window: Window) -> str:

@@ -5,7 +5,16 @@ from loguru import logger
 from sqlalchemy.orm import Session
 
 from src.idf import IDF
-from src.idf.models import RunPeriod, SimulationControl, Timestep, Version
+from src.idf.models import (
+    OutputDiagnostics,
+    OutputDiagnosticsDiagnosticsItem,
+    OutputTableSummaryReports,
+    OutputTableSummaryReportsReportsItem,
+    RunPeriod,
+    SimulationControl,
+    Timestep,
+    Version,
+)
 from src.utils.pinyin import PinyinConverter
 
 from .base import BaseConverter
@@ -68,6 +77,16 @@ class ConverterManager:
             end_day_of_month=31,
         )
         self.idf.add(run_period)
+
+        output_table_summary = OutputTableSummaryReports(
+            reports=[OutputTableSummaryReportsReportsItem(report_name='AllSummary')]
+        )
+        self.idf.add(output_table_summary)
+
+        output_diagnostics = OutputDiagnostics(
+            diagnostics=[OutputDiagnosticsDiagnosticsItem(key='DisplayExtraWarnings')]
+        )
+        self.idf.add(output_diagnostics)
 
     def convert(self) -> IDF:
         for converter_type, converter_class in self.CONVERTER_ORDER.items():
