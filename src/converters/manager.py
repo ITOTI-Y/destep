@@ -21,6 +21,7 @@ from .base import BaseConverter
 from .building import BuildingConverter
 from .construction import ConstructionConverter
 from .fenestration import FenestrationConverter
+from .hvac import HVACConverter
 from .internal_gains import InternalGainsConverter
 from .schedule import ScheduleConverter
 from .surface import SurfaceConverter
@@ -56,6 +57,7 @@ class ConverterManager:
         'surface': SurfaceConverter,
         'fenestration': FenestrationConverter,
         'internal_gains': InternalGainsConverter,
+        'hvac': HVACConverter,
         'schedule': ScheduleConverter,
     }
 

@@ -94,7 +94,7 @@ def get_schedule_type_limits_name(schedule_type: int | None) -> str:
         Name of the ScheduleTypeLimits to use.
     """
     if schedule_type is None:
-        return 'Fraction'  # Default to fraction for unknown types
+        return 'Fraction'
 
     return DEST_TYPE_TO_LIMITS.get(schedule_type, 'Any Number')
 
@@ -116,16 +116,13 @@ def infer_schedule_type_from_values(values: list[float]) -> str:
     min_val = min(values)
     max_val = max(values)
 
-    # Check if binary (0 or 1 only)
     unique_values = set(values)
     if unique_values <= {0.0, 1.0}:
         return 'On/Off'
 
-    # Check if fraction (0-1)
     if min_val >= 0.0 and max_val <= 1.0:
         return 'Fraction'
 
-    # Check if all integers
     if all(v == int(v) for v in values):
         return 'Integer'
 
@@ -188,18 +185,14 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
             logger.info('No schedules marked as required, skipping schedule conversion')
             return
 
-        # Ensure output directory is set
         if self._output_dir is None:
             logger.warning('Output directory not set, using current directory')
-            self._output_dir = Path('.')
+            self._output_dir = Path('./output/')
 
-        # Always set schedules_dir based on output_dir
         self._schedules_dir = self._output_dir / 'schedules'
 
-        # Create schedules directory
         self._schedules_dir.mkdir(parents=True, exist_ok=True)
 
-        # Query only required schedules
         stmt = select(ScheduleYear).where(ScheduleYear.schedule_id.in_(required_ids))
         schedules = self.session.execute(stmt).scalars().all()
         self.stats.total = len(schedules)
@@ -209,22 +202,18 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
             f'out of {len(required_ids)} requested'
         )
 
-        # Check for missing schedules
         found_ids = {s.schedule_id for s in schedules}
         missing_ids = required_ids - found_ids
         if missing_ids:
             logger.warning(f'Missing schedule IDs in database: {missing_ids}')
 
-        # First pass: determine which ScheduleTypeLimits are needed
         type_limits_needed: set[str] = set()
         for schedule in schedules:
             limits_name = self._determine_type_limits(schedule)
             type_limits_needed.add(limits_name)
 
-        # Create ScheduleTypeLimits objects
         self._create_schedule_type_limits(type_limits_needed)
 
-        # Second pass: convert all required schedules
         for schedule in schedules:
             if self.convert_one(schedule):
                 self.stats.converted += 1
@@ -249,19 +238,14 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
             name = self.make_name('Schedule', instance.schedule_id, instance.name)
             limits_name = self._determine_type_limits(instance)
 
-            # Ensure schedules_dir is set
             if self._schedules_dir is None:
                 raise RuntimeError('Schedules directory not initialized')
 
-            # Generate CSV filename
             csv_filename = f'{name}.csv'
             csv_path = self._schedules_dir / csv_filename
 
-            # Write CSV file with hourly values
             self._write_schedule_csv(csv_path, instance.data)
 
-            # Create Schedule:File reference
-            # Use relative path from IDF location
             relative_csv_path = f'schedules/{csv_filename}'
 
             schedule_file = ScheduleFile(
@@ -279,7 +263,6 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
 
             self.idf.add(schedule_file)
 
-            # Record the mapping in lookup_table for cross-references
             self.lookup_table.SCHEDULE_TO_NAME[instance.schedule_id] = name
 
             logger.debug(
@@ -307,11 +290,9 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         Returns:
             Name of the ScheduleTypeLimits to use.
         """
-        # Use explicit type code if available
         if schedule.type is not None:
             return get_schedule_type_limits_name(schedule.type)
 
-        # Fallback: infer from values
         values = self._extract_numeric_values(schedule.data)
         return infer_schedule_type_from_values(values)
 
@@ -343,7 +324,6 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
             csv_path: Path to the output CSV file.
             data: Schedule data (8760 hourly values).
         """
-        # Ensure we have exactly 8760 values
         values: list[float] = []
         if data:
             for item in data:
@@ -352,14 +332,11 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
                 else:
                     values.append(0.0)
 
-        # Pad with zeros if insufficient data
         while len(values) < 8760:
             values.append(0.0)
 
-        # Truncate if too much data
         values = values[:8760]
 
-        # Write CSV file
         with open(csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
             for value in values:
@@ -392,7 +369,6 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
                 self._created_type_limits.add(name)
                 logger.info(f'Created ScheduleTypeLimits: {name}')
             except Exception as e:
-                logger.error(f'Failed to create ScheduleTypeLimits {name}: {e}')
                 self.stats.add_warning(
                     f'ScheduleTypeLimits {name} creation failed: {e}'
                 )

@@ -54,7 +54,7 @@ class IDF:
             ValueError: If object with same type and name already exists.
         """
         object_type = obj.idf_object_type()
-        name = getattr(obj, 'name', None) or ''
+        name = getattr(obj, 'name', None) or getattr(obj, 'zone_name', '')
 
         if object_type not in self._objects:
             self._objects[object_type] = {}

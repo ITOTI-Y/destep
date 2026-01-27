@@ -10,6 +10,7 @@
 ### Session 2026-01-27
 - Q: HVAC对象类型命名确认 → A: 使用HVACTemplate:Zone:IdealLoadsAirSystem（非ZoneHVAC:IdealLoadsAirSystem），模型定义完整
 - Q: IDF模型文件约束 → A: src/idf/models目录不允许修改，所有模型定义已完整且正确（自动生成自EnergyPlus schema）
+- Q: FR-008与HVACTemplate使用模式冲突，是否需要手动创建ZoneHVAC:EquipmentList等对象？ → A: 移除FR-008，HVACTemplate在EnergyPlus运行时自动展开为底层对象
 
 ### Session 2026-01-26
 - Q: 新风量单位转换策略：DeST使用m³/h，EnergyPlus使用m³/s，如何处理？ → A: 自动转换（m³/h ÷ 3600 = m³/s），在转换器内部处理
@@ -137,7 +138,7 @@
 - **FR-005**: System MUST 为每个Zone创建HVACTemplate:Zone:IdealLoadsAirSystem对象
 - **FR-006**: System MUST 使用RoomGroup的set_t_min_schedule作为供暖设定点日程表(°C)
 - **FR-007**: System MUST 使用RoomGroup的set_t_max_schedule作为制冷设定点日程表(°C)
-- **FR-008**: System MUST 创建必要的ZoneHVAC:EquipmentList和ZoneHVAC:EquipmentConnections
+- ~~**FR-008**: (已移除) HVACTemplate对象在EnergyPlus运行时自动展开为底层HVAC对象，无需手动创建ZoneHVAC:EquipmentList等~~
 
 **新风/通风系统**:
 - **FR-009**: System MUST 按以下优先级确定新风量：

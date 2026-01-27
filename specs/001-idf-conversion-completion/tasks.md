@@ -103,35 +103,37 @@
 
 ## Phase 5: User Story 2 - Simplified HVAC System (Priority: P2)
 
-**Goal**: Configure IdealLoadsAirSystem for each Zone with thermostat setpoints
+**Goal**: Configure HVACTemplate:Zone:IdealLoadsAirSystem for each Zone with thermostat setpoints
 
-**Independent Test**: Convert any DeST file and verify each Zone has IdealLoadsAirSystem configured, simulation runs without HVAC errors
+**Independent Test**: Convert any DeST file and verify each Zone has HVACTemplate:Zone:IdealLoadsAirSystem configured, simulation runs without HVAC errors
+
+**Note**: 使用 HVACTemplate 对象，EnergyPlus 运行时自动展开为底层 HVAC 对象（FR-008 已移除，无需手动创建 ZoneHVAC:EquipmentList 等）
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Create HVACConverter class skeleton in src/converters/hvac.py extending BaseConverter[Room]
-- [ ] T022 [US2] Implement _create_equipment_connections method in src/converters/hvac.py:
-  - Create ZoneHVACEquipmentConnections with proper node names
-  - Node naming: {zone_name}_Inlet, {zone_name}_AirNode, {zone_name}_Return
-- [ ] T023 [US2] Implement _create_equipment_list method in src/converters/hvac.py:
-  - Create ZoneHVACEquipmentList with SequentialLoad scheme
-  - Reference IdealLoadsAirSystem with priority 1
-- [ ] T024 [US2] Implement _create_ideal_loads method in src/converters/hvac.py:
-  - Create ZoneHVACIdealLoadsAirSystem
-  - Set zone_supply_air_node_name to {zone_name}_Inlet
-  - Set default heating/cooling temperatures (50°C/13°C)
-- [ ] T025 [US2] Implement _create_thermostat method in src/converters/hvac.py:
-  - Create ThermostatSetpointDualSetpoint from RoomGroup schedules
-  - Create ZoneControlThermostat referencing DualSetpoint
-  - Register set_t_min_schedule_id and set_t_max_schedule_id to REQUIRED_SCHEDULE_IDS
-- [ ] T026 [US2] Create AlwaysDual ScheduleConstant (value=4) in src/converters/hvac.py for control type
-- [ ] T027 [US2] Implement convert_one method in src/converters/hvac.py:
+- [X] T021 [US2] Create HVACConverter class skeleton in src/converters/hvac.py extending BaseConverter[Room]
+- [X] T022 [US2] Implement _create_thermostat method in src/converters/hvac.py:
+  - Create HVACTemplateThermostat from RoomGroup schedules
+  - Name format: `Thermostat_{room_group_id}`
+  - Set heating_setpoint_schedule_name from RoomGroup.set_t_min_schedule_id
+  - Set cooling_setpoint_schedule_name from RoomGroup.set_t_max_schedule_id
+  - Register schedule IDs to REQUIRED_SCHEDULE_IDS
+  - Cache thermostat by room_group_id to avoid duplicates (multiple rooms share same RoomGroup)
+- [X] T023 [US2] Implement _create_ideal_loads_template method in src/converters/hvac.py:
+  - Create HVACTemplateZoneIdealLoadsAirSystem
+  - Set zone_name from LookupTable
+  - Set template_thermostat_name to reference the HVACTemplateThermostat
+  - Set default heating/cooling supply air temperatures (50°C/13°C)
+  - Set heating_limit and cooling_limit to "NoLimit"
+- [X] T024 [US2] Implement convert_one method in src/converters/hvac.py:
   - Get zone_name from LookupTable
   - Get RoomGroup for thermostat schedules
-  - Create all HVAC objects in correct order
-- [ ] T028 [US2] Implement error handling in src/converters/hvac.py:
+  - Call _create_thermostat (skip if already created for this RoomGroup)
+  - Call _create_ideal_loads_template
+- [X] T025 [US2] Implement error handling in src/converters/hvac.py:
   - Raise error if RoomGroup.set_t_min_schedule_id is None
   - Raise error if RoomGroup.set_t_max_schedule_id is None
+  - Clear error messages with room and RoomGroup context
 
 **Checkpoint**: User Story 2 complete - HVAC system configured for all zones
 
@@ -139,27 +141,29 @@
 
 ## Phase 6: User Story 3 - Outdoor Air/Ventilation Conversion (Priority: P3)
 
-**Goal**: Configure outdoor air (fresh air) settings for IdealLoadsAirSystem
+**Goal**: Configure outdoor air (fresh air) settings in HVACTemplate:Zone:IdealLoadsAirSystem
 
-**Independent Test**: Convert a DeST file with min_fresh_flow_num and verify DesignSpecification:OutdoorAir is created with correct flow rate
+**Independent Test**: Convert a DeST file with min_fresh_flow_num and verify HVACTemplate:Zone:IdealLoadsAirSystem has correct outdoor air settings (outdoor_air_method="Flow/Zone" and outdoor_air_flow_rate_per_zone)
+
+**Note**: HVACTemplateZoneIdealLoadsAirSystem 内置新风配置字段，无需单独创建 DesignSpecification:OutdoorAir
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement _calculate_fresh_air_flow method in src/converters/hvac.py:
+- [X] T026 [US3] Implement _calculate_fresh_air_flow method in src/converters/hvac.py:
   - Priority 1: Use Room.min_fresh_flow_num (m³/h)
   - Priority 2: Calculate from OccupantGains.min_require_fresh_air × maxnumber × area
   - Convert m³/h to m³/s (÷3600)
-  - Return None if no fresh air configured
-- [ ] T030 [US3] Implement _create_outdoor_air_spec method in src/converters/hvac.py:
-  - Create DesignSpecificationOutdoorAir with Flow/Zone method
-  - Set outdoor_air_flow_per_zone to calculated value (m³/s)
-- [ ] T031 [US3] Update _create_ideal_loads method in src/converters/hvac.py:
-  - Add outdoor_air_inlet_node_name if fresh air configured
-  - Add design_specification_outdoor_air_object_name if fresh air configured
-- [ ] T032 [US3] Update convert_one method in src/converters/hvac.py:
-  - Call fresh air calculation
-  - Conditionally create DesignSpecificationOutdoorAir
-  - Skip fresh air config gracefully if flow is 0 or None
+  - Return None if no fresh air configured (value is 0 or missing)
+- [X] T027 [US3] Update _create_ideal_loads_template method in src/converters/hvac.py to add outdoor air:
+  - If fresh air flow > 0:
+    - Set outdoor_air_method = "Flow/Zone"
+    - Set outdoor_air_flow_rate_per_zone = calculated value (m³/s)
+  - If fresh air flow is None/0:
+    - Set outdoor_air_method = "None" (no outdoor air)
+- [X] T028 [US3] Update convert_one method in src/converters/hvac.py:
+  - Call _calculate_fresh_air_flow before creating IdealLoadsTemplate
+  - Pass fresh air flow to _create_ideal_loads_template
+  - Log info message when fresh air is skipped (value is 0 or missing)
 
 **Checkpoint**: User Story 3 complete - Fresh air/ventilation configured
 
@@ -173,8 +177,8 @@
 
 ### Implementation for User Story 5
 
-- [ ] T033 [US5] Update FenestrationConverter in src/converters/fenestration.py to detect door objects
-- [ ] T034 [US5] Implement door skip logic in src/converters/fenestration.py:
+- [ ] T029 [US5] Update FenestrationConverter in src/converters/fenestration.py to detect door objects
+- [ ] T030 [US5] Implement door skip logic in src/converters/fenestration.py:
   - Check if fenestration is a door (by type or classification)
   - Log info message "Door skipped: {door_id}"
   - Return without generating IDF objects
@@ -188,14 +192,14 @@
 
 **Purpose**: Integration, registration, and final validation
 
-- [X] T035 Register InternalGainsConverter in ConverterManager in src/converters/manager.py
-- [ ] T036 Register HVACConverter in ConverterManager in src/converters/manager.py
-- [ ] T037 Update converter execution order in ConverterManager:
+- [X] T031 Register InternalGainsConverter in ConverterManager in src/converters/manager.py
+- [X] T032 Register HVACConverter in ConverterManager in src/converters/manager.py
+- [X] T033 Update converter execution order in ConverterManager:
   - InternalGainsConverter after FenestrationConverter
   - HVACConverter after InternalGainsConverter
   - ScheduleConverter last (to collect all required schedules)
-- [ ] T038 Validate IDF output structure matches quickstart.md examples
-- [ ] T039 Run conversion on sample DeST file and verify in EnergyPlus
+- [ ] T034 Validate IDF output structure matches quickstart.md examples
+- [ ] T035 Run conversion on sample DeST file and verify in EnergyPlus
 
 ---
 
@@ -289,3 +293,4 @@ US5 (Phase 7) can run in parallel with US2/US3 (Phases 5-6)
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Unit conversion: m³/h → m³/s (÷3600) for fresh air flow
+- **HVACTemplate 模式**: 使用 HVACTemplate:Zone:IdealLoadsAirSystem + HVACTemplate:Thermostat，EnergyPlus 运行时自动展开为底层对象，无需手动创建 ZoneHVAC:EquipmentList 等
