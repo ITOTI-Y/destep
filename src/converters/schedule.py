@@ -140,9 +140,9 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
     - Schedule:File: References external CSV files with 8760 hourly values
     - CSV files: Generated in a 'schedules' subdirectory
 
-    Only schedules that are referenced by other objects are converted.
-    Use add_required_schedule() or set_required_schedule_ids() to specify
-    which schedules should be converted.
+    Only schedules registered in lookup_table.REQUIRED_SCHEDULE_IDS are converted.
+    Other converters should add schedule IDs to lookup_table.REQUIRED_SCHEDULE_IDS
+    when they reference schedules.
 
     DeST Schedule Types:
     - 1: ratio (0-1 fraction) -> Fraction
@@ -160,8 +160,6 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         self._created_type_limits: set[str] = set()
         self._output_dir: Path | None = None
         self._schedules_dir: Path | None = None
-        self._required_schedule_ids: set[int] = set()
-        self._converted_schedules: dict[int, str] = {}  # schedule_id -> idf_name
 
     def set_output_dir(self, output_dir: Path) -> None:
         """Set the output directory for CSV files.
@@ -172,54 +170,21 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         self._output_dir = output_dir
         self._schedules_dir = output_dir / 'schedules'
 
-    def add_required_schedule(self, schedule_id: int | None) -> None:
-        """Mark a schedule as required for conversion.
-
-        Call this method to register schedules that are referenced
-        by other objects (e.g., gains, HVAC, fenestration).
-
-        Args:
-            schedule_id: Schedule ID to mark as required. None is ignored.
-        """
-        if schedule_id is not None:
-            self._required_schedule_ids.add(schedule_id)
-
-    def set_required_schedule_ids(self, schedule_ids: set[int]) -> None:
-        """Set the complete set of required schedule IDs.
-
-        Args:
-            schedule_ids: Set of schedule IDs that should be converted.
-        """
-        self._required_schedule_ids = schedule_ids.copy()
-
-    def get_schedule_name(self, schedule_id: int | None) -> str | None:
-        """Get the IDF schedule name for a given schedule ID.
-
-        Use this after conversion to get the IDF name for cross-references.
-
-        Args:
-            schedule_id: DeST schedule ID.
-
-        Returns:
-            IDF schedule name if converted, None otherwise.
-        """
-        if schedule_id is None:
-            return None
-        return self._converted_schedules.get(schedule_id)
-
     def convert_all(self) -> None:
         """Convert required ScheduleYear objects to IDF schedules.
 
-        Only schedules marked as required are converted.
-        If no schedules are marked as required, nothing is converted.
+        Only schedules in lookup_table.REQUIRED_SCHEDULE_IDS are converted.
+        If no schedules are required, nothing is converted.
 
         Steps:
-        1. Create schedules output directory
-        2. Query only the required schedules
-        3. Create ScheduleTypeLimits objects
-        4. Convert each schedule to Schedule:File + CSV
+        1. Read required schedule IDs from lookup_table
+        2. Create schedules output directory
+        3. Query only the required schedules
+        4. Create ScheduleTypeLimits objects
+        5. Convert each schedule to Schedule:File + CSV
         """
-        if not self._required_schedule_ids:
+        required_ids = self.lookup_table.REQUIRED_SCHEDULE_IDS
+        if not required_ids:
             logger.info('No schedules marked as required, skipping schedule conversion')
             return
 
@@ -235,20 +200,18 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         self._schedules_dir.mkdir(parents=True, exist_ok=True)
 
         # Query only required schedules
-        stmt = select(ScheduleYear).where(
-            ScheduleYear.schedule_id.in_(self._required_schedule_ids)
-        )
+        stmt = select(ScheduleYear).where(ScheduleYear.schedule_id.in_(required_ids))
         schedules = self.session.execute(stmt).scalars().all()
         self.stats.total = len(schedules)
 
         logger.info(
             f'Converting {len(schedules)} required schedules '
-            f'out of {len(self._required_schedule_ids)} requested'
+            f'out of {len(required_ids)} requested'
         )
 
         # Check for missing schedules
         found_ids = {s.schedule_id for s in schedules}
-        missing_ids = self._required_schedule_ids - found_ids
+        missing_ids = required_ids - found_ids
         if missing_ids:
             logger.warning(f'Missing schedule IDs in database: {missing_ids}')
 
@@ -316,8 +279,8 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
 
             self.idf.add(schedule_file)
 
-            # Record the mapping for cross-references
-            self._converted_schedules[instance.schedule_id] = name
+            # Record the mapping in lookup_table for cross-references
+            self.lookup_table.SCHEDULE_TO_NAME[instance.schedule_id] = name
 
             logger.debug(
                 f'Converted Schedule: {name} -> {relative_csv_path} '

@@ -7,6 +7,10 @@
 
 ## Clarifications
 
+### Session 2026-01-27
+- Q: HVAC对象类型命名确认 → A: 使用HVACTemplate:Zone:IdealLoadsAirSystem（非ZoneHVAC:IdealLoadsAirSystem），模型定义完整
+- Q: IDF模型文件约束 → A: src/idf/models目录不允许修改，所有模型定义已完整且正确（自动生成自EnergyPlus schema）
+
 ### Session 2026-01-26
 - Q: 新风量单位转换策略：DeST使用m³/h，EnergyPlus使用m³/s，如何处理？ → A: 自动转换（m³/h ÷ 3600 = m³/s），在转换器内部处理
 - Q: 人员散湿量(damp_per_person)如何处理？EnergyPlus People对象无直接对应字段 → A: 忽略该参数，使用EnergyPlus内置的代谢率-潜热模型
@@ -43,7 +47,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** DeST数据库包含多个房间, **When** 执行转换, **Then** 每个Zone关联一个ZoneHVAC:IdealLoadsAirSystem对象
+1. **Given** DeST数据库包含多个房间, **When** 执行转换, **Then** 每个Zone关联一个HVACTemplate:Zone:IdealLoadsAirSystem对象
 2. **Given** Zone配置了IdealLoadsAirSystem, **When** 在EnergyPlus中运行模拟, **Then** 模拟成功完成，无HVAC相关错误
 3. **Given** RoomGroup包含set_t_min_schedule/set_t_max_schedule设置, **When** 执行转换, **Then** IdealLoadsAirSystem使用对应的温度设定点日程表(°C)
 
@@ -130,7 +134,7 @@
 - **FR-004**: System MUST 自动关联热收益对象与对应的Zone
 
 **简化HVAC系统**:
-- **FR-005**: System MUST 为每个Zone创建ZoneHVAC:IdealLoadsAirSystem对象
+- **FR-005**: System MUST 为每个Zone创建HVACTemplate:Zone:IdealLoadsAirSystem对象
 - **FR-006**: System MUST 使用RoomGroup的set_t_min_schedule作为供暖设定点日程表(°C)
 - **FR-007**: System MUST 使用RoomGroup的set_t_max_schedule作为制冷设定点日程表(°C)
 - **FR-008**: System MUST 创建必要的ZoneHVAC:EquipmentList和ZoneHVAC:EquipmentConnections
@@ -179,8 +183,13 @@
 - **People (EnergyPlus)**: 人员对象，人员密度(人/m²)、代谢率
 - **Lights (EnergyPlus)**: 照明对象，功率密度(W/m²)
 - **ElectricEquipment (EnergyPlus)**: 设备对象，功率密度(W/m²)
-- **ZoneHVAC:IdealLoadsAirSystem (EnergyPlus)**: 简化HVAC系统，支持新风和温度设定
+- **HVACTemplate:Zone:IdealLoadsAirSystem (EnergyPlus)**: 简化HVAC系统，支持新风和温度设定
 - **LookupTable.SCHEDULE_TO_NAME**: 日程表ID到IDF名称的映射表
+
+## Technical Constraints
+
+- **TC-001**: `src/idf/models/` 目录下的所有模型文件**不允许修改**。这些模型是从 EnergyPlus schema (v25.1) 自动生成的，定义完整且正确。转换器实现必须适配现有模型接口。
+- **TC-002**: 技术栈：Python >= 3.12 + Pydantic 2.x, SQLAlchemy 2.x, Loguru, Typer
 
 ## Success Criteria *(mandatory)*
 
