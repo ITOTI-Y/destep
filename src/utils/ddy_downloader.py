@@ -6,7 +6,8 @@ import httpx
 
 from src.idf.idf import IDF
 
-GEOJSON_URL = "https://raw.githubusercontent.com/NatLabRockies/EnergyPlus/develop/weather/master.geojson"
+GEOJSON_URL = 'https://raw.githubusercontent.com/NatLabRockies/EnergyPlus/develop/weather/master.geojson'
+
 
 @dataclass
 class WeatherLocation:
@@ -14,6 +15,7 @@ class WeatherLocation:
     city: str
     epw: str
     ddy: str
+
 
 class DDY:
     def __init__(self):
@@ -25,7 +27,9 @@ class DDY:
         geojson = response.json()
         return geojson
 
-    def _parse_geojson(self, geojson: dict, country: str|None = 'CHN') -> list[WeatherLocation]:
+    def _parse_geojson(
+        self, geojson: dict, country: str | None = 'CHN'
+    ) -> list[WeatherLocation]:
         features = geojson['features']
         locations = []
         for feature in features:
@@ -68,10 +72,10 @@ class DDY:
             content = response.content.decode('latin-1')
         return IDF._parse_idf_content(content)
 
-    def get_weather_locations(self, city: str, country: str|None = 'CHN') -> IDF:
+    def get_weather_locations(self, city: str, country: str | None = 'CHN') -> IDF:
         geojson = asyncio.run(self._download_geojson())
         locations = self._parse_geojson(geojson, country)
         for location in locations:
             if location.city.lower() == city.lower():
                 return self._parse_ddy_data(location.ddy or '')
-        raise ValueError(f"City {city} not found in {country}")
+        raise ValueError(f'City {city} not found in {country}')

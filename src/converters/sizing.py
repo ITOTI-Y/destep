@@ -24,10 +24,12 @@ if TYPE_CHECKING:
 
     from .manager import LookupTable
 
+
 @dataclass
 class MappingItem:
     winter: str = 'Htg 99.6% Condns DB'
     summer: str = 'Clg .4% Condns DB=>MWB'
+
 
 class SizingConverter(BaseConverter[Environment]):
     """Converter for DeST DesignDay to EnergyPlus SizingPeriod:DesignDay.
@@ -72,11 +74,16 @@ class SizingConverter(BaseConverter[Environment]):
         ddy_data = self._get_ddy_data(environment.city_name)
         if not ddy_data:
             self.stats.errors += 1
-            self.stats.add_warning(f'No DDY data found for city {environment.city_name}')
+            self.stats.add_warning(
+                f'No DDY data found for city {environment.city_name}'
+            )
             return False
         for ddy_item in ddy_data.values():
             assert isinstance(ddy_item, SizingPeriodDesignDay)
-            if MappingItem.winter in ddy_item.name or MappingItem.summer in ddy_item.name:
+            if (
+                MappingItem.winter in ddy_item.name
+                or MappingItem.summer in ddy_item.name
+            ):
                 self.idf.add(ddy_item)
                 self.stats.converted += 1
             else:

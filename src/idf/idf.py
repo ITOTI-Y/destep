@@ -24,6 +24,7 @@ LITERAL_CASE_MAP: dict[str, str] = {
     'dewpoint': 'DewPoint',
 }
 
+
 class IDF:
     """EnergyPlus IDF file unified interface.
 
