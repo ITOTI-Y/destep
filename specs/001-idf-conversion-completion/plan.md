@@ -1,34 +1,40 @@
 # Implementation Plan: IDF Conversion Completion
 
-**Branch**: `001-idf-conversion-completion` | **Date**: 2026-01-26 | **Spec**: [spec.md](spec.md)
+**Branch**: `001-idf-conversion-completion` | **Date**: 2026-01-27 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/001-idf-conversion-completion/spec.md`
 
 ## Summary
 
-完成 DeST 到 EnergyPlus IDF 转换的核心功能：实现内部热收益（人员、照明、设备）转换器，配置简化 HVAC 系统（IdealLoadsAirSystem），处理新风/通风系统，以及自动收集所有被引用的日程表。基于现有的 BaseConverter + ConverterManager + LookupTable 架构进行扩展。
+完成 DeST 到 EnergyPlus IDF 的转换功能，包括：
+1. 内部热收益转换 (People, Lights, ElectricEquipment)
+2. 简化 HVAC 系统 (HVACTemplate:Zone:IdealLoadsAirSystem)
+3. 新风/通风配置
+4. 日程表自动收集
+5. 门接口保留
+6. **Sizing Period 自动添加** (新增) - 根据建筑位置自动添加设计日数据
 
 ## Technical Context
 
 **Language/Version**: Python >= 3.12
 **Primary Dependencies**: Pydantic 2.x, SQLAlchemy 2.x, Loguru, Typer
-**Storage**: MS Access (.accdb) via UCanAccess/JDBC → SQLite (内存)
-**Testing**: N/A
-**Target Platform**: Linux/Windows CLI
-**Project Type**: Single project (CLI 工具)
-**Performance Goals**: N/A (批处理转换)
-**Constraints**: 输出 IDF 文件必须在 EnergyPlus 中成功运行模拟
-**Scale/Scope**: 单建筑模型转换（数百个 Zone）
+**Storage**: SQLite (DeST database)
+**Testing**: pytest
+**Target Platform**: Linux/Windows
+**Project Type**: Single project
+**Performance Goals**: N/A (batch processing)
+**Constraints**: src/idf/models/ 目录不允许修改
+**Scale/Scope**: 单个建筑模型转换
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - [x] **Modern Python Syntax**: Uses Python 3.12+ features (`X | Y`, `list[T]`, `dict[K, V]`)
-- [x] **No Over-Abstraction**: No unnecessary wrappers; direct library API usage (使用现有 BaseConverter 架构)
-- [x] **SOTA Libraries First**: 使用 Pydantic (验证), SQLAlchemy (ORM), Loguru (日志)
+- [x] **No Over-Abstraction**: No unnecessary wrappers; direct library API usage
+- [x] **SOTA Libraries First**: Using Pydantic, SQLAlchemy, Loguru
 - [x] **Clean Code**: No inline comments; self-documenting names
 - [x] **Conventional Commits**: Commit messages follow `<type>(<scope>): <description>`
-- [x] **Fail-Fast**: Exceptions raised early with clear context (现有转换器已遵循此模式)
+- [x] **Fail-Fast**: Exceptions raised early with clear context
 
 ## Project Structure
 
@@ -40,153 +46,134 @@ specs/001-idf-conversion-completion/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (N/A - 无 API)
-└── tasks.md             # Phase 2 output (由 /speckit.tasks 生成)
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 src/
-├── converters/           # 转换器核心模块
-│   ├── base.py              # BaseConverter 抽象基类 (已存在)
-│   ├── manager.py           # ConverterManager + LookupTable (已存在)
-│   ├── internal_gains.py    # [新建] 内部热收益转换器
-│   ├── hvac.py              # [新建] IdealLoadsAirSystem 转换器
-│   └── schedule.py          # 日程表转换器 (已存在，需扩展)
-├── database/models/
-│   ├── gains.py             # OccupantGains, LightGains, EquipmentGains (已存在)
-│   └── building.py          # Room, RoomGroup (已存在)
-└── idf/models/
-    ├── internal_gains.py    # People, Lights, ElectricEquipment (已存在)
-    ├── zone_forced_air.py   # ZoneHVACIdealLoadsAirSystem (已存在)
-    └── zone_equipment.py    # ZoneHVACEquipmentList/Connections (已存在)
+├── converters/
+│   ├── base.py              # BaseConverter 抽象基类
+│   ├── manager.py           # ConverterManager + LookupTable
+│   ├── internal_gains.py    # 内部热收益转换 (US1)
+│   ├── schedule.py          # 日程表转换 (US4)
+│   ├── hvac.py              # HVAC 系统转换 (US2, US3)
+│   ├── fenestration.py      # 门窗转换 (US5)
+│   └── sizing.py            # Sizing Period 转换 (US6) [NEW]
+├── database/
+│   └── models/
+│       ├── environment.py   # Environment, SysCity 位置信息
+│       └── ...
+├── idf/
+│   └── models/
+│       ├── location.py      # SizingPeriodDesignDay 模型
+│       └── ...
+└── data/
+    └── ddy/                 # 内嵌 DDY 数据 [NEW]
+        └── china_cities.json  # 中国主要城市设计日参数
 ```
 
-**Structure Decision**: 遵循现有 Single project 结构，新转换器放置在 `src/converters/` 目录下，遵循现有命名和架构模式。
+**Structure Decision**: 单项目结构，新增 `src/converters/sizing.py` 用于 Sizing Period 转换，新增 `src/data/ddy/` 目录存放内嵌的设计日数据。
+
+## User Story 6: Sizing Period Auto-Add - Technical Design
+
+### Overview
+
+SizingPeriod:DesignDay 是 EnergyPlus 进行 HVAC 系统设计计算的必要输入。设计日数据包含典型极端气候条件下的气象参数，用于计算供暖/制冷设计负荷。
+
+### DDY Data Source Strategy
+
+**数据来源优先级**：
+1. **内嵌数据** (推荐): 将中国主要城市的 DDY 数据预处理并以 JSON 格式内嵌在 `src/data/ddy/china_cities.json`
+2. **EnergyPlus 官方源**: 作为备选，可从 [energyplus.net/weather](https://energyplus.net/weather) 或 [climate.onebuilding.org](https://climate.onebuilding.org/) 获取
+
+**内嵌数据格式** (JSON):
+```json
+{
+  "Beijing": {
+    "winter_design_day": {
+      "name": "Beijing Heating 99% Design Day",
+      "month": 1,
+      "day_of_month": 21,
+      "day_type": "WinterDesignDay",
+      "maximum_dry_bulb_temperature": -9.6,
+      "daily_dry_bulb_temperature_range": 0,
+      "humidity_condition_type": "WetBulb",
+      "wetbulb_or_dewpoint_at_maximum_dry_bulb": -12.6,
+      "wind_speed": 2.1,
+      "wind_direction": 0,
+      "solar_model_indicator": "ASHRAEClearSky",
+      "sky_clearness": 0.0
+    },
+    "summer_design_day": {
+      "name": "Beijing Cooling 1% Design Day",
+      "month": 7,
+      "day_of_month": 21,
+      "day_type": "SummerDesignDay",
+      "maximum_dry_bulb_temperature": 33.5,
+      "daily_dry_bulb_temperature_range": 10.0,
+      "humidity_condition_type": "WetBulb",
+      "wetbulb_or_dewpoint_at_maximum_dry_bulb": 26.4,
+      "wind_speed": 3.4,
+      "wind_direction": 180,
+      "solar_model_indicator": "ASHRAETau2017",
+      "ashrae_clear_sky_optical_depth_for_beam_irradiance_taub": 0.556,
+      "ashrae_clear_sky_optical_depth_for_diffuse_irradiance_taud": 1.779
+    }
+  }
+}
+```
+
+### SizingConverter Implementation
+
+**类设计**：
+```python
+class SizingConverter(BaseConverter[Environment]):
+    """Converter for adding SizingPeriod:DesignDay objects.
+
+    Reads building location from DeST Environment/SysCity tables,
+    matches to embedded DDY data, and creates design day IDF objects.
+    """
+
+    def __init__(self, session, idf, lookup_table, pinyin=None):
+        super().__init__(session, idf, lookup_table, pinyin)
+        self._ddy_data = self._load_embedded_ddy_data()
+
+    def _load_embedded_ddy_data(self) -> dict:
+        """Load embedded DDY data from JSON file."""
+
+    def _match_city(self, environment: Environment) -> str | None:
+        """Match DeST environment to DDY city name."""
+
+    def _create_design_day(self, params: dict) -> SizingPeriodDesignDay:
+        """Create SizingPeriodDesignDay from parameter dict."""
+
+    def convert_all(self) -> None:
+        """Convert sizing periods for the project."""
+
+    def convert_one(self, instance: Environment) -> bool:
+        """Add design days based on environment location."""
+```
+
+**城市匹配逻辑**：
+1. 优先使用 `Environment.city_name` 直接匹配
+2. 通过 `Environment.city_id` 关联 `SysCity.name` / `SysCity.cname` 匹配
+3. 无匹配时使用默认城市 (Beijing) 并发出警告
+
+### Integration with ConverterManager
+
+SizingConverter 应在其他转换器之前执行，因为设计日数据是模拟配置的基础：
+
+```
+SizingConverter (Phase 0) → BuildingConverter → ZoneConverter → ...
+```
 
 ## Complexity Tracking
 
-> 无宪法违规需要记录。所有实现将遵循现有架构模式。
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-## Phase 0: Research Summary
-
-### R-001: EnergyPlus IdealLoadsAirSystem 最佳实践
-
-**Decision**: 使用 ZoneHVAC:IdealLoadsAirSystem 配合 ThermostatSetpoint:DualSetpoint
-
-**Rationale**:
-- IdealLoadsAirSystem 是 EnergyPlus 中最简单的 HVAC 系统，无需详细建模管道、风机等
-- 适合负荷计算和能耗估算阶段使用
-- 支持独立的供暖/制冷设定点温度日程表
-
-**Alternatives considered**:
-- HVACTemplate:Zone:IdealLoadsAirSystem: 更简单但灵活性较低
-- Detailed HVAC: 过于复杂，不符合 "简化 HVAC" 需求
-
-### R-002: 新风量单位转换
-
-**Decision**: 在转换器内部自动执行 m³/h → m³/s 转换 (÷3600)
-
-**Rationale**:
-- DeST 使用 m³/h (中国标准)
-- EnergyPlus 内部使用 m³/s (SI 单位)
-- 转换逻辑封装在转换器内，对外透明
-
-**Implementation**:
-```python
-outdoor_air_flow_rate_m3_per_s = outdoor_air_flow_rate_m3_per_h / 3600
-```
-
-### R-003: 人员代谢热量处理
-
-**Decision**: 使用 Schedule:Constant 设置 Activity Level
-
-**Rationale**:
-- DeST `heat_per_person` 直接映射为 EnergyPlus Activity Level (W/person)
-- Activity Level Schedule 值 = heat_per_person
-- 无需单位转换
-
-**Implementation approach**:
-```python
-activity_schedule_name = f"ActivityLevel_{people_name}"
-activity_schedule = ScheduleConstant(
-    name=activity_schedule_name,
-    schedule_type_limits_name="Any Number",
-    hourly_value=heat_per_person
-)
-```
-
-### R-004: 日程表自动收集机制
-
-**Decision**: 扩展现有 LookupTable.REQUIRED_SCHEDULE_IDS 机制
-
-**Rationale**:
-- 现有 ScheduleConverter 已支持仅转换被标记为 required 的日程表
-- 新转换器只需在使用日程表时调用 `lookup_table.REQUIRED_SCHEDULE_IDS.add(schedule_id)`
-- 无需修改 ScheduleConverter 核心逻辑
-
-### R-005: Zone HVAC Equipment 配置
-
-**Decision**: 为每个 Zone 创建完整的 HVAC 配置三元组
-
-**Rationale**:
-- EnergyPlus 要求: Zone → EquipmentConnections → EquipmentList → IdealLoadsAirSystem
-- 必须正确设置节点名称以建立连接
-
-**Configuration pattern**:
-```
-Zone: "Zone_123"
-  ├─ ZoneHVAC:EquipmentConnections
-  │   ├─ zone_name: "Zone_123"
-  │   ├─ equipment_list_name: "Zone_123_EquipmentList"
-  │   ├─ zone_air_inlet_node: "Zone_123_Inlet"
-  │   ├─ zone_air_node_name: "Zone_123_AirNode"
-  │   └─ zone_return_air_node: "Zone_123_Return"
-  ├─ ZoneHVAC:EquipmentList
-  │   ├─ name: "Zone_123_EquipmentList"
-  │   └─ equipment[0]: (IdealLoadsAirSystem, "Zone_123_IdealLoads", 1, 1)
-  └─ ZoneHVAC:IdealLoadsAirSystem
-      ├─ name: "Zone_123_IdealLoads"
-      ├─ zone_supply_air_node_name: "Zone_123_Inlet"
-      └─ heating/cooling_setpoint_schedule_name: from RoomGroup
-```
-
-### R-006: 温度设定点日程表
-
-**Decision**: 使用 ThermostatSetpoint:DualSetpoint + ZoneControl:Thermostat
-
-**Rationale**:
-- IdealLoadsAirSystem 需要设定点来控制供暖/制冷
-- 设定点来自 RoomGroup.set_t_min_schedule (供暖) 和 set_t_max_schedule (制冷)
-- DualSetpoint 支持独立的供暖/制冷温度控制
-
-**Configuration pattern**:
-```
-ThermostatSetpoint:DualSetpoint
-  ├─ name: "Zone_123_DualSetpoint"
-  ├─ heating_setpoint_schedule: from RoomGroup.set_t_min_schedule
-  └─ cooling_setpoint_schedule: from RoomGroup.set_t_max_schedule
-
-ZoneControl:Thermostat
-  ├─ name: "Zone_123_Thermostat"
-  ├─ zone_name: "Zone_123"
-  ├─ control_type_schedule: "Always On" (常量=4)
-  └─ control_1_object_name: "Zone_123_DualSetpoint"
-```
-
-## Phase 1: Data Model
-
-详见 [data-model.md](data-model.md)
-
-## Phase 1: Contracts
-
-本项目为 CLI 工具，无 API 接口。跳过 contracts/ 生成。
-
-## Phase 1: Quickstart
-
-详见 [quickstart.md](quickstart.md)
-
-## Next Steps
-
-运行 `/speckit.tasks` 生成详细的实现任务列表。
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| 内嵌 DDY JSON 数据 | 避免运行时网络依赖，提高可靠性 | 实时下载可能失败，且增加外部依赖 |

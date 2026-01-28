@@ -233,7 +233,7 @@ class ModelGenerator:
             # Build registries
             for obj in sorted_objects:
                 object_type_registry[obj.name] = obj.class_name
-                field_order_registry[obj.name] = [f.name for f in obj.fields]
+                field_order_registry[obj.name] = [f.python_name for f in obj.fields]
 
         # Generate __init__.py
         self._generate_init_file(

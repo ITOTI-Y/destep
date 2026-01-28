@@ -188,18 +188,82 @@
 
 ---
 
-## Phase 8: Polish & Cross-Cutting Concerns
+## Phase 8: User Story 6 - Sizing Period Auto-Add (Priority: P2)
+
+**Goal**: Automatically add SizingPeriod:DesignDay objects based on building location
+
+**Independent Test**: Convert a DeST file with location info and verify IDF contains correct SizingPeriod:DesignDay objects (winter heating and summer cooling)
+
+**Note**: DDY 数据从 EnergyPlus 官方源预处理后以 JSON 格式内嵌，避免运行时网络依赖
+
+### Implementation for User Story 6
+
+- [ ] T031 [US6] Create embedded DDY data directory src/data/ddy/ and china_cities.json with major Chinese cities design day data:
+  - Include at least: Beijing, Shanghai, Guangzhou, Shenzhen, Chengdu, Wuhan, Xi'an, Harbin, Kunming
+  - Each city has winter_design_day and summer_design_day parameters
+  - Data sourced from EnergyPlus official DDY files or climate.onebuilding.org
+
+- [ ] T032 [US6] Create SizingConverter class skeleton in src/converters/sizing.py extending BaseConverter[Environment]:
+  - Constructor loads embedded DDY data from JSON
+  - Store DDY data in instance variable
+
+- [ ] T033 [US6] Implement _load_embedded_ddy_data method in src/converters/sizing.py:
+  - Use importlib.resources to load JSON from package
+  - Return dict[str, dict] with city name as key
+  - Fallback to empty dict with warning if file not found
+
+- [ ] T034 [US6] Implement _match_city method in src/converters/sizing.py:
+  - Priority 1: Match Environment.city_name directly
+  - Priority 2: Match via SysCity.name or SysCity.cname (Chinese name)
+  - Normalize names (lowercase, strip whitespace)
+  - Return matched city key or None
+
+- [ ] T035 [US6] Implement _create_design_day method in src/converters/sizing.py:
+  - Accept parameter dict from DDY data
+  - Create SizingPeriodDesignDay IDF model instance
+  - Map all required fields (name, month, day_of_month, day_type, temperatures, wind, solar model)
+
+- [ ] T036 [US6] Implement convert_all method in src/converters/sizing.py:
+  - Query single Environment from database (only one per project)
+  - Call convert_one if Environment found
+  - Update stats
+
+- [ ] T037 [US6] Implement convert_one method in src/converters/sizing.py:
+  - Match city using _match_city
+  - If no match: log warning, use default city (Beijing)
+  - Create winter design day (WinterDesignDay)
+  - Create summer design day (SummerDesignDay)
+  - Add both to IDF
+  - Return True on success
+
+- [ ] T038 [US6] Implement error handling in src/converters/sizing.py:
+  - Warning if city not matched (use default)
+  - Warning if DDY data file not found (skip sizing period)
+  - Clear log messages with city context
+
+**Checkpoint**: User Story 6 complete - Sizing Period auto-added
+
+---
+
+## Phase 9: Polish & Cross-Cutting Concerns
 
 **Purpose**: Integration, registration, and final validation
 
-- [X] T031 Register InternalGainsConverter in ConverterManager in src/converters/manager.py
-- [X] T032 Register HVACConverter in ConverterManager in src/converters/manager.py
-- [X] T033 Update converter execution order in ConverterManager:
+- [X] T039 Register InternalGainsConverter in ConverterManager in src/converters/manager.py
+- [X] T040 Register HVACConverter in ConverterManager in src/converters/manager.py
+- [X] T041 Update converter execution order in ConverterManager:
   - InternalGainsConverter after FenestrationConverter
   - HVACConverter after InternalGainsConverter
   - ScheduleConverter last (to collect all required schedules)
-- [ ] T034 Validate IDF output structure matches quickstart.md examples
-- [ ] T035 Run conversion on sample DeST file and verify in EnergyPlus
+- [X] T042 Validate IDF output structure matches quickstart.md examples
+- [X] T043 Run conversion on sample DeST file and verify in EnergyPlus
+- [ ] T044 [US6] Register SizingConverter in ConverterManager in src/converters/manager.py:
+  - Add SizingConverter to converters list
+  - Execute SizingConverter FIRST (before other converters)
+- [ ] T045 [US6] Update main.py or CLI to ensure SizingConverter runs in correct order
+- [ ] T046 Run full conversion with Sizing Period and verify in EnergyPlus:
+  - Verify SizingPeriod:DesignDay objects present in IDF
+  - Verify HVAC sizing calculation completes without errors
 
 ---
 
@@ -209,13 +273,14 @@
 
 - **Setup (Phase 1)**: No dependencies - verify existing code
 - **Foundational (Phase 2)**: Depends on Setup - add missing models
-- **User Stories (Phase 3-7)**: All depend on Foundational completion
+- **User Stories (Phase 3-8)**: All depend on Foundational completion
   - US1 (P1): Can start immediately after Foundational
   - US4 (P2): Can start after US1 (needs schedule registration pattern)
   - US2 (P2): Can start after US4 (uses schedule collection)
   - US3 (P3): Depends on US2 (extends HVACConverter)
   - US5 (P4): Independent - can run in parallel with US2/US3
-- **Polish (Phase 8)**: Depends on all user stories complete
+  - **US6 (P2)**: Independent - can run in parallel with US1-US5 (no data dependencies)
+- **Polish (Phase 9)**: Depends on all user stories complete
 
 ### User Story Dependencies
 
@@ -226,11 +291,13 @@ Phase 3 (US1: Internal Gains) ────────────────�
     ↓                                               │
 Phase 4 (US4: Schedule Collection)    Phase 7 (US5: Door Interface)
     ↓                                               │
-Phase 5 (US2: HVAC System)             ─────────────┘
-    ↓
-Phase 6 (US3: Outdoor Air)
-    ↓
-Phase 8 (Polish)
+Phase 5 (US2: HVAC System)             ─────────────┤
+    ↓                                               │
+Phase 6 (US3: Outdoor Air)            Phase 8 (US6: Sizing Period) [NEW]
+    ↓                                               │
+    └───────────────────────────────────────────────┘
+                        ↓
+                 Phase 9 (Polish)
 ```
 
 ### Parallel Opportunities
@@ -255,6 +322,12 @@ T014, T015 can run in parallel (after T013)
 US5 (Phase 7) can run in parallel with US2/US3 (Phases 5-6)
 ```
 
+**US6 parallel execution** [NEW]:
+```
+US6 (Phase 8) can run in parallel with US1-US5 (independent of other user stories)
+T032, T033, T034, T035 can run in parallel within Phase 8
+```
+
 ---
 
 ## Implementation Strategy
@@ -274,13 +347,15 @@ US5 (Phase 7) can run in parallel with US2/US3 (Phases 5-6)
 3. Add US4 (Schedule Collection) → Test → Schedules auto-collected
 4. Add US2 (HVAC) → Test → Full simulation capable
 5. Add US3 (Outdoor Air) → Test → Ventilation support
-6. Add US5 (Door Interface) → Test → Complete feature
+6. Add US5 (Door Interface) → Test → Door interface preserved
+7. **Add US6 (Sizing Period) → Test → HVAC sizing calculation ready** [NEW]
 
 ### Single Developer Strategy
 
-1. Complete phases sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+1. Complete phases sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
 2. Validate at each checkpoint before proceeding
 3. US5 can be done at any point after Phase 2
+4. **US6 can be done at any point after Phase 2** (independent of other user stories)
 
 ---
 
@@ -294,3 +369,5 @@ US5 (Phase 7) can run in parallel with US2/US3 (Phases 5-6)
 - Stop at any checkpoint to validate story independently
 - Unit conversion: m³/h → m³/s (÷3600) for fresh air flow
 - **HVACTemplate 模式**: 使用 HVACTemplate:Zone:IdealLoadsAirSystem + HVACTemplate:Thermostat，EnergyPlus 运行时自动展开为底层对象，无需手动创建 ZoneHVAC:EquipmentList 等
+- **Sizing Period 数据源**: DDY 数据从 EnergyPlus 官方 (energyplus.net/weather 或 climate.onebuilding.org) 预处理后以 JSON 格式内嵌在 src/data/ddy/，避免运行时网络依赖
+- **SizingConverter 执行顺序**: 应在 BuildingConverter 之前执行，因为设计日是模拟配置的基础

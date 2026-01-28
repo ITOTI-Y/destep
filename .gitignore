@@ -14,6 +14,6 @@ examples/
 log/
 
 _dev/
-src/idf/models/*.py
-!src/idf/models/_base.py
+# src/idf/models/*.py
+# !src/idf/models/_base.py
 database/*

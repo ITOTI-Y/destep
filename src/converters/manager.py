@@ -24,6 +24,7 @@ from .fenestration import FenestrationConverter
 from .hvac import HVACConverter
 from .internal_gains import InternalGainsConverter
 from .schedule import ScheduleConverter
+from .sizing import SizingConverter
 from .surface import SurfaceConverter
 from .zone import ZoneConverter
 
@@ -51,6 +52,7 @@ class LookupTable:
 
 class ConverterManager:
     CONVERTER_ORDER: dict[str, type[BaseConverter]] = {
+        'sizing': SizingConverter,
         'building': BuildingConverter,
         'construction': ConstructionConverter,
         'zone': ZoneConverter,

@@ -19,6 +19,10 @@ from src.idf.models.simulation import Version
 if TYPE_CHECKING:
     from src.idf.models._base import IDFBaseModel
 
+LITERAL_CASE_MAP: dict[str, str] = {
+    'wetbulb': 'WetBulb',
+    'dewpoint': 'DewPoint',
+}
 
 class IDF:
     """EnergyPlus IDF file unified interface.
@@ -216,6 +220,8 @@ class IDF:
         try:
             return float(value)
         except ValueError:
+            if value.lower() in LITERAL_CASE_MAP:
+                return LITERAL_CASE_MAP[value.lower()]
             return value
 
     def save(self, path: Path) -> None:

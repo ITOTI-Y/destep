@@ -102,6 +102,23 @@
 
 ---
 
+### User Story 6 - Sizing Period Auto-Add (Priority: P2)
+
+用户需要系统自动根据建筑所在地理位置添加 Sizing Period 设计日数据，以便 EnergyPlus 可以正确进行系统设计计算。
+
+**Why this priority**: Sizing Period (设计日) 数据是 EnergyPlus 进行 HVAC 系统设计计算的必要输入。没有设计日数据，模拟会缺少供暖/制冷设计负荷计算依据。HVACTemplate 对象依赖设计日数据来正确展开。
+
+**Independent Test**: 可通过转换包含位置信息的 DeST 文件，验证 IDF 包含正确的 SizingPeriod:DesignDay 对象（冬季和夏季设计日）。
+
+**Acceptance Scenarios**:
+
+1. **Given** DeST 数据库包含建筑位置信息 (城市/气候区), **When** 执行转换, **Then** IDF 文件包含对应的 SizingPeriod:DesignDay 对象 (冬季供暖和夏季制冷)
+2. **Given** 系统识别到建筑位置, **When** 执行转换, **Then** 从 EnergyPlus 官方 DDY 数据源获取或嵌入设计日数据
+3. **Given** 设计日数据被添加, **When** 在 EnergyPlus 中运行模拟, **Then** HVAC 系统设计计算正常完成，无 sizing period 相关错误
+4. **Given** 无法确定位置或找不到 DDY 数据, **When** 执行转换, **Then** 抛出警告并使用默认设计日参数
+
+---
+
 ### Edge Cases
 
 - 房间没有任何内部热收益数据时，该Zone不生成People/Lights/Equipment对象（正常跳过）
@@ -110,6 +127,8 @@
 - Room.min_fresh_flow_num为0或空时，不配置新风设置（正常跳过）
 - RoomGroup没有温度设定日程表时，抛出错误
 - 必要参数缺失时（如maxpower、maxnumber等），抛出错误并报告具体缺失字段
+- 无法识别 DeST 项目的城市/气候区时，使用中国典型城市 (北京) 的默认设计日参数
+- DDY 数据源不可用时，使用内嵌的常用城市设计日数据
 
 ## Requirements *(mandatory)*
 
@@ -158,6 +177,13 @@
 **门接口**:
 - **FR-016**: System MUST 保留Door转换接口，当前实现返回跳过状态
 
+**Sizing Period 自动添加**:
+- **FR-017**: System MUST 在转换过程中自动添加 SizingPeriod:DesignDay 对象
+- **FR-018**: System MUST 支持从内嵌的 DDY 数据或 EnergyPlus 官方源获取设计日参数
+- **FR-019**: System MUST 生成至少两个设计日：冬季供暖设计日 (WinterDesignDay) 和夏季制冷设计日 (SummerDesignDay)
+- **FR-020**: System SHOULD 根据建筑位置 (DeST Project 的城市/气候区信息) 选择合适的设计日参数
+- **FR-021**: System MUST 在无法匹配位置时使用默认设计日参数并发出警告
+
 ### Key Entities
 
 - **OccupantGains (DeST)**: 人员热收益数据源
@@ -186,6 +212,14 @@
 - **ElectricEquipment (EnergyPlus)**: 设备对象，功率密度(W/m²)
 - **HVACTemplate:Zone:IdealLoadsAirSystem (EnergyPlus)**: 简化HVAC系统，支持新风和温度设定
 - **LookupTable.SCHEDULE_TO_NAME**: 日程表ID到IDF名称的映射表
+- **SizingPeriod:DesignDay (EnergyPlus)**: 设计日对象，包含气象参数用于HVAC系统设计
+  - name: 设计日名称 (如 "Beijing Heating 99% Design Day")
+  - month, day_of_month: 设计日日期
+  - day_type: 日类型 (WinterDesignDay/SummerDesignDay)
+  - maximum_dry_bulb_temperature: 最高干球温度 (°C)
+  - wind_speed, wind_direction: 风速和风向
+  - humidity_condition_type: 湿度条件类型
+  - solar_model_indicator: 太阳辐射模型
 
 ## Technical Constraints
 
