@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.idf import IDF
 from src.idf.models import (
+    OutputControlTableStyle,
     OutputDiagnostics,
     OutputDiagnosticsDiagnosticsItem,
     OutputTableSummaryReports,
@@ -83,6 +84,12 @@ class ConverterManager:
             end_day_of_month=31,
         )
         self.idf.add(run_period)
+
+        output_table_style = OutputControlTableStyle(
+            column_separator='Comma',
+            unit_conversion='JtoKWH',
+        )
+        self.idf.add(output_table_style)
 
         output_table_summary = OutputTableSummaryReports(
             reports=[OutputTableSummaryReportsReportsItem(report_name='AllSummary')]
