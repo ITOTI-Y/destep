@@ -177,12 +177,10 @@
 
 ### Implementation for User Story 5
 
-- [ ] T029 [US5] Update FenestrationConverter in src/converters/fenestration.py to detect door objects
-- [ ] T030 [US5] Implement door skip logic in src/converters/fenestration.py:
-  - Check if fenestration is a door (by type or classification)
-  - Log info message "Door skipped: {door_id}"
-  - Return without generating IDF objects
-  - Track skipped count for statistics
+- [X] T029 [US5] FenestrationConverter in src/converters/fenestration.py 已检测 Door 类型（convert_one 中 isinstance 判断）
+- [X] T030 [US5] Door skip logic in src/converters/fenestration.py:
+  - _convert_door 返回 False，不生成 IDF 对象
+  - Door 转换有意跳过，当前不需要门对象转换
 
 **Checkpoint**: User Story 5 complete - Door interface preserved
 
@@ -194,52 +192,47 @@
 
 **Independent Test**: Convert a DeST file with location info and verify IDF contains correct SizingPeriod:DesignDay objects (winter heating and summer cooling)
 
-**Note**: DDY 数据从 EnergyPlus 官方源预处理后以 JSON 格式内嵌，避免运行时网络依赖
+**Note**: DDY 数据通过 src/utils/ddy_downloader.py 从 EnergyPlus 官方 GeoJSON 在线获取并解析，运行时需要网络连接
 
 ### Implementation for User Story 6
 
-- [ ] T031 [US6] Create embedded DDY data directory src/data/ddy/ and china_cities.json with major Chinese cities design day data:
-  - Include at least: Beijing, Shanghai, Guangzhou, Shenzhen, Chengdu, Wuhan, Xi'an, Harbin, Kunming
-  - Each city has winter_design_day and summer_design_day parameters
-  - Data sourced from EnergyPlus official DDY files or climate.onebuilding.org
+- [X] T031 [US6] Create DDY data downloader in src/utils/ddy_downloader.py:
+  - DDY class从 EnergyPlus 官方 GeoJSON 在线获取气象站数据
+  - 按城市名匹配（lowercase）获取对应 DDY 文件 URL
+  - 下载并解析 DDY 文件为 SizingPeriodDesignDay IDF 模型
 
-- [ ] T032 [US6] Create SizingConverter class skeleton in src/converters/sizing.py extending BaseConverter[Environment]:
-  - Constructor loads embedded DDY data from JSON
-  - Store DDY data in instance variable
+- [X] T032 [US6] Create SizingConverter class skeleton in src/converters/sizing.py extending BaseConverter[Environment]:
+  - 使用 DDY 类在线获取设计日数据
+  - MappingItem dataclass 定义冬夏设计日名称模式
 
-- [ ] T033 [US6] Implement _load_embedded_ddy_data method in src/converters/sizing.py:
-  - Use importlib.resources to load JSON from package
-  - Return dict[str, dict] with city name as key
-  - Fallback to empty dict with warning if file not found
+- [X] T033 [US6] Implement _get_ddy_data method in src/converters/sizing.py:
+  - 调用 DDY().get_weather_locations(city) 获取 IDF
+  - 筛选 SizingPeriod:DesignDay 类型对象
+  - 匹配失败时记录错误并返回空 dict
 
-- [ ] T034 [US6] Implement _match_city method in src/converters/sizing.py:
-  - Priority 1: Match Environment.city_name directly
-  - Priority 2: Match via SysCity.name or SysCity.cname (Chinese name)
-  - Normalize names (lowercase, strip whitespace)
-  - Return matched city key or None
+- [X] T034 [US6] City matching via DDY downloader:
+  - DDY.get_weather_locations 按城市名 lowercase 匹配
+  - 匹配失败时抛出 ValueError
 
-- [ ] T035 [US6] Implement _create_design_day method in src/converters/sizing.py:
-  - Accept parameter dict from DDY data
-  - Create SizingPeriodDesignDay IDF model instance
-  - Map all required fields (name, month, day_of_month, day_type, temperatures, wind, solar model)
+- [X] T035 [US6] Design day object creation in src/converters/sizing.py:
+  - DDY 解析器直接生成 SizingPeriodDesignDay IDF 模型实例
+  - convert_one 按 MappingItem 中定义的名称模式筛选冬夏设计日
 
-- [ ] T036 [US6] Implement convert_all method in src/converters/sizing.py:
-  - Query single Environment from database (only one per project)
-  - Call convert_one if Environment found
+- [X] T036 [US6] Implement convert_all method in src/converters/sizing.py:
+  - Query all Environment from database
+  - Call convert_one for each Environment
   - Update stats
 
-- [ ] T037 [US6] Implement convert_one method in src/converters/sizing.py:
-  - Match city using _match_city
-  - If no match: log warning, use default city (Beijing)
-  - Create winter design day (WinterDesignDay)
-  - Create summer design day (SummerDesignDay)
-  - Add both to IDF
-  - Return True on success
+- [X] T037 [US6] Implement convert_one method in src/converters/sizing.py:
+  - 调用 _get_ddy_data 获取设计日数据
+  - 筛选 winter (Htg 99.6% Condns DB) 和 summer (Clg .4% Condns DB=>MWB) 设计日
+  - 添加匹配的设计日到 IDF，跳过其余
+  - Return True on success, False if no DDY data found
 
-- [ ] T038 [US6] Implement error handling in src/converters/sizing.py:
-  - Warning if city not matched (use default)
-  - Warning if DDY data file not found (skip sizing period)
-  - Clear log messages with city context
+- [X] T038 [US6] Implement error handling in src/converters/sizing.py:
+  - 城市不匹配时 stats.errors += 1 并记录 warning
+  - 返回 False 跳过 sizing period
+  - 包含城市名上下文的日志消息
 
 **Checkpoint**: User Story 6 complete - Sizing Period auto-added
 
@@ -257,11 +250,11 @@
   - ScheduleConverter last (to collect all required schedules)
 - [X] T042 Validate IDF output structure matches quickstart.md examples
 - [X] T043 Run conversion on sample DeST file and verify in EnergyPlus
-- [ ] T044 [US6] Register SizingConverter in ConverterManager in src/converters/manager.py:
+- [X] T044 [US6] Register SizingConverter in ConverterManager in src/converters/manager.py:
   - Add SizingConverter to converters list
   - Execute SizingConverter FIRST (before other converters)
-- [ ] T045 [US6] Update main.py or CLI to ensure SizingConverter runs in correct order
-- [ ] T046 Run full conversion with Sizing Period and verify in EnergyPlus:
+- [X] T045 [US6] main.py convert 命令通过 ConverterManager 自动执行 SizingConverter（已在 CONVERTER_ORDER 中注册为第一项）
+- [X] T046 Run full conversion with Sizing Period and verify in EnergyPlus:
   - Verify SizingPeriod:DesignDay objects present in IDF
   - Verify HVAC sizing calculation completes without errors
 
@@ -369,5 +362,5 @@ T032, T033, T034, T035 can run in parallel within Phase 8
 - Stop at any checkpoint to validate story independently
 - Unit conversion: m³/h → m³/s (÷3600) for fresh air flow
 - **HVACTemplate 模式**: 使用 HVACTemplate:Zone:IdealLoadsAirSystem + HVACTemplate:Thermostat，EnergyPlus 运行时自动展开为底层对象，无需手动创建 ZoneHVAC:EquipmentList 等
-- **Sizing Period 数据源**: DDY 数据从 EnergyPlus 官方 (energyplus.net/weather 或 climate.onebuilding.org) 预处理后以 JSON 格式内嵌在 src/data/ddy/，避免运行时网络依赖
-- **SizingConverter 执行顺序**: 应在 BuildingConverter 之前执行，因为设计日是模拟配置的基础
+- **Sizing Period 数据源**: DDY 数据通过 src/utils/ddy_downloader.py 从 EnergyPlus 官方 GeoJSON (GitHub) 在线获取，运行时需要网络连接
+- **SizingConverter 执行顺序**: 已在 ConverterManager.CONVERTER_ORDER 中排第一位，在 BuildingConverter 之前执行

@@ -100,5 +100,24 @@ def convert(
         idf.save(output_path)
 
 
+@app.command()
+def run(
+    idf_path: Annotated[
+        Path, Option('--idf', '-i', help='Path to the IDF file')
+    ] = Path('output/destep.idf'),
+    weather_path: Annotated[
+        Path, Option('--weather', '-w', help='Path to the EPW weather file')
+    ] = Path('weather/weather.epw'),
+    output_dir: Annotated[
+        Path,
+        Option('--output-dir', '-o', help='Output directory for simulation results'),
+    ] = Path('output/simulation'),
+):
+    from src.idf import IDF
+
+    idf = IDF()
+    raise SystemExit(idf.run(idf_path, weather_path, output_dir))
+
+
 if __name__ == '__main__':
     app()

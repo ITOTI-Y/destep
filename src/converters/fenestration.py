@@ -266,7 +266,7 @@ class FenestrationConverter(BaseConverter[Window | Door]):
             return False
         return True
 
-    def _convert_door(self, door: Door) -> bool:
+    def _convert_door(self, door: Door) -> bool:  # TODO: IGNORE DOOR CONVERSION FOR NOW
         return False
 
     def convert_all(self) -> None:

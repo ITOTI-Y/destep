@@ -1,10 +1,12 @@
 import asyncio
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 import httpx
 
 from src.idf.idf import IDF
+from src.utils.log import logger
 
 GEOJSON_URL = 'https://raw.githubusercontent.com/NatLabRockies/EnergyPlus/develop/weather/master.geojson'
 
@@ -63,19 +65,42 @@ class DDY:
             return match.group(1)
         return ''
 
-    def _parse_ddy_data(self, url: str) -> IDF:
+    def _parse_ddy_data(self, city: str, url: str, country: str | None = 'CHN') -> IDF:
+        path = Path('output/ddy') / f'{country}_{city}.ddy'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if path.exists():
+            return IDF.load(path)
         response = httpx.get(url)
         response.raise_for_status()
         try:
             content = response.text
         except UnicodeDecodeError:
             content = response.content.decode('latin-1')
-        return IDF._parse_idf_content(content)
+        data = IDF._parse_idf_content(content)
+        data.save(path)
+        return data
+
+    def download_epw_data(
+        self, city: str, url: str, country: str | None = 'CHN'
+    ) -> None:
+        path = Path('output/weather') / f'{country}_{city}.epw'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if path.exists():
+            return
+        response = httpx.get(url)
+        response.raise_for_status()
+        path.write_bytes(response.content)
 
     def get_weather_locations(self, city: str, country: str | None = 'CHN') -> IDF:
         geojson = asyncio.run(self._download_geojson())
         locations = self._parse_geojson(geojson, country)
         for location in locations:
             if location.city.lower() == city.lower():
-                return self._parse_ddy_data(location.ddy or '')
+                try:
+                    self.download_epw_data(location.city, location.epw, country)
+                except Exception as e:
+                    logger.error(
+                        f'Failed to download EPW data for {location.city}: {e}'
+                    )
+                return self._parse_ddy_data(location.city, location.ddy, country)
         raise ValueError(f'City {city} not found in {country}')
