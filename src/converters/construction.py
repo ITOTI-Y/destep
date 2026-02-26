@@ -60,7 +60,7 @@ class EnclosureKind(IntEnum):
     INWALL = 2
     ROOF = 3
     GROUNDFLOOR = 4
-    FLOOR_CEILLING = 5
+    FLOOR_CEILING = 5
     AIRFLOOR = 6
 
 
@@ -70,7 +70,7 @@ CONSTRUCTION_KIND_PREFIX: dict[int, str] = {
     EnclosureKind.INWALL: 'IntWall',
     EnclosureKind.ROOF: 'Roof',
     EnclosureKind.GROUNDFLOOR: 'GroundFloor',
-    EnclosureKind.FLOOR_CEILLING: 'Floor_or_Ceiling',
+    EnclosureKind.FLOOR_CEILING: 'Floor_or_Ceiling',
     EnclosureKind.AIRFLOOR: 'AirFloor',
 }
 
@@ -205,7 +205,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return self._convert_roof(construction_id)
         elif kind == EnclosureKind.GROUNDFLOOR:
             return self._convert_groundfloor(construction_id)
-        elif kind == EnclosureKind.FLOOR_CEILLING:
+        elif kind == EnclosureKind.FLOOR_CEILING:
             return self._convert_middlefloor(construction_id)
         elif kind == EnclosureKind.AIRFLOOR:
             return self._convert_airfloor(construction_id)
@@ -343,7 +343,7 @@ class ConstructionConverter(BaseConverter[MainEnclosure]):
             return False
 
         return self._create_construction(
-            EnclosureKind.FLOOR_CEILLING,
+            EnclosureKind.FLOOR_CEILING,
             construction_id,
             construction.cname or construction.name,
             layers,

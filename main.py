@@ -14,19 +14,15 @@ app = Typer()
 def extract(
     accdb_path: Annotated[
         Path, Option('--accdb', '-a', help='Path to the Access database')
-    ] = Path('database/LH_Guangzhou_2015.accdb'),
+    ],
     output_path: Annotated[
         Path, Option('--output', '-o', help='Path to the output SQLite database')
-    ] = Path('output/destep.sqlite'),
+    ],
     driver_dir: Annotated[
         Path, Option('--driver', '-d', help='Path to the driver directory')
     ] = Path('driver'),
 ):
     from src.database import DataExtractor
-
-    path_config = PathConfig()
-    output_path = output_path or path_config.output_dir / 'destep.sqlite'
-    driver_dir = driver_dir or path_config.ucanaccess_path
 
     extractor = DataExtractor(
         accdb_path=accdb_path,
@@ -48,9 +44,9 @@ def check_schema(
         Path, Option('--driver', '-d', help='Path to the driver directory')
     ] = Path('driver'),
 ):
+    """Check database schema against SQLAlchemy models."""
     from src.database.schema_checker import SchemaChecker
 
-    """Check database schema against SQLAlchemy models."""
     path_config = PathConfig()
     output_dir = output_dir or path_config.output_dir
     driver_path = driver_path or path_config.ucanaccess_path
@@ -107,7 +103,7 @@ def run(
     ] = Path('output/destep.idf'),
     weather_path: Annotated[
         Path, Option('--weather', '-w', help='Path to the EPW weather file')
-    ] = Path('weather/weather.epw'),
+    ] = Path('output/weather/CHN_Guangzhou.epw'),
     output_dir: Annotated[
         Path,
         Option('--output-dir', '-o', help='Output directory for simulation results'),

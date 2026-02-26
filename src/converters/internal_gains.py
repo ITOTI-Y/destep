@@ -79,8 +79,12 @@ class InternalGainsConverter(BaseConverter[Room]):
 
         occupant_gains = self._get_occupant_gains(room.id)
         for gains in occupant_gains:
-            if self._convert_occupant_gains(gains, zone_name, room):
-                converted_any = True
+            try:
+                if self._convert_occupant_gains(gains, zone_name, room):
+                    converted_any = True
+            except ValueError as e:
+                logger.warning(f'Skipping occupant gains: {e}')
+                self.stats.add_warning(str(e))
 
         light_gains = self._get_light_gains(room.id)
         for gains in light_gains:

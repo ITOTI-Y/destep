@@ -1,4 +1,3 @@
-import asyncio
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,8 +19,18 @@ class WeatherLocation:
 
 
 class DDY:
-    def __init__(self):
-        self.client = httpx.AsyncClient()
+    def __init__(self, timeout: int = 30):
+        self.client = httpx.AsyncClient(timeout=timeout)
+        self._timeout = timeout
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
+
+    async def close(self) -> None:
+        await self.client.aclose()
 
     async def _download_geojson(self) -> dict:
         response = await self.client.get(GEOJSON_URL)
@@ -65,12 +74,14 @@ class DDY:
             return match.group(1)
         return ''
 
-    def _parse_ddy_data(self, city: str, url: str, country: str | None = 'CHN') -> IDF:
+    async def _parse_ddy_data(
+        self, city: str, url: str, country: str | None = 'CHN'
+    ) -> IDF:
         path = Path('output/ddy') / f'{country}_{city}.ddy'
         path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists():
             return IDF.load(path)
-        response = httpx.get(url)
+        response = await self.client.get(url)
         response.raise_for_status()
         try:
             content = response.text
@@ -80,27 +91,29 @@ class DDY:
         data.save(path)
         return data
 
-    def download_epw_data(
+    async def download_epw_data(
         self, city: str, url: str, country: str | None = 'CHN'
     ) -> None:
         path = Path('output/weather') / f'{country}_{city}.epw'
         path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists():
             return
-        response = httpx.get(url)
+        response = await self.client.get(url)
         response.raise_for_status()
         path.write_bytes(response.content)
 
-    def get_weather_locations(self, city: str, country: str | None = 'CHN') -> IDF:
-        geojson = asyncio.run(self._download_geojson())
+    async def get_weather_locations(
+        self, city: str, country: str | None = 'CHN'
+    ) -> IDF:
+        geojson = await self._download_geojson()
         locations = self._parse_geojson(geojson, country)
         for location in locations:
             if location.city.lower() == city.lower():
                 try:
-                    self.download_epw_data(location.city, location.epw, country)
-                except Exception as e:
+                    await self.download_epw_data(location.city, location.epw, country)
+                except httpx.HTTPError as e:
                     logger.error(
                         f'Failed to download EPW data for {location.city}: {e}'
                     )
-                return self._parse_ddy_data(location.city, location.ddy, country)
+                return await self._parse_ddy_data(location.city, location.ddy, country)
         raise ValueError(f'City {city} not found in {country}')

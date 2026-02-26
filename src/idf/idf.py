@@ -370,6 +370,10 @@ class IDF:
         """
         idf_path = Path(idf_path)
         weather_path = Path(weather_path)
+        if not weather_path.exists():
+            raise FileNotFoundError(f'Weather file not found: {weather_path}')
+        if not idf_path.exists():
+            raise FileNotFoundError(f'IDF file not found: {idf_path}')
         if output_dir is None:
             output_dir = idf_path.parent
 

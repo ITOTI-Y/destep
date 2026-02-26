@@ -12,8 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from src.converters.base import BaseConverter, UnitConverter
-from src.converters.construction import ConstructionConverter, EnclosureKind
-from src.converters.zone import ZoneConverter
+from src.converters.construction import EnclosureKind
 from src.database.models import MainEnclosure
 from src.database.models.building import Room
 from src.database.models.fenestration import Door, Window
@@ -49,8 +48,6 @@ class SurfaceConverter(BaseConverter[Room]):
         idf: IDF,
         lookup_table: LookupTable,
         pinyin: PinyinConverter | None = None,
-        zone_converter: ZoneConverter | None = None,
-        construction_converter: ConstructionConverter | None = None,
     ) -> None:
         super().__init__(session, idf, lookup_table, pinyin)
         self._surface_pairings: dict[int, int] = {}
@@ -102,7 +99,7 @@ class SurfaceConverter(BaseConverter[Room]):
                 self.stats.converted += 1
             else:
                 logger.warning(
-                    f'Failed to convert room {room.id} or zone is not waterweight'
+                    f'Failed to convert room {room.id} or zone is not watertight'
                 )
 
         if not self._surface_reference_check():
@@ -400,7 +397,7 @@ class SurfaceConverter(BaseConverter[Room]):
             return ('Outdoors', None)
         elif kind == EnclosureKind.GROUNDFLOOR:
             return ('Ground', None)
-        elif kind in (EnclosureKind.FLOOR_CEILLING, EnclosureKind.INWALL):
+        elif kind in (EnclosureKind.FLOOR_CEILING, EnclosureKind.INWALL):
             return ('Surface', enclosure.side2 if is_side1 else enclosure.side1)
         else:
             raise ValueError(f'Unknown enclosure kind {kind}')
@@ -417,7 +414,7 @@ class SurfaceConverter(BaseConverter[Room]):
             return 'Floor'
         elif enclosure.kind in (EnclosureKind.INWALL, EnclosureKind.OUTWALL):
             return 'Wall'
-        elif enclosure.kind == EnclosureKind.FLOOR_CEILLING:
+        elif enclosure.kind == EnclosureKind.FLOOR_CEILING:
             if surface.type == SurfaceType.CEILING:
                 return 'Ceiling'
             elif surface.type == SurfaceType.MIDDLE_FLOOR:

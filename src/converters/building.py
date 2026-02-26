@@ -57,8 +57,12 @@ def get_utc_offset_from_coordinates(latitude: float, longitude: float) -> float:
 
     # Get current UTC offset for the timezone
     tz = ZoneInfo(tz_name)
-    now = datetime.now(tz)
-    offset_seconds = now.utcoffset()
+    standard_date = datetime(2024, 1, 1, 12, 0, 0, tzinfo=tz)
+    dst = standard_date.dst()
+    if dst is not None and dst.total_seconds() != 0:
+        standard_date = datetime(2024, 7, 1, 12, 0, 0, tzinfo=tz)
+
+    offset_seconds = standard_date.utcoffset()
     if offset_seconds is None:
         return round(longitude / 15.0)
 

@@ -275,10 +275,9 @@ class FenestrationConverter(BaseConverter[Window | Door]):
         for window in windows:
             if self.convert_one(window):
                 logger.info(f'Converted window {window.id}')
-                self.stats.converted += 1
             else:
                 logger.warning(f'Failed to convert window {window.id}')
-                self.stats.skipped += 1
+        self.log_stats()
 
     def convert_one(self, instance: Window | Door) -> bool:
         try:

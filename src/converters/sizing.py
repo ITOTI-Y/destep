@@ -5,6 +5,7 @@ This module converts DeST DesignDay models to EnergyPlus SizingPeriod:DesignDay 
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -57,8 +58,10 @@ class SizingConverter(BaseConverter[Environment]):
     def convert_all(self) -> None:
         stmt = select(Environment)
         environments = self.session.execute(stmt).scalars().all()
+        self.stats.total = len(environments)
         for environment in environments:
             self.convert_one(environment)
+        self.log_stats()
 
     def convert_one(self, instance: Environment) -> bool:
         """Convert a single DeST Environment to IDF SizingPeriod:DesignDay.
@@ -91,11 +94,16 @@ class SizingConverter(BaseConverter[Environment]):
         return True
 
     def _get_ddy_data(self, city: str) -> dict:
-        """Get DDY data from embedded JSON file.
+        async def _load() -> IDF:
+            async with DDY() as ddy:
+                return await ddy.get_weather_locations(city)
 
-        Returns:
-            dict[str, dict] with city name as key and DDY data as value.
-        """
-        ddy = DDY()
-        ddy_data = ddy.get_weather_locations(city).all_of_type('SizingPeriod:DesignDay')
-        return ddy_data
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(_load()).all_of_type('SizingPeriod:DesignDay')
+
+        raise RuntimeError(
+            'SizingConverter.convert_one is currently a synchronous process, '
+            'if called in an asynchronous environment, please use the async interface'
+        )
