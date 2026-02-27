@@ -77,6 +77,14 @@ extractor = DataExtractor(
 extractor.extract_all()
 ```
 
+### IDF Conversion with PNG Preview
+
+Convert SQLite data into IDF, and generate a same-name PNG preview with -p:
+
+    uv run python main.py convert --sqlite-path output/destep.sqlite --output-path output/destep.idf --preview
+
+The preview image will be saved as output/destep.png.
+
 ## Dependencies
 
 - `jaydebeapi` - JDBC database connectivity

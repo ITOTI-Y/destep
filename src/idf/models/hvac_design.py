@@ -428,7 +428,7 @@ class OutputControlSizingStyle(IDFBaseModel):
     """Default style for the Sizing output files is comma -- this works well for
     importing into spreadsheet programs such as Excel(tm) but not so well for
     word processing programs -- there tab may be a better choice. Fixed puts
-    spaces between the \"columns\" """
+    spaces between the \"columns\""""
 
     _idf_object_type: ClassVar[str] = 'OutputControl:Sizing:Style'
     column_separator: Literal['Comma', 'Fixed', 'Tab'] = Field(...)

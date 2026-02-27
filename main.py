@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Annotated
 
+from loguru import logger
 from typer import Option, Typer
 
 from src.config import PathConfig
@@ -89,6 +90,14 @@ def convert(
     sqlite_path: Annotated[
         Path, Option('--sqlite-path', '-s', help='Path to the SQLite database')
     ] = Path('output/destep.sqlite'),
+    preview: Annotated[
+        bool,
+        Option(
+            '--preview',
+            '-p',
+            help='Generate a PNG preview image after IDF conversion',
+        ),
+    ] = False,
 ):
     from src.converters import ConverterManager
     from src.database import SQLiteManager
@@ -98,6 +107,17 @@ def convert(
         converter_manager = ConverterManager(session)
         idf = converter_manager.convert()
         idf.save(output_path)
+
+        if preview:
+            from src.visualization import idf_render
+
+            preview_path = output_path.with_suffix('.png')
+            try:
+                idf_render(idf, preview_path)
+            except Exception as e:
+                logger.warning(
+                    f'Failed to generate preview image at {preview_path}: {e}'
+                )
 
 
 if __name__ == '__main__':
