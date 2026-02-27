@@ -263,6 +263,7 @@ class FenestrationConverter(BaseConverter[Window | Door]):
             self.stats.converted += 1
         except Exception as e:
             logger.error(f'Failed to add window {window_name}: {e}')
+            self.stats.skipped += 1
             return False
         return True
 
