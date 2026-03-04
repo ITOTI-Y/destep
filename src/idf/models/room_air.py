@@ -14,10 +14,10 @@ from pydantic import Field
 from ._base import IDFBaseModel
 from ._refs import (
     AllHeatTranSurfNamesRef,
+    RoomAirflowNetworkNodesRef,
     RoomAirNodeGainsRef,
     RoomAirNodeHVACEquipmentRef,
     RoomAirNodeSurfaceListsRef,
-    RoomAirflowNetworkNodesRef,
     ScheduleNamesRef,
     ZoneNamesRef,
 )

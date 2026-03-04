@@ -4,8 +4,6 @@ from typing import Annotated
 from typer import Option, Typer
 
 from src.config import PathConfig
-from src.database import DataExtractor
-from src.database.schema_checker import SchemaChecker
 from src.utils import setup_logging
 
 setup_logging()
@@ -15,23 +13,21 @@ app = Typer()
 @app.command()
 def extract(
     accdb_path: Annotated[
-        Path, Option('--accdb-path', '-a', help='Path to the Access database')
-    ] = Path('examples/LH_Guangzhou_2015.accdb'),
-    output_dir: Annotated[
-        Path, Option('--output-dir', '-o', help='Path to the output directory')
-    ] = Path('output'),
-    driver_path: Annotated[
+        Path, Option('--accdb', '-a', help='Path to the Access database')
+    ],
+    output_path: Annotated[
+        Path, Option('--output', '-o', help='Path to the output SQLite database')
+    ],
+    driver_dir: Annotated[
         Path, Option('--driver', '-d', help='Path to the driver directory')
     ] = Path('driver'),
 ):
-    path_config = PathConfig()
-    output_dir = output_dir or path_config.output_dir
-    driver_path = driver_path or path_config.ucanaccess_path
+    from src.database import DataExtractor
 
     extractor = DataExtractor(
         accdb_path=accdb_path,
-        sqlite_path=output_dir / 'destep.sqlite',
-        ucanaccess_path=driver_path,
+        sqlite_path=output_path,
+        ucanaccess_path=driver_dir,
     )
     extractor.extract_all()
 
@@ -49,6 +45,8 @@ def check_schema(
     ] = Path('driver'),
 ):
     """Check database schema against SQLAlchemy models."""
+    from src.database.schema_checker import SchemaChecker
+
     path_config = PathConfig()
     output_dir = output_dir or path_config.output_dir
     driver_path = driver_path or path_config.ucanaccess_path
@@ -80,8 +78,41 @@ def codegen(
 
 
 @app.command()
-def main():
-    pass
+def convert(
+    output_path: Annotated[
+        Path, Option('--output-path', '-o', help='Path to the output IDF file')
+    ] = Path('output/destep.idf'),
+    sqlite_path: Annotated[
+        Path, Option('--sqlite-path', '-s', help='Path to the SQLite database')
+    ] = Path('output/destep.sqlite'),
+):
+    from src.converters import ConverterManager
+    from src.database import SQLiteManager
+
+    with SQLiteManager(sqlite_path) as db:
+        session = db.session
+        converter_manager = ConverterManager(session)
+        idf = converter_manager.convert()
+        idf.save(output_path)
+
+
+@app.command()
+def run(
+    idf_path: Annotated[
+        Path, Option('--idf', '-i', help='Path to the IDF file')
+    ] = Path('output/destep.idf'),
+    weather_path: Annotated[
+        Path, Option('--weather', '-w', help='Path to the EPW weather file')
+    ] = Path('output/weather/CHN_Guangzhou.epw'),
+    output_dir: Annotated[
+        Path,
+        Option('--output-dir', '-o', help='Output directory for simulation results'),
+    ] = Path('output/simulation'),
+):
+    from src.idf import IDF
+
+    idf = IDF()
+    raise SystemExit(idf.run(idf_path, weather_path, output_dir))
 
 
 if __name__ == '__main__':

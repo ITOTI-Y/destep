@@ -14,8 +14,8 @@ from pydantic import Field
 from ._base import IDFBaseModel
 from ._refs import (
     BivariateFunctionsRef,
-    FansCVandVAVRef,
     FansComponentModelRef,
+    FansCVandVAVRef,
     ScheduleNamesRef,
     UnivariateFunctionsRef,
     ZoneNamesRef,

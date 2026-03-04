@@ -15,10 +15,10 @@ from ._base import IDFBaseModel
 from ._refs import (
     AirTerminalUnitNamesRef,
     CoolingCoilNameRef,
-    DOAToZonalUnitRef,
-    DSOASpaceListNamesRef,
     DesignSpecificationAirTerminalSizingNameRef,
     DesignSpecificationOutdoorAirNamesRef,
+    DOAToZonalUnitRef,
+    DSOASpaceListNamesRef,
     FansCVRef,
     FansSystemModelRef,
     FansVAVRef,
