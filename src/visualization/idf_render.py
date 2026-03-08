@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
 
@@ -9,9 +10,28 @@ from loguru import logger
 from src.idf import IDF
 from src.idf.models import BuildingSurfaceDetailed, FenestrationSurfaceDetailed
 
-BUILDING_SURFACE_OBJECT_TYPE = 'BuildingSurface:Detailed'
-FENESTRATION_SURFACE_OBJECT_TYPE = 'FenestrationSurface:Detailed'
 WINDOW_SIZE = [1920, 1080]
+
+
+@dataclass
+class SurfaceStyle:
+    color: str
+    opacity: float
+
+
+SURFACE_STYLES: dict[str, SurfaceStyle] = {
+    'Roof': SurfaceStyle(color='#993333', opacity=1.0),
+    'Ceiling': SurfaceStyle(color='#993333', opacity=1.0),
+    'Wall': SurfaceStyle(color='#C8B44C', opacity=1.0),
+    'Floor': SurfaceStyle(color='#808080', opacity=1.0),
+}
+WINDOW_STYLE = SurfaceStyle(color='#66C0E0', opacity=0.6)
+
+
+@dataclass
+class SurfaceGroup:
+    style: SurfaceStyle
+    polygons: list[np.ndarray] = field(default_factory=list)
 
 
 def idf_render(idf: IDF, output_path: Path) -> None:
@@ -32,13 +52,14 @@ def idf_render(idf: IDF, output_path: Path) -> None:
             'PyVista is required for preview rendering. Install pyvista first.'
         ) from e
 
-    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    building_polygons = _collect_building_surface_polygons(idf)
-    fenestration_polygons = _collect_fenestration_polygons(idf)
+    surface_groups = _collect_building_surface_groups(idf)
+    window_group = SurfaceGroup(style=WINDOW_STYLE)
+    window_group.polygons = _collect_fenestration_polygons(idf)
 
-    if not building_polygons and not fenestration_polygons:
+    has_any = window_group.polygons or any(g.polygons for g in surface_groups.values())
+    if not has_any:
         raise ValueError('No renderable surfaces found in IDF')
 
     # PyVista stubs are incomplete; use Any to keep static checking stable.
@@ -48,22 +69,23 @@ def idf_render(idf: IDF, output_path: Path) -> None:
     try:
         cast(Any, plotter.set_background)('white')
 
-        building_mesh = _build_polydata(building_polygons, pv_any)
-        if building_mesh is not None:
-            plotter.add_mesh(
-                building_mesh,
-                color='#d9d9d9',
-                opacity=0.9,
-                show_edges=False,
-                smooth_shading=True,
-            )
+        for group in surface_groups.values():
+            mesh = _build_polydata(group.polygons, pv_any)
+            if mesh is not None:
+                plotter.add_mesh(
+                    mesh,
+                    color=group.style.color,
+                    opacity=group.style.opacity,
+                    show_edges=False,
+                    smooth_shading=True,
+                )
 
-        fenestration_mesh = _build_polydata(fenestration_polygons, pv_any)
-        if fenestration_mesh is not None:
+        window_mesh = _build_polydata(window_group.polygons, pv_any)
+        if window_mesh is not None:
             plotter.add_mesh(
-                fenestration_mesh,
-                color='#4a90e2',
-                opacity=1.0,
+                window_mesh,
+                color=WINDOW_STYLE.color,
+                opacity=WINDOW_STYLE.opacity,
                 show_edges=False,
                 smooth_shading=True,
             )
@@ -77,9 +99,13 @@ def idf_render(idf: IDF, output_path: Path) -> None:
     logger.info(f'Generated IDF preview image: {output_path}')
 
 
-def _collect_building_surface_polygons(idf: IDF) -> list[np.ndarray]:
-    polygons: list[np.ndarray] = []
-    building_surfaces = idf.all_of_type(BUILDING_SURFACE_OBJECT_TYPE).values()
+def _collect_building_surface_groups(idf: IDF) -> dict[str, SurfaceGroup]:
+    groups: dict[str, SurfaceGroup] = {
+        stype: SurfaceGroup(style=style) for stype, style in SURFACE_STYLES.items()
+    }
+    building_surfaces = idf.all_of_type(
+        BuildingSurfaceDetailed._idf_object_type
+    ).values()
 
     for surface in building_surfaces:
         if not isinstance(surface, BuildingSurfaceDetailed):
@@ -106,14 +132,20 @@ def _collect_building_surface_polygons(idf: IDF) -> list[np.ndarray]:
             logger.warning(f'Skipping {surface.name}: invalid polygon')
             continue
 
-        polygons.append(normalized_polygon)
+        group = groups.get(surface.surface_type)
+        if group is None:
+            logger.debug(f'Unknown surface type: {surface.surface_type}')
+            continue
+        group.polygons.append(normalized_polygon)
 
-    return polygons
+    return groups
 
 
 def _collect_fenestration_polygons(idf: IDF) -> list[np.ndarray]:
     polygons: list[np.ndarray] = []
-    fenestration_surfaces = idf.all_of_type(FENESTRATION_SURFACE_OBJECT_TYPE).values()
+    fenestration_surfaces = idf.all_of_type(
+        FenestrationSurfaceDetailed._idf_object_type
+    ).values()
 
     for surface in fenestration_surfaces:
         if not isinstance(surface, FenestrationSurfaceDetailed):
@@ -137,18 +169,12 @@ def _collect_fenestration_polygons(idf: IDF) -> list[np.ndarray]:
             ],
         ]
 
-        optional_vertex = (
-            surface.vertex_4_x_coordinate,
-            surface.vertex_4_y_coordinate,
-            surface.vertex_4_z_coordinate,
-        )
-        if all(value is not None for value in optional_vertex):
-            vertex_4_x, vertex_4_y, vertex_4_z = optional_vertex
-            assert vertex_4_x is not None
-            assert vertex_4_y is not None
-            assert vertex_4_z is not None
+        vertex_4_x = surface.vertex_4_x_coordinate
+        vertex_4_y = surface.vertex_4_y_coordinate
+        vertex_4_z = surface.vertex_4_z_coordinate
+        if vertex_4_x is not None and vertex_4_y is not None and vertex_4_z is not None:
             points.append([float(vertex_4_x), float(vertex_4_y), float(vertex_4_z)])
-        elif any(value is not None for value in optional_vertex):
+        elif any(v is not None for v in (vertex_4_x, vertex_4_y, vertex_4_z)):
             logger.warning(f'Skipping {surface.name}: incomplete 4th vertex')
             continue
 
