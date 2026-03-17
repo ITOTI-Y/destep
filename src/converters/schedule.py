@@ -18,6 +18,7 @@ from typing import Any
 from loguru import logger
 from sqlalchemy import select
 
+from src.config import PathConfig
 from src.converters.base import BaseConverter
 from src.database.models.schedule import ScheduleYear
 from src.idf.models.schedules import (
@@ -25,7 +26,7 @@ from src.idf.models.schedules import (
     ScheduleTypeLimits,
 )
 
-
+path_config = PathConfig()
 class DestScheduleType(IntEnum):
     """DeST schedule type enumeration.
 
@@ -187,7 +188,7 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
 
         if self._output_dir is None:
             logger.warning('Output directory not set, using current directory')
-            self._output_dir = Path('./output/')
+            self._output_dir = path_config.idf_dir
 
         self._schedules_dir = self._output_dir / 'schedules'
 

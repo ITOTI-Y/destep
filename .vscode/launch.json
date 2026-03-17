@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
-            "args": ["extract", "--accdb", "${workspaceFolder}/examples/LH_Guangzhou_2015.accdb", "--output", "${workspaceFolder}/output/destep.sqlite", "--driver", "${workspaceFolder}/driver"]
+            "args": ["extract", "--accdb", "${workspaceFolder}/database/LH_Guangzhou_2015.accdb"]
         },
         {
             "name": "Code Generation",
@@ -26,7 +26,23 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
-            "args": ["convert", "--output-path", "${workspaceFolder}/output/destep.idf", "--sqlite-path", "${workspaceFolder}/output/destep.sqlite"]
+            "args": ["convert", "--sqlite-path", "${workspaceFolder}/output/database/LH_Guangzhou_2015.sqlite"]
+        },
+        {
+            "name": "Extract All",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": ["extract-all"]
+        },
+        {
+            "name": "Convert All",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": ["convert-all"]
         },
     ]
 }

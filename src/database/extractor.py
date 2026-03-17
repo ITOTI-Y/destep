@@ -29,6 +29,8 @@ class DataExtractor:
     ) -> None:
         self.accdb_config = AccdbConfig(accdb_path, ucanaccess_path)
         self.sqlite_path = sqlite_path
+        if not self.sqlite_path.parent.exists():
+            self.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
         self._table_model_map: dict[str, type[Base]] | None = None
         self._pk_values: dict[str, set[Any]] = {}
 

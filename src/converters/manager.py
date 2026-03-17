@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
 import numpy as np
+from pathlib import Path
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -101,7 +102,9 @@ class ConverterManager:
         )
         self.idf.add(output_diagnostics)
 
-    def convert(self) -> IDF:
+    def convert(self, output_path: Path | None = None, save: bool = True) -> IDF:
+        if save and output_path is None:
+            raise ValueError('Output path is required when saving')
         for converter_type, converter_class in self.CONVERTER_ORDER.items():
             logger.info(f'Converting {converter_type}...')
             converter = converter_class(
@@ -110,6 +113,9 @@ class ConverterManager:
                 lookup_table=self.lookup_table,
                 pinyin=self.pinyin,
             )
+            if isinstance(converter, ScheduleConverter):
+                converter.set_output_dir(output_path.parent)
             converter.convert_all()
-
+        if save:
+            self.idf.save(output_path)
         return self.idf

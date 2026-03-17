@@ -16,13 +16,19 @@ def extract(
         Path, Option('--accdb', '-a', help='Path to the Access database')
     ],
     output_path: Annotated[
-        Path, Option('--output', '-o', help='Path to the output SQLite database')
-    ],
+        Path, Option('--output', '-o',
+                     help='Path to the output SQLite database')
+    ] = None,
     driver_dir: Annotated[
         Path, Option('--driver', '-d', help='Path to the driver directory')
-    ] = Path('driver'),
+    ] = None,
 ):
     from src.database import DataExtractor
+
+    path_config = PathConfig()
+    output_path = output_path or path_config.output_database_dir / \
+        f'{accdb_path.stem}.sqlite'
+    driver_dir = driver_dir or path_config.ucanaccess_path
 
     extractor = DataExtractor(
         accdb_path=accdb_path,
@@ -30,6 +36,19 @@ def extract(
         ucanaccess_path=driver_dir,
     )
     extractor.extract_all()
+
+
+@app.command()
+def extract_all(
+    accdb_dir: Annotated[
+        Path, Option('--accdb-dir', '-d',
+                     help='Path to the Access database directory')
+    ] = None,
+):
+    path_config = PathConfig()
+    accdb_dir = accdb_dir or path_config.database_dir
+    for accdb_path in accdb_dir.glob('*.accdb'):
+        extract(accdb_path)
 
 
 @app.command()
@@ -79,37 +98,56 @@ def codegen(
 
 @app.command()
 def convert(
-    output_path: Annotated[
-        Path, Option('--output-path', '-o', help='Path to the output IDF file')
-    ] = Path('output/destep.idf'),
     sqlite_path: Annotated[
         Path, Option('--sqlite-path', '-s', help='Path to the SQLite database')
-    ] = Path('output/destep.sqlite'),
+    ],
+    output_path: Annotated[
+        Path, Option('--output-path', '-o', help='Path to the output IDF file')
+    ] = None,
 ):
     from src.converters import ConverterManager
     from src.database import SQLiteManager
 
+    path_config = PathConfig()
+    output_path = output_path or path_config.idf_dir / \
+        f'{sqlite_path.stem}/{sqlite_path.stem}.idf'
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with SQLiteManager(sqlite_path) as db:
         session = db.session
         converter_manager = ConverterManager(session)
-        idf = converter_manager.convert()
-        idf.save(output_path)
+        idf = converter_manager.convert(output_path=output_path, save=True)
+
+@app.command()
+def convert_all(
+    sqlite_dir: Annotated[
+        Path, Option('--sqlite-dir', '-s', help='Path to the SQLite database directory')
+    ] = None,
+):
+    path_config = PathConfig()
+    sqlite_dir = sqlite_dir or path_config.output_database_dir
+    for sqlite_path in sqlite_dir.glob('*.sqlite'):
+        convert(sqlite_path)
 
 
 @app.command()
 def run(
     idf_path: Annotated[
         Path, Option('--idf', '-i', help='Path to the IDF file')
-    ] = Path('output/destep.idf'),
+    ] = None,
     weather_path: Annotated[
         Path, Option('--weather', '-w', help='Path to the EPW weather file')
-    ] = Path('output/weather/CHN_Guangzhou.epw'),
+    ] = None,
     output_dir: Annotated[
         Path,
-        Option('--output-dir', '-o', help='Output directory for simulation results'),
-    ] = Path('output/simulation'),
+        Option('--output-dir', '-o',
+               help='Output directory for simulation results'),
+    ] = None,
 ):
     from src.idf import IDF
+
+    path_config = PathConfig()
+    output_dir = output_dir or path_config.output_dir / 'simulation'
 
     idf = IDF()
     raise SystemExit(idf.run(idf_path, weather_path, output_dir))

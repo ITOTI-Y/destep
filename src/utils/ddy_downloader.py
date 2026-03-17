@@ -1,14 +1,15 @@
 import re
 from dataclasses import dataclass
 from pathlib import Path
-
+import json
 import httpx
 
+from src.config import PathConfig
 from src.idf.idf import IDF
 from src.utils.log import logger
 
 GEOJSON_URL = 'https://raw.githubusercontent.com/NatLabRockies/EnergyPlus/develop/weather/master.geojson'
-
+path_config = PathConfig()
 
 @dataclass
 class WeatherLocation:
@@ -16,7 +17,6 @@ class WeatherLocation:
     city: str
     epw: str
     ddy: str
-
 
 class DDY:
     def __init__(self, timeout: int = 30):
@@ -33,10 +33,17 @@ class DDY:
         await self.client.aclose()
 
     async def _download_geojson(self) -> dict:
-        response = await self.client.get(GEOJSON_URL)
-        response.raise_for_status()
-        geojson = response.json()
-        return geojson
+        cache_path = path_config.output_dir / 'geojson.json'
+        if cache_path.exists():
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            response = await self.client.get(GEOJSON_URL)
+            response.raise_for_status()
+            geojson = response.json()
+            with open(cache_path, 'w', encoding='utf-8') as f:
+                json.dump(geojson, f, indent=4)
+            return geojson
 
     def _parse_geojson(
         self, geojson: dict, country: str | None = 'CHN'
@@ -77,30 +84,24 @@ class DDY:
     async def _parse_ddy_data(
         self, city: str, url: str, country: str | None = 'CHN'
     ) -> IDF:
-        path = Path('output/ddy') / f'{country}_{city}.ddy'
-        path.parent.mkdir(parents=True, exist_ok=True)
+        path = path_config.ddy_dir / f'{country}_{city}.ddy'
         if path.exists():
             return IDF.load(path)
-        response = await self.client.get(url)
-        response.raise_for_status()
-        try:
-            content = response.text
-        except UnicodeDecodeError:
-            content = response.content.decode('latin-1')
-        data = IDF._parse_idf_content(content)
-        data.save(path)
-        return data
+        else:
+            response = await self.client.get(url)
+            response.raise_for_status()
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(response.text)
+            return IDF.load(path)
 
     async def download_epw_data(
         self, city: str, url: str, country: str | None = 'CHN'
     ) -> None:
-        path = Path('output/weather') / f'{country}_{city}.epw'
-        path.parent.mkdir(parents=True, exist_ok=True)
-        if path.exists():
-            return
-        response = await self.client.get(url)
-        response.raise_for_status()
-        path.write_bytes(response.content)
+        path = path_config.weather_dir / f'{country}_{city}.epw'
+        if not path.exists():
+            response = await self.client.get(url)
+            response.raise_for_status()
+            path.write_bytes(response.content)
 
     async def get_weather_locations(
         self, city: str, country: str | None = 'CHN'
