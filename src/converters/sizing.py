@@ -76,7 +76,7 @@ class SizingConverter(BaseConverter[Environment]):
         if environment.city_name is None:
             self.stats.errors += 1
             self.stats.add_warning(
-                f'No city name found for environment {environment.id}'
+                f'No city name found for environment {environment.environment_id}'
             )
             return False
         ddy_data = self._get_ddy_data(environment.city_name)

@@ -27,6 +27,8 @@ from src.idf.models.schedules import (
 )
 
 path_config = PathConfig()
+
+
 class DestScheduleType(IntEnum):
     """DeST schedule type enumeration.
 

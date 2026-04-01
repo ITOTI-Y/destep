@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
-from pathlib import Path
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -114,8 +114,10 @@ class ConverterManager:
                 pinyin=self.pinyin,
             )
             if isinstance(converter, ScheduleConverter):
-                converter.set_output_dir(output_path.parent)
+                converter.set_output_dir(
+                    output_path.parent if output_path else Path('.')
+                )
             converter.convert_all()
         if save:
-            self.idf.save(output_path)
+            self.idf.save(output_path if output_path else Path('.'))
         return self.idf

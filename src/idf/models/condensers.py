@@ -1933,7 +1933,7 @@ class GroundHeatExchangerPond(IDFBaseModel):
 
 class GroundHeatExchangerResponseFactors(IDFBaseModel):
     """Response factor definitions from third-party tool, commonly referred to a
-    \"g-functions\" """
+    \"g-functions\""""
 
     _idf_object_type: ClassVar[str] = 'GroundHeatExchanger:ResponseFactors'
     name: str = Field(...)

@@ -1,7 +1,7 @@
+import json
 import re
 from dataclasses import dataclass
-from pathlib import Path
-import json
+
 import httpx
 
 from src.config import PathConfig
@@ -11,12 +11,14 @@ from src.utils.log import logger
 GEOJSON_URL = 'https://raw.githubusercontent.com/NatLabRockies/EnergyPlus/develop/weather/master.geojson'
 path_config = PathConfig()
 
+
 @dataclass
 class WeatherLocation:
     province: str
     city: str
     epw: str
     ddy: str
+
 
 class DDY:
     def __init__(self, timeout: int = 30):
@@ -35,7 +37,7 @@ class DDY:
     async def _download_geojson(self) -> dict:
         cache_path = path_config.output_dir / 'geojson.json'
         if cache_path.exists():
-            with open(cache_path, 'r', encoding='utf-8') as f:
+            with open(cache_path, encoding='utf-8') as f:
                 return json.load(f)
         else:
             response = await self.client.get(GEOJSON_URL)

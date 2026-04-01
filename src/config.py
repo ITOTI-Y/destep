@@ -22,7 +22,9 @@ class PathConfig:
     output_dir: Path = field(default_factory=lambda: Path.cwd() / 'output')
     log_dir: Path = field(default_factory=lambda: Path.cwd() / 'log')
     database_dir: Path = field(default_factory=lambda: Path.cwd() / 'database')
-    output_database_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'database')
+    output_database_dir: Path = field(
+        default_factory=lambda: Path.cwd() / 'output' / 'database'
+    )
     ddy_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'ddy')
     weather_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'weather')
     idf_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'idf')
@@ -64,6 +66,7 @@ class PathConfig:
             self.ucanaccess_path.resolve() if self.ucanaccess_path else None
         )
         self.idf_dir = self.idf_dir.resolve()
+
     def _get_env_path(self, env_var: str) -> Path | None:
         if value := os.environ.get(env_var):
             return Path(value)

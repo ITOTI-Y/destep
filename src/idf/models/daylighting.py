@@ -275,7 +275,7 @@ class OutputControlIlluminanceMapStyle(IDFBaseModel):
     """default style for the Daylighting Illuminance Map is comma -- this works
     well for importing into spreadsheet programs such as Excel(tm) but not so
     well for word processing programs -- there tab may be a better choice. fixed
-    puts spaces between the \"columns\" """
+    puts spaces between the \"columns\""""
 
     _idf_object_type: ClassVar[str] = 'OutputControl:IlluminanceMap:Style'
     column_separator: Literal['', 'Comma', 'Fixed', 'Tab'] | None = Field(
