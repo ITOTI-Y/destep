@@ -82,7 +82,12 @@ class ConverterManager:
 
     def _idf_init(self) -> None:
         self.idf.add(Version())
-        self.idf.add(SimulationControl())
+        self.idf.add(
+            SimulationControl(
+                do_zone_sizing_calculation='Yes',
+                do_system_sizing_calculation='Yes',
+            )
+        )
         self.idf.add(Timestep())
 
         run_period = RunPeriod(

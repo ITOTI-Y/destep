@@ -120,7 +120,10 @@ class VRFStrategy:
         )
 
     def create_system_objects(self, idf: IDF) -> None:
-        vrf_system = HVACTemplateSystemVRF(name=self.VRF_SYSTEM_NAME)
+        vrf_system = HVACTemplateSystemVRF(
+            name=self.VRF_SYSTEM_NAME,
+            master_thermostat_priority_control_type='LoadPriority',
+        )
         idf.add(vrf_system)
         logger.debug(f'Created HVACTemplateSystemVRF: {self.VRF_SYSTEM_NAME}')
 
