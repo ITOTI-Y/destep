@@ -11,19 +11,19 @@ class HVACStrategyType(StrEnum):
 
 BUILDING_HVAC_MAP: Final[dict[str, HVACStrategyType]] = {
     'default': HVACStrategyType.IDEAL_LOADS,
-    'coa': HVACStrategyType.FAN_COIL,  # Commercial Office A
-    'cob': HVACStrategyType.FAN_COIL,  # Commercial Office B
-    'goa': HVACStrategyType.FAN_COIL,  # Government Office A
-    'gob': HVACStrategyType.FAN_COIL,  # Government Office B
-    'highs': HVACStrategyType.FAN_COIL,  # High Rise Apartment slab type
-    'hight': HVACStrategyType.FAN_COIL,  # High Rise Apartment tower type
-    'inp': HVACStrategyType.FAN_COIL,  # Inpatient
+    'coa': HVACStrategyType.VRF,  # Commercial Office A
+    'cob': HVACStrategyType.VRF,  # Commercial Office B
+    'goa': HVACStrategyType.VRF,  # Government Office A
+    'gob': HVACStrategyType.VRF,  # Government Office B
+    'highs': HVACStrategyType.PTHP,  # High Rise Apartment slab type
+    'hight': HVACStrategyType.PTHP,  # High Rise Apartment tower type
+    'inp': HVACStrategyType.VRF,  # Inpatient
     'lh': HVACStrategyType.FAN_COIL,  # Large Hotel
-    'sh': HVACStrategyType.FAN_COIL,  # Small Hotel
-    'low': HVACStrategyType.FAN_COIL,  # Low Rise Apartment
-    'mall': HVACStrategyType.FAN_COIL,  # Shopping Mall
-    'outp': HVACStrategyType.FAN_COIL,  # Outpatient
+    'sh': HVACStrategyType.PTHP,  # Small Hotel
+    'low': HVACStrategyType.PTHP,  # Low Rise Apartment
+    'mall': HVACStrategyType.VRF,  # Shopping Mall
+    'outp': HVACStrategyType.VRF,  # Outpatient
     'sch': HVACStrategyType.FAN_COIL,  # Primary/secondary school
-    'th': HVACStrategyType.FAN_COIL,  # Terraced House
+    'th': HVACStrategyType.PTHP,  # Terraced House
     'uni': HVACStrategyType.FAN_COIL,  # University
 }
