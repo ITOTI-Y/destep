@@ -439,8 +439,10 @@ class SurfaceConverter(BaseConverter[Room]):
         )
         return name
 
-    def _get_zone_name(self, room_id: int) -> str:
+    def _get_zone_name(self, room_id: int | None) -> str:
         """Get IDF zone name for a room."""
+        if room_id is None:
+            raise ValueError('Room ID is None for surface')
         name = self.lookup_table.ROOM_TO_ZONE.get(room_id)
         assert name is not None, f'Zone name not found for room {room_id}'
         return name

@@ -41,8 +41,8 @@ def extract(
 @app.command()
 def extract_all(
     accdb_dir: Annotated[
-        Path, Option('--accdb-dir', '-d', help='Path to the Access database directory')
-    ],
+        Path | None, Option('--accdb-dir', '-d', help='Path to the Access database directory')
+    ] = None,
 ):
     path_config = PathConfig()
     accdb_dir = accdb_dir or path_config.database_dir
@@ -114,17 +114,19 @@ def convert(
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    building_type = sqlite_path.stem.split('_')[0]
+
     with SQLiteManager(sqlite_path) as db:
         session = db.session
-        converter_manager = ConverterManager(session)
+        converter_manager = ConverterManager(session, building_type=building_type)
         _idf = converter_manager.convert(output_path=output_path, save=True)
 
 
 @app.command()
 def convert_all(
     sqlite_dir: Annotated[
-        Path, Option('--sqlite-dir', '-s', help='Path to the SQLite database directory')
-    ],
+        Path | None, Option('--sqlite-dir', '-s', help='Path to the SQLite database directory')
+    ] = None,
 ):
     path_config = PathConfig()
     sqlite_dir = sqlite_dir or path_config.output_database_dir

@@ -19,11 +19,18 @@ from src.idf.models import (
 )
 from src.utils.pinyin import PinyinConverter
 
+from ._share import BUILDING_HVAC_MAP, HVACStrategyType
 from .base import BaseConverter
 from .building import BuildingConverter
 from .construction import ConstructionConverter
 from .fenestration import FenestrationConverter
 from .hvac import HVACConverter
+from .hvac_strategy import (
+    FanCoilChillerBoilerStrategy,
+    IdealLoadsStrategy,
+    PTHPStrategy,
+    VRFStrategy,
+)
 from .internal_gains import InternalGainsConverter
 from .schedule import ScheduleConverter
 from .sizing import SizingConverter
@@ -65,8 +72,9 @@ class ConverterManager:
         'schedule': ScheduleConverter,
     }
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, building_type: str = 'default') -> None:
         self.session = session
+        self.building_type = building_type
         self.idf = IDF()
         self.pinyin = PinyinConverter()
         self.lookup_table = LookupTable()
@@ -117,7 +125,29 @@ class ConverterManager:
                 converter.set_output_dir(
                     output_path.parent if output_path else Path('.')
                 )
+            if isinstance(converter, HVACConverter):
+                converter.set_strategy(self._resolve_hvac_strategy())
             converter.convert_all()
         if save:
             self.idf.save(output_path if output_path else Path('.'))
         return self.idf
+
+    def _resolve_hvac_strategy(
+        self,
+    ) -> IdealLoadsStrategy | PTHPStrategy | VRFStrategy | FanCoilChillerBoilerStrategy:
+        strategy_type = BUILDING_HVAC_MAP.get(
+            self.building_type.lower(), BUILDING_HVAC_MAP['default']
+        )
+        logger.info(
+            f"Building type '{self.building_type}' -> HVAC strategy '{strategy_type}'"
+        )
+
+        match strategy_type:
+            case HVACStrategyType.IDEAL_LOADS:
+                return IdealLoadsStrategy()
+            case HVACStrategyType.PTHP:
+                return PTHPStrategy()
+            case HVACStrategyType.VRF:
+                return VRFStrategy()
+            case HVACStrategyType.FAN_COIL:
+                return FanCoilChillerBoilerStrategy()

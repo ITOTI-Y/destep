@@ -16,7 +16,6 @@ from src.database.models.building import Room
 from src.database.models.gains import OccupantGains
 from src.idf.models.hvac_templates import (
     HVACTemplateThermostat,
-    HVACTemplateZoneIdealLoadsAirSystem,
 )
 
 if TYPE_CHECKING:
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
     from src.idf import IDF
     from src.utils.pinyin import PinyinConverter
 
+    from .hvac_strategy import HVACStrategy
     from .manager import LookupTable
 
 M3_PER_HOUR_TO_M3_PER_SECOND = 1.0 / 3600.0
@@ -51,9 +51,19 @@ class HVACConverter(BaseConverter[Room]):
     ) -> None:
         super().__init__(session, idf, lookup_table, pinyin)
         self._thermostat_cache: dict[int, str] = {}
+        self._strategy: HVACStrategy | None = None
+
+    def set_strategy(self, strategy: HVACStrategy) -> None:
+        self._strategy = strategy
+        logger.info(f'HVAC strategy set to: {strategy.name}')
 
     def convert_all(self) -> None:
         """Convert HVAC configuration for all rooms."""
+        if self._strategy is None:
+            raise ValueError('HVAC strategy not set. Call set_strategy() first.')
+
+        self._strategy.create_system_objects(self.idf)
+
         stmt = select(Room)
         rooms = list(self.session.execute(stmt).scalars().all())
         self.stats.total = len(rooms)
@@ -85,9 +95,20 @@ class HVACConverter(BaseConverter[Room]):
             self.stats.skipped += 1
             return False
 
+        if not room_group.is_ac_room:
+            logger.debug(f'Room {room.id} is not AC room, skipping HVAC')
+            self.stats.skipped += 1
+            return False
+
+        if self._strategy is None:
+            raise ValueError('HVAC strategy not set. Call set_strategy() first.')
+
         thermostat_name = self._create_thermostat(room_group, room)
         fresh_air_flow = self._calculate_fresh_air_flow(room)
-        self._create_ideal_loads_template(zone_name, thermostat_name, fresh_air_flow)
+        zone_hvac = self._strategy.create_zone_hvac(
+            zone_name, thermostat_name, fresh_air_flow
+        )
+        self.idf.add(zone_hvac)
 
         if fresh_air_flow is not None and fresh_air_flow > 0:
             logger.debug(
@@ -212,37 +233,3 @@ class HVACConverter(BaseConverter[Room]):
                 return flow_m3_per_s
 
         return None
-
-    def _create_ideal_loads_template(
-        self, zone_name: str, thermostat_name: str, fresh_air_flow: float | None
-    ) -> None:
-        """Create HVACTemplateZoneIdealLoadsAirSystem for a zone.
-
-        Args:
-            zone_name: Target zone name.
-            thermostat_name: Name of the associated thermostat.
-            fresh_air_flow: Fresh air flow rate in m³/s, or None for no outdoor air.
-        """
-        if fresh_air_flow is not None and fresh_air_flow > 0:
-            outdoor_air_method = 'Flow/Zone'
-            outdoor_air_flow_rate_per_zone = fresh_air_flow
-        else:
-            outdoor_air_method = 'None'
-            outdoor_air_flow_rate_per_zone = None
-
-        ideal_loads = HVACTemplateZoneIdealLoadsAirSystem(
-            zone_name=zone_name,
-            template_thermostat_name=thermostat_name,
-            maximum_heating_supply_air_temperature=50.0,
-            minimum_cooling_supply_air_temperature=13.0,
-            heating_limit='NoLimit',
-            cooling_limit='NoLimit',
-            outdoor_air_method=outdoor_air_method,
-            outdoor_air_flow_rate_per_zone=outdoor_air_flow_rate_per_zone,
-        )
-        self.idf.add(ideal_loads)
-
-        logger.debug(
-            f'Created HVACTemplateZoneIdealLoadsAirSystem for zone: {zone_name} '
-            f'(outdoor_air_method={outdoor_air_method})'
-        )
