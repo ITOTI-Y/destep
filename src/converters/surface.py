@@ -206,13 +206,24 @@ class SurfaceConverter(BaseConverter[Room]):
         return np.column_stack([pts_centered @ u, pts_centered @ v])
 
     def _extract_vertices_from_geometry(self, geometry) -> np.ndarray:
-        """Extract 3D vertices from a geometry object with loop_points."""
+        """Extract 3D vertices from a geometry object with loop_points.
+
+        Removes consecutive duplicate vertices (distance < EPSILON).
+        """
         vertices = [
             [lp.point_ref.x, lp.point_ref.y, lp.point_ref.z]
             for lp in geometry.loop_points
             if lp.point_ref is not None
         ]
-        return np.array(vertices).reshape(-1, 3)
+        pts = np.array(vertices).reshape(-1, 3)
+        if len(pts) < 3:
+            return pts
+        mask = np.ones(len(pts), dtype=bool)
+        for i in range(len(pts)):
+            j = (i + 1) % len(pts)
+            if np.linalg.norm(pts[i] - pts[j]) < EPSILON:
+                mask[j] = False
+        return pts[mask]
 
     def _get_surface_vertices(self, surface: Surface) -> np.ndarray:
         """Extract 3D vertices from a surface geometry."""
@@ -319,7 +330,16 @@ class SurfaceConverter(BaseConverter[Room]):
 
         points = self._get_surface_plane_vertices(surface)
 
+        if len(points) < 3:
+            raise ValueError(
+                f'Surface {surface.surface_id} has fewer than 3 unique vertices'
+            )
+
         signed_area = self._compute_signed_area(points, normal)
+        if abs(signed_area) < EPSILON:
+            raise ValueError(
+                f'Surface {surface.surface_id} has zero area (degenerate polygon)'
+            )
         if signed_area < 0:
             points = points[::-1]
 
