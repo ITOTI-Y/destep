@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Annotated
 
 from typer import Option, Typer
-
+from joblib import Parallel, delayed, cpu_count
 from src.config import PathConfig
 from src.utils import setup_logging
 
@@ -46,9 +46,13 @@ def extract_all(
 ):
     path_config = PathConfig()
     accdb_dir = accdb_dir or path_config.database_dir
-    for accdb_path in accdb_dir.glob('*.accdb'):
-        extract(accdb_path, output_path=None, driver_dir=None)
-
+    accdb_paths = list(accdb_dir.glob('*.accdb'))
+    existing_sqlite_names = [path.stem for path in path_config.output_database_dir.glob('*.sqlite')]
+    accdb_paths = [path for path in accdb_paths if path.stem not in existing_sqlite_names]
+    Parallel(n_jobs=cpu_count() - 1 if len(accdb_paths) > 1 else 1)(
+        delayed(extract)(accdb_path, output_path=None, driver_dir=None)
+        for accdb_path in accdb_paths
+    )
 
 @app.command()
 def check_schema(
