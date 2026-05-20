@@ -89,24 +89,6 @@ def check_schema(
 
 
 @app.command()
-def codegen(
-    schema_path: Annotated[
-        Path, Option('--schema-path', '-s', help='Path to the schema file')
-    ] = Path('examples/Energy+.schema.epJSON'),
-    output_dir: Annotated[
-        Path, Option('--output-dir', '-o', help='Path to the output directory')
-    ] = Path('src/idf/models/'),
-):
-    from src.codegen import ModelGenerator, SchemaParser
-
-    parser = SchemaParser(schema_path=schema_path)
-    specs = parser.parse()
-    schema_version = parser.get_version()
-    generator = ModelGenerator(output_dir=output_dir)
-    generator.generate_all(specs, schema_version=schema_version)
-
-
-@app.command()
 def convert(
     sqlite_path: Annotated[
         Path, Option('--sqlite-path', '-s', help='Path to the SQLite database')
@@ -114,6 +96,9 @@ def convert(
     output_path: Annotated[
         Path | None, Option('--output-path', '-o', help='Path to the output IDF file')
     ],
+    ddy_path: Annotated[
+        Path | None, Option('--ddy-path', '-d', help='Path to the DDY file')
+    ] = None,
 ):
     from src.converters import ConverterManager
     from src.database import SQLiteManager
@@ -130,7 +115,9 @@ def convert(
     with SQLiteManager(sqlite_path) as db:
         session = db.session
         converter_manager = ConverterManager(session, building_type=building_type)
-        _idf = converter_manager.convert(output_path=output_path, save=True)
+        _idf = converter_manager.convert(
+            output_path=output_path, save=True, ddy_path=ddy_path
+        )
 
 
 @app.command()

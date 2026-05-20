@@ -1,6 +1,7 @@
 import json
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 import httpx
 from idfpy import IDF
@@ -106,10 +107,12 @@ class DDY:
             path.write_bytes(response.content)
 
     async def get_weather_locations(
-        self, city: str, country: str | None = 'CHN'
+        self, city: str, country: str | None = 'CHN', ddy_path: Path | None = None
     ) -> IDF:
         geojson = await self._download_geojson()
         locations = self._parse_geojson(geojson, country)
+        if ddy_path is not None:
+            return IDF.load(ddy_path)
         for location in locations:
             if location.city.lower() == city.lower():
                 try:

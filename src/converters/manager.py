@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from idfpy import IDF
@@ -115,7 +116,9 @@ class ConverterManager:
         )
         self.idf.add(output_diagnostics)
 
-    def convert(self, output_path: Path | None = None, save: bool = True) -> IDF:
+    def convert(
+        self, output_path: Path | None = None, save: bool = True, **kwargs: Any
+    ) -> IDF:
         if save and output_path is None:
             raise ValueError('Output path is required when saving')
         for converter_type, converter_class in self.CONVERTER_ORDER.items():
@@ -126,6 +129,10 @@ class ConverterManager:
                 lookup_table=self.lookup_table,
                 pinyin=self.pinyin,
             )
+            if isinstance(converter, SizingConverter):
+                ddy_path = kwargs.get('ddy_path')
+                if ddy_path is not None:
+                    converter.set_ddy_path(Path(ddy_path))
             if isinstance(converter, ScheduleConverter):
                 converter.set_output_dir(
                     output_path.parent if output_path else Path('.')

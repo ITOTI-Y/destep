@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from idfpy.models import SizingPeriodDesignDay
@@ -52,6 +53,7 @@ class SizingConverter(BaseConverter[Environment]):
             pinyin: PinyinConverter for Chinese name conversion.
         """
         super().__init__(session, idf, lookup_table, pinyin)
+        self._ddy_path: Path | None = None
         self._created_design_days: set[int] = set()
 
     def convert_all(self) -> None:
@@ -97,10 +99,13 @@ class SizingConverter(BaseConverter[Environment]):
                 self.stats.skipped += 1
         return True
 
+    def set_ddy_path(self, ddy_path: Path) -> None:
+        self._ddy_path = ddy_path
+
     def _get_ddy_data(self, city: str) -> dict:
         async def _load() -> IDF:
             async with DDY() as ddy:
-                return await ddy.get_weather_locations(city)
+                return await ddy.get_weather_locations(city, ddy_path=self._ddy_path)
 
         try:
             asyncio.get_running_loop()

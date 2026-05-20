@@ -15,9 +15,7 @@ dependencies = [
     "mapbox-earcut>=2.0.0",
     "pydantic>=2.12.5",
     "pypinyin>=0.55.0",
-    "scalene>=2.0.1",
     "scipy>=1.17.0",
-    "shapely>=2.1.2",
     "sqlalchemy>=2.0.45",
     "timezonefinder>=8.2.1",
     "trimesh>=4.11.0",
@@ -54,3 +52,14 @@ docstring-code-format = true
 dev = [
     "pyright>=1.1.408",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+destep = "cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+py-modules = ["cli"]
