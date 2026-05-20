@@ -3,9 +3,9 @@ import re
 from dataclasses import dataclass
 
 import httpx
+from idfpy import IDF
 
 from src.config import PathConfig
-from src.idf.idf import IDF
 from src.utils.log import logger
 
 GEOJSON_URL = 'https://raw.githubusercontent.com/NatLabRockies/EnergyPlus/develop/weather/master.geojson'

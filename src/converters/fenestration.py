@@ -3,18 +3,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from idfpy import IDF
+from idfpy.models import (
+    Construction,
+    FenestrationSurfaceDetailed,
+    WindowMaterialSimpleGlazingSystem,
+)
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from src.database.models.fenestration import Door, Window, WindowTypeData
 from src.database.models.geometry import Plane, Surface
-from src.idf import IDF
-from src.idf.models import (
-    Construction,
-    FenestrationSurfaceDetailed,
-    WindowMaterialSimpleGlazingSystem,
-)
 from src.utils.pinyin import PinyinConverter
 
 from .base import BaseConverter, UnitConverter

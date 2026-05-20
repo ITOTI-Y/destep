@@ -13,9 +13,9 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
 import numpy as np
+from idfpy import IDF
 from loguru import logger
 
-from src.idf import IDF
 from src.utils.pinyin import PinyinConverter
 
 if TYPE_CHECKING:

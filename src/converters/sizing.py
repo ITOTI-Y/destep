@@ -9,18 +9,17 @@ import asyncio
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from idfpy.models import SizingPeriodDesignDay
 from sqlalchemy import select
 
 from src.converters.base import BaseConverter
 from src.database.models.environment import Environment
-from src.idf.models.location import SizingPeriodDesignDay
 from src.utils.ddy_downloader import DDY
 
 if TYPE_CHECKING:
+    from idfpy import IDF
     from sqlalchemy.orm import Session
 
-    from src.idf import IDF
-    from src.idf.models.location import SizingPeriodDesignDay
     from src.utils.pinyin import PinyinConverter
 
     from .manager import LookupTable

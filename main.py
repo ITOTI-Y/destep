@@ -157,13 +157,14 @@ def run(
         Option('--output-dir', '-o', help='Output directory for simulation results'),
     ],
 ):
-    from src.idf import IDF
+    from idfpy import IDF
+    from idfpy.sim import simulate
 
     path_config = PathConfig()
     output_dir = output_dir or path_config.output_dir / 'simulation'
 
-    idf = IDF()
-    raise SystemExit(idf.run(idf_path, weather_path, output_dir))
+    idf = IDF.load(idf_path)
+    raise SystemExit(simulate(idf, weather_path, output_dir=output_dir))
 
 
 if __name__ == '__main__':

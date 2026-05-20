@@ -2,11 +2,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
-from loguru import logger
-from sqlalchemy.orm import Session
-
-from src.idf import IDF
-from src.idf.models import (
+from idfpy import IDF
+from idfpy.models import (
     OutputControlTableStyle,
     OutputDiagnostics,
     OutputDiagnosticsDiagnosticsItem,
@@ -17,6 +14,9 @@ from src.idf.models import (
     Timestep,
     Version,
 )
+from loguru import logger
+from sqlalchemy.orm import Session
+
 from src.utils.pinyin import PinyinConverter
 
 from ._share import BUILDING_HVAC_MAP, HVACStrategyType

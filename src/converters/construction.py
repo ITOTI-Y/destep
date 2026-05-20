@@ -21,6 +21,8 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any
 
+from idfpy import IDF
+from idfpy.models import Construction, Material
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -42,8 +44,6 @@ from src.database.models.construction import (
     SysRoof,
     SysRoofMaterial,
 )
-from src.idf import IDF
-from src.idf.models.constructions import Construction, Material
 from src.utils.pinyin import PinyinConverter
 
 if TYPE_CHECKING:

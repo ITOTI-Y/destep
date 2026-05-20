@@ -8,21 +8,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from idfpy.models import (
+    HVACTemplateThermostat,
+)
 from loguru import logger
 from sqlalchemy import select
 
 from src.converters.base import BaseConverter
 from src.database.models.building import Room
 from src.database.models.gains import OccupantGains
-from src.idf.models.hvac_templates import (
-    HVACTemplateThermostat,
-)
 
 if TYPE_CHECKING:
+    from idfpy import IDF
     from sqlalchemy.orm import Session
 
     from src.database.models.building import RoomGroup
-    from src.idf import IDF
     from src.utils.pinyin import PinyinConverter
 
     from .hvac_strategy import HVACStrategy

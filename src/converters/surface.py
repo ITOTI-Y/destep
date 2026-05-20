@@ -7,6 +7,11 @@ from typing import TYPE_CHECKING, Literal
 import mapbox_earcut as earcut
 import numpy as np
 import trimesh
+from idfpy import IDF
+from idfpy.models import (
+    BuildingSurfaceDetailed,
+    BuildingSurfaceDetailedVerticesItem,
+)
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
@@ -17,11 +22,6 @@ from src.database.models import MainEnclosure
 from src.database.models.building import Room
 from src.database.models.fenestration import Door, Window
 from src.database.models.geometry import Surface
-from src.idf import IDF
-from src.idf.models.thermal_zones import (
-    BuildingSurfaceDetailed,
-    BuildingSurfaceDetailedVerticesItem,
-)
 from src.utils.pinyin import PinyinConverter
 
 if TYPE_CHECKING:

@@ -7,17 +7,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from idfpy.models import Zone
 from loguru import logger
 from sqlalchemy import select
 
 from src.converters.base import BaseConverter, UnitConverter
 from src.database.models.building import Room
-from src.idf.models.thermal_zones import Zone
 
 if TYPE_CHECKING:
+    from idfpy import IDF
     from sqlalchemy.orm import Session
 
-    from src.idf import IDF
     from src.utils.pinyin import PinyinConverter
 
     from .manager import LookupTable

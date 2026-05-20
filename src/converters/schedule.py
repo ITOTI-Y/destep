@@ -15,16 +15,16 @@ from enum import IntEnum
 from pathlib import Path
 from typing import Any
 
+from idfpy.models import (
+    ScheduleFile,
+    ScheduleTypeLimits,
+)
 from loguru import logger
 from sqlalchemy import select
 
 from src.config import PathConfig
 from src.converters.base import BaseConverter
 from src.database.models.schedule import ScheduleYear
-from src.idf.models.schedules import (
-    ScheduleFile,
-    ScheduleTypeLimits,
-)
 
 path_config = PathConfig()
 

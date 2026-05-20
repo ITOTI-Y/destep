@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
-from loguru import logger
-
-from src.idf.models.hvac_templates import (
+from idfpy.models import (
     HVACTemplatePlantBoiler,
     HVACTemplatePlantChilledWaterLoop,
     HVACTemplatePlantChiller,
@@ -15,12 +13,11 @@ from src.idf.models.hvac_templates import (
     HVACTemplateZonePTHP,
     HVACTemplateZoneVRF,
 )
+from loguru import logger
 
 if TYPE_CHECKING:
+    from idfpy import IDF
     from sqlalchemy.orm import Session
-
-    from src.idf import IDF
-    from src.idf.models._base import IDFBaseModel
 
 
 class HVACStrategy(Protocol):
@@ -31,7 +28,12 @@ class HVACStrategy(Protocol):
         zone_name: str,
         thermostat_name: str,
         fresh_air_flow: float | None,
-    ) -> IDFBaseModel: ...
+    ) -> (
+        HVACTemplateZoneIdealLoadsAirSystem
+        | HVACTemplateZonePTHP
+        | HVACTemplateZoneVRF
+        | HVACTemplateZoneFanCoil
+    ): ...
 
     def create_system_objects(self, idf: IDF) -> None: ...
 

@@ -8,19 +8,24 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from idfpy.models import (
+    ElectricEquipment,
+    Lights,
+    People,
+    ScheduleConstant,
+    ScheduleTypeLimits,
+)
 from loguru import logger
 from sqlalchemy import select
 
 from src.converters.base import BaseConverter
 from src.database.models.building import Room
 from src.database.models.gains import EquipmentGains, LightGains, OccupantGains
-from src.idf.models.internal_gains import ElectricEquipment, Lights, People
-from src.idf.models.schedules import ScheduleConstant, ScheduleTypeLimits
 
 if TYPE_CHECKING:
+    from idfpy import IDF
     from sqlalchemy.orm import Session
 
-    from src.idf import IDF
     from src.utils.pinyin import PinyinConverter
 
     from .manager import LookupTable

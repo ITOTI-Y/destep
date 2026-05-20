@@ -8,6 +8,7 @@ Converts Building and Environment data to:
 
 from __future__ import annotations
 
+from idfpy.models import Building, GlobalGeometryRules, SiteLocation
 from loguru import logger
 from sqlalchemy import select
 from timezonefinder import TimezoneFinder
@@ -15,9 +16,6 @@ from timezonefinder import TimezoneFinder
 from src.converters.base import BaseConverter
 from src.database.models.building import Building as DestBuilding
 from src.database.models.environment import Environment
-from src.idf.models.location import SiteLocation
-from src.idf.models.simulation import Building as IDFBuilding
-from src.idf.models.thermal_zones import GlobalGeometryRules
 
 # Timezone finder instance (reusable for performance)
 _tz_finder: TimezoneFinder | None = None
@@ -127,7 +125,7 @@ class BuildingConverter(BaseConverter[DestBuilding]):
 
             north_axis = self._get_north_axis()
 
-            idf_building = IDFBuilding(
+            idf_building = Building(
                 name=name,
                 north_axis=north_axis,
                 terrain='City',
@@ -242,7 +240,7 @@ class BuildingConverter(BaseConverter[DestBuilding]):
     def _add_default_building(self) -> None:
         """Add default Building when no DeST building exists."""
         try:
-            building = IDFBuilding(
+            building = Building(
                 name='Default Building',
                 north_axis=0.0,
                 terrain='City',
