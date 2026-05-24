@@ -26,7 +26,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/cli.py",
             "console": "integratedTerminal",
-            "args": ["convert", "--sqlite-path", "${workspaceFolder}/output/database/LH_Guangzhou_2015.sqlite"]
+            "args": ["convert", "--sqlite-path", "${workspaceFolder}/database/Guangzhou_CoA_2015.sqlite", "-o", "${workspaceFolder}/output/idfs/Guangzhou_CoA_2015.idf"]
         },
         {
             "name": "Extract All",

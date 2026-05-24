@@ -110,7 +110,7 @@ def convert(
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    building_type = sqlite_path.stem.split('_')[0]
+    building_type = sqlite_path.stem.split('_')[1]
 
     with SQLiteManager(sqlite_path) as db:
         session = db.session
