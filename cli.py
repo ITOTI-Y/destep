@@ -100,7 +100,9 @@ def convert(
         Path | None, Option('--ddy-path', '-d', help='Path to the DDY file')
     ] = None,
 ):
-    from src.converters import ConverterManager
+    from loguru import logger
+
+    from src.converters import BUILDING_HVAC_MAP, ConverterManager
     from src.database import SQLiteManager
 
     path_config = PathConfig()
@@ -110,7 +112,13 @@ def convert(
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    building_type = sqlite_path.stem.split('_')[1]
+    tokens = sqlite_path.stem.lower().split('_')
+    building_type = next((t for t in tokens if t in BUILDING_HVAC_MAP), 'default')
+    if building_type == 'default':
+        logger.warning(
+            f'No building type in BUILDING_HVAC_MAP matches "{sqlite_path.stem}", '
+            'falling back to default HVAC strategy'
+        )
 
     with SQLiteManager(sqlite_path) as db:
         session = db.session

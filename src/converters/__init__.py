@@ -4,6 +4,7 @@ This module provides converters that transform DeST database models
 into EnergyPlus IDF objects.
 """
 
+from src.converters._share import BUILDING_HVAC_MAP
 from src.converters.base import BaseConverter, ConversionStats, UnitConverter
 from src.converters.building import BuildingConverter
 from src.converters.construction import ConstructionConverter
@@ -14,6 +15,7 @@ from src.converters.surface import SurfaceConverter
 from src.converters.zone import ZoneConverter
 
 __all__ = [
+    'BUILDING_HVAC_MAP',
     'BaseConverter',
     'BuildingConverter',
     'ConstructionConverter',
