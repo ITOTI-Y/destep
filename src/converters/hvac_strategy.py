@@ -212,7 +212,14 @@ class FanCoilChillerBoilerStrategy:
             )
         )
 
-        idf.add(HVACTemplatePlantHotWaterLoop(name=self.HOT_WATER_LOOP_NAME))
+        idf.add(
+            HVACTemplatePlantHotWaterLoop(
+                name=self.HOT_WATER_LOOP_NAME,
+                hot_water_pump_configuration='VariableFlow',
+                hot_water_design_setpoint=60.0,
+                loop_design_delta_temperature=10.0,
+            )
+        )
 
         idf.add(
             HVACTemplatePlantBoiler(
@@ -221,6 +228,7 @@ class FanCoilChillerBoilerStrategy:
                 efficiency=self._boiler_efficiency,
                 fuel_type='NaturalGas',
                 priority='1',
+                water_outlet_upper_temperature_limit=90.0,
             )
         )
 
