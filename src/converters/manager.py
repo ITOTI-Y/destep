@@ -26,11 +26,15 @@ from .building import BuildingConverter
 from .construction import ConstructionConverter
 from .fenestration import FenestrationConverter
 from .hvac import HVACConverter
+from .hvac_data import (
+    METERED_IDEAL_LOADS_CONFIGS,
+    load_central_plant_config,
+)
 from .hvac_strategy import (
-    FanCoilChillerBoilerStrategy,
+    FanCoilCentralPlantStrategy,
+    HVACStrategy,
     IdealLoadsStrategy,
-    PTHPStrategy,
-    VRFStrategy,
+    MeteredIdealLoadsStrategy,
 )
 from .internal_gains import InternalGainsConverter
 from .schedule import ScheduleConverter
@@ -146,9 +150,11 @@ class ConverterManager:
 
     def _resolve_hvac_strategy(
         self,
-    ) -> IdealLoadsStrategy | PTHPStrategy | VRFStrategy | FanCoilChillerBoilerStrategy:
+    ) -> HVACStrategy:
+        building_type = self.building_type.lower()
         strategy_type = BUILDING_HVAC_MAP.get(
-            self.building_type.lower(), BUILDING_HVAC_MAP['default']
+            building_type,
+            BUILDING_HVAC_MAP['default'],
         )
         logger.info(
             f"Building type '{self.building_type}' -> HVAC strategy '{strategy_type}'"
@@ -157,9 +163,16 @@ class ConverterManager:
         match strategy_type:
             case HVACStrategyType.IDEAL_LOADS:
                 return IdealLoadsStrategy()
-            case HVACStrategyType.PTHP:
-                return PTHPStrategy()
-            case HVACStrategyType.VRF:
-                return VRFStrategy()
+            case HVACStrategyType.METERED_IDEAL_LOADS:
+                config = METERED_IDEAL_LOADS_CONFIGS.get(building_type)
+                if config is None:
+                    raise ValueError(
+                        'Missing metered Ideal Loads profile for '
+                        f'building type: {building_type}'
+                    )
+                return MeteredIdealLoadsStrategy(config)
             case HVACStrategyType.FAN_COIL:
-                return FanCoilChillerBoilerStrategy()
+                config = load_central_plant_config(self.session)
+                return FanCoilCentralPlantStrategy(config)
+            case _:
+                raise ValueError(f'Unsupported HVAC strategy: {strategy_type}')

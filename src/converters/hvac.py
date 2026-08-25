@@ -4,13 +4,9 @@ Converts DeST Room/RoomGroup data to EnergyPlus HVACTemplate objects
 for simplified HVAC system configuration.
 """
 
-from __future__ import annotations
+from typing import TYPE_CHECKING, Final
 
-from typing import TYPE_CHECKING
-
-from idfpy.models import (
-    HVACTemplateThermostat,
-)
+from idfpy.models import HVACTemplateThermostat
 from loguru import logger
 from sqlalchemy import select
 
@@ -28,7 +24,7 @@ if TYPE_CHECKING:
     from .hvac_strategy import HVACStrategy
     from .manager import LookupTable
 
-M3_PER_HOUR_TO_M3_PER_SECOND = 1.0 / 3600.0
+M3_PER_HOUR_TO_M3_PER_SECOND: Final = 1.0 / 3600.0
 
 
 class HVACConverter(BaseConverter[Room]):
@@ -105,21 +101,21 @@ class HVACConverter(BaseConverter[Room]):
 
         thermostat_name = self._create_thermostat(room_group, room)
         fresh_air_flow = self._calculate_fresh_air_flow(room)
-        zone_hvac = self._strategy.create_zone_hvac(
-            zone_name, thermostat_name, fresh_air_flow
+        self._strategy.add_zone_hvac(
+            self.idf,
+            zone_name,
+            thermostat_name,
+            fresh_air_flow,
         )
-        self.idf.add(zone_hvac)
 
         if fresh_air_flow is not None and fresh_air_flow > 0:
             logger.debug(
                 f'Converted Room {room.id} ({zone_name}) HVAC -> '
-                f'Thermostat: {thermostat_name}, Fresh air: {fresh_air_flow:.6f} m³/s'
+                f'Thermostat: {thermostat_name}, '
+                f'Fresh air: {fresh_air_flow:.6f} m³/s'
             )
         else:
-            logger.info(
-                f'Room {room.id} ({zone_name}): No fresh air configured, '
-                f'outdoor air method set to None'
-            )
+            logger.info(f'Room {room.id} ({zone_name}): No fresh air configured')
         self.stats.converted += 1
         return True
 

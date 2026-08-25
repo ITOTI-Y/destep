@@ -63,7 +63,9 @@ class PathConfig:
         self.weather_dir = self.weather_dir.resolve()
         self.schema_path = self.schema_path.resolve() if self.schema_path else None
         self.ucanaccess_path = (
-            self.ucanaccess_path.resolve() if self.ucanaccess_path else None
+            self.ucanaccess_path.resolve()
+            if self.ucanaccess_path
+            else Path.cwd() / 'driver'
         )
         self.idf_dir = self.idf_dir.resolve()
 
