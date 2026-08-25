@@ -4,6 +4,8 @@ Converts DeST Room/RoomGroup data to EnergyPlus HVACTemplate objects
 for simplified HVAC system configuration.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Final
 
 from idfpy.models import HVACTemplateThermostat
