@@ -260,6 +260,7 @@ class FanCoilCentralPlantStrategy:
                     tower_type='SingleSpeed',
                     high_speed_nominal_capacity=(tower.high_speed_nominal_capacity_w),
                     high_speed_fan_power=tower.high_speed_fan_power_w,
+                    free_convection_capacity=tower.free_convection_capacity_w,
                     priority=str(tower.priority),
                 )
             )

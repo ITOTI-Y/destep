@@ -24,6 +24,7 @@ CONDENSER_WATER_PUMP_USAGE: Final = 2
 
 type PositiveFloat = Annotated[float, Field(gt=0)]
 type AutosizableValue = PositiveFloat | Literal['Autosize']
+type AutosizableNonNegativeValue = Annotated[float, Field(ge=0)] | Literal['Autosize']
 type BoilerFuelType = Literal[
     'Coal',
     'Diesel',
@@ -78,6 +79,7 @@ class CoolingTowerConfigSchema(BaseModel):
     name: str
     high_speed_nominal_capacity_w: AutosizableValue
     high_speed_fan_power_w: AutosizableValue
+    free_convection_capacity_w: AutosizableNonNegativeValue
     priority: int = Field(ge=1)
 
 
@@ -171,6 +173,7 @@ GENERIC_CENTRAL_PLANT_CONFIG: Final = CentralPlantConfigSchema(
             name='Main_Cooling_Tower',
             high_speed_nominal_capacity_w='Autosize',
             high_speed_fan_power_w='Autosize',
+            free_convection_capacity_w='Autosize',
             priority=1,
         )
     ],
@@ -325,6 +328,7 @@ def load_central_plant_config(session: Session) -> CentralPlantConfigSchema:
                 _require_positive(library.fan_power, 'cooling tower fan power')
                 * KILOWATTS_TO_WATTS
             ),
+            free_convection_capacity_w=0.0,
             priority=index,
         )
         for index, (tower, library) in enumerate(tower_rows, start=1)
