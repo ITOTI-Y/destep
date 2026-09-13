@@ -21,7 +21,7 @@ from src.converters.construction import EnclosureKind
 from src.database.models import MainEnclosure
 from src.database.models.building import Room
 from src.database.models.fenestration import Door, Window
-from src.database.models.geometry import Surface
+from src.database.models.geometry import LoopPoint, Surface
 from src.utils.pinyin import PinyinConverter
 
 if TYPE_CHECKING:
@@ -59,6 +59,8 @@ class SurfaceConverter(BaseConverter[Room]):
         self._build_fenestration_lookup()
 
         self._created_surfaces: dict[str, BuildingSurfaceDetailed] = {}
+        self._surface_part_names: dict[int, list[str]] = {}
+        self._surface_parts: dict[int, list[np.ndarray]] = {}
 
     def _build_enclosure_lookup(self) -> None:
         """Build lookup table from Surface ID to MainEnclosure."""
@@ -93,6 +95,7 @@ class SurfaceConverter(BaseConverter[Room]):
     def convert_all(self) -> None:
         stmt = select(Room).options(selectinload(Room.surfaces))
         rooms = self.session.execute(stmt).scalars().all()
+        self._prepare_surface_parts(rooms)
         for room in rooms:
             if self.convert_one(room):
                 logger.info(f'Converted room {room.id}')
@@ -122,12 +125,16 @@ class SurfaceConverter(BaseConverter[Room]):
 
         for surface, normal in zip(surfaces, normals, strict=True):
             try:
-                ordered_points = self._order_points(surface, normal)
+                parts = self._surface_parts.get(surface.surface_id)
+                if parts is None:
+                    parts = self._split_surface(surface, normal)
+                    self._surface_parts[surface.surface_id] = parts
+
                 boundary_condition, boundary_condition_object = (
                     self._determine_boundary_condition(surface)
                 )
 
-                surface_name = self.make_name(
+                base_surface_name = self.make_name(
                     'Surface', surface.surface_id, surface.name
                 )
                 surface_type = self._determine_surface_type(surface)
@@ -136,34 +143,45 @@ class SurfaceConverter(BaseConverter[Room]):
                 sun_exposure = self._get_sun_exposure(boundary_condition)
                 wind_exposure = self._get_wind_exposure(boundary_condition)
 
-                idf_surface = BuildingSurfaceDetailed(
-                    name=surface_name,
-                    surface_type=surface_type,
-                    construction_name=construction_name,
-                    zone_name=zone_name,
-                    outside_boundary_condition=boundary_condition,
-                    outside_boundary_condition_object=self.get_surface_name(
-                        boundary_condition_object
+                names = self._surface_part_names.setdefault(
+                    surface.surface_id,
+                    self._make_surface_part_names(base_surface_name, len(parts)),
+                )
+                for part_index, ordered_points in enumerate(parts):
+                    surface_name = names[part_index]
+                    idf_surface = BuildingSurfaceDetailed(
+                        name=surface_name,
+                        surface_type=surface_type,
+                        construction_name=construction_name,
+                        zone_name=zone_name,
+                        outside_boundary_condition=boundary_condition,
+                        outside_boundary_condition_object=(
+                            self.get_surface_name(
+                                boundary_condition_object,
+                                self._find_matching_part_index(
+                                    boundary_condition_object, ordered_points
+                                ),
+                            )
+                            if boundary_condition_object is not None
+                            else None
+                        ),
+                        sun_exposure=sun_exposure,
+                        wind_exposure=wind_exposure,
+                        vertices=[
+                            BuildingSurfaceDetailedVerticesItem(
+                                vertex_x_coordinate=v[0],
+                                vertex_y_coordinate=v[1],
+                                vertex_z_coordinate=v[2],
+                            )
+                            for v in ordered_points
+                        ],
                     )
-                    if boundary_condition_object is not None
-                    else None,
-                    sun_exposure=sun_exposure,
-                    wind_exposure=wind_exposure,
-                    vertices=[
-                        BuildingSurfaceDetailedVerticesItem(
-                            vertex_x_coordinate=v[0],
-                            vertex_y_coordinate=v[1],
-                            vertex_z_coordinate=v[2],
-                        )
-                        for v in ordered_points
-                    ],
-                )
-                _step_surface_ordered_vertices.append(
-                    (idf_surface, ordered_points, normal)
-                )
-                self.idf.add(idf_surface)
-                self._created_surfaces[surface_name] = idf_surface
-                self.lookup_table.SURFACE_TO_NAME[surface.surface_id] = surface_name
+                    _step_surface_ordered_vertices.append(
+                        (idf_surface, ordered_points, normal)
+                    )
+                    self.idf.add(idf_surface)
+                    self._created_surfaces[surface_name] = idf_surface
+                self.lookup_table.SURFACE_TO_NAME[surface.surface_id] = names[0]
 
             except Exception as e:
                 self.stats.add_warning(
@@ -175,6 +193,50 @@ class SurfaceConverter(BaseConverter[Room]):
             self._validate_zone_geometry_closure(_step_surface_ordered_vertices)
         )
 
+    def _prepare_surface_parts(self, rooms: list[Room]) -> None:
+        """Precompute split surfaces so interzone references are deterministic."""
+        for room in rooms:
+            surfaces = [
+                s
+                for s in room.surfaces
+                if s.surface_id not in self._surface_to_fenestration
+            ]
+            normals = self._get_outside_normals(surfaces)
+            for surface, normal in zip(surfaces, normals, strict=True):
+                try:
+                    parts = self._split_surface(surface, normal)
+                except Exception as error:
+                    logger.debug(
+                        f'Could not precompute parts for surface '
+                        f'{surface.surface_id}: {error}'
+                    )
+                    continue
+                self._surface_parts[surface.surface_id] = parts
+                base_name = self.make_name('Surface', surface.surface_id, surface.name)
+                self._surface_part_names[surface.surface_id] = (
+                    self._make_surface_part_names(base_name, len(parts))
+                )
+
+    def _make_surface_part_names(self, base_name: str, count: int) -> list[str]:
+        if count == 1:
+            return [base_name]
+        return [f'{base_name}_Part_{index}' for index in range(1, count + 1)]
+
+    def _split_surface(self, surface: Surface, normal: np.ndarray) -> list[np.ndarray]:
+        """Split a surface with holes into simple polygons."""
+        loops = self._get_surface_plane_loops(surface)
+        if len(loops) == 1:
+            return [self._order_points_array(loops[0], normal, round_coordinates=False)]
+
+        split_normal = normal.copy()
+        if split_normal[np.argmax(np.abs(split_normal))] < 0:
+            split_normal = -split_normal
+        points, faces = self._triangulate_polygon_with_holes(loops, split_normal)
+        return [
+            self._order_points_array(part, normal, round_coordinates=False)
+            for part in self._merge_triangles(points, faces, split_normal)
+        ]
+
     def _triangulate_polygon(self, pts: np.ndarray, normal: np.ndarray) -> np.ndarray:
         pts_2d = self._project_to_2d(pts, normal)
         pts_2d = pts_2d.astype(np.float64)
@@ -182,6 +244,136 @@ class SurfaceConverter(BaseConverter[Room]):
         result = earcut.triangulate_float64(pts_2d, rings)
         faces = np.array(result).reshape(-1, 3)
         return faces
+
+    def _triangulate_polygon_with_holes(
+        self, loops: list[np.ndarray], normal: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Triangulate an outer loop and its inner loops."""
+        points = np.concatenate(loops, axis=0)
+        points_2d = self._project_to_2d(points, normal).astype(np.float64)
+        ring_ends = np.cumsum([len(loop) for loop in loops], dtype=np.uint32)
+        result = earcut.triangulate_float64(points_2d, ring_ends)
+        faces = np.asarray(result, dtype=np.uint32).reshape(-1, 3)
+        if len(faces) == 0:
+            raise ValueError('Polygon with holes could not be triangulated')
+        return points, faces
+
+    def _merge_triangles(
+        self, points: np.ndarray, faces: np.ndarray, normal: np.ndarray
+    ) -> list[np.ndarray]:
+        """Merge adjacent triangles when their union remains one polygon."""
+        points_2d = self._project_to_2d(points, normal)
+        polygons: list[list[int]] = []
+        for face in faces:
+            polygon = [int(index) for index in face]
+            if self._signed_area_indices(polygon, points_2d) < 0:
+                polygon.reverse()
+            polygons.append(polygon)
+
+        while True:
+            edge_to_polygons: dict[tuple[int, int], list[int]] = defaultdict(list)
+            for polygon_index, polygon in enumerate(polygons):
+                for start, end in zip(polygon, polygon[1:] + polygon[:1], strict=True):
+                    edge_to_polygons[tuple(sorted((start, end)))].append(polygon_index)
+
+            merged = False
+            for polygon_indices in edge_to_polygons.values():
+                if len(polygon_indices) != 2:
+                    continue
+                first, second = polygon_indices
+                candidate = self._merge_polygon_indices(
+                    polygons[first], polygons[second], points_2d
+                )
+                if candidate is None:
+                    continue
+                polygons = [
+                    polygon
+                    for index, polygon in enumerate(polygons)
+                    if index not in (first, second)
+                ]
+                polygons.append(candidate)
+                merged = True
+                break
+            if not merged:
+                break
+
+        result = []
+        for polygon in polygons:
+            polygon = self._remove_collinear_indices(polygon, points_2d)
+            if len(polygon) >= 3:
+                result.append(points[polygon])
+        return result
+
+    def _signed_area_indices(self, polygon: list[int], points_2d: np.ndarray) -> float:
+        area = 0.0
+        for start, end in zip(polygon, polygon[1:] + polygon[:1], strict=True):
+            area += (
+                points_2d[start, 0] * points_2d[end, 1]
+                - points_2d[end, 0] * points_2d[start, 1]
+            )
+        return area / 2.0
+
+    def _merge_polygon_indices(
+        self,
+        first: list[int],
+        second: list[int],
+        points_2d: np.ndarray,
+    ) -> list[int] | None:
+        first_edges = {
+            (start, end)
+            for start, end in zip(first, first[1:] + first[:1], strict=True)
+        }
+        second_edges = {
+            (start, end)
+            for start, end in zip(second, second[1:] + second[:1], strict=True)
+        }
+        shared = first_edges & {(end, start) for start, end in second_edges}
+        if len(shared) != 1:
+            return None
+
+        edges = (
+            (first_edges | second_edges)
+            - shared
+            - {(end, start) for start, end in shared}
+        )
+        next_vertex: dict[int, int] = {}
+        for start, end in edges:
+            if start in next_vertex:
+                return None
+            next_vertex[start] = end
+
+        start = next(iter(next_vertex))
+        polygon = [start]
+        while True:
+            end = next_vertex.get(polygon[-1])
+            if end is None:
+                return None
+            if end == start:
+                break
+            if end in polygon:
+                return None
+            polygon.append(end)
+        if len(polygon) < 3 or len(polygon) != len(next_vertex):
+            return None
+        if self._signed_area_indices(polygon, points_2d) < 0:
+            polygon.reverse()
+        return polygon
+
+    def _remove_collinear_indices(
+        self, polygon: list[int], points_2d: np.ndarray
+    ) -> list[int]:
+        changed = True
+        while changed and len(polygon) > 3:
+            changed = False
+            for index in range(len(polygon)):
+                a = points_2d[polygon[index - 1]]
+                b = points_2d[polygon[index]]
+                c = points_2d[polygon[(index + 1) % len(polygon)]]
+                if abs(np.cross(b - a, c - b)) <= EPSILON:
+                    polygon.pop(index)
+                    changed = True
+                    break
+        return polygon
 
     def _project_to_2d(self, pts: np.ndarray, normal: np.ndarray) -> np.ndarray:
         n = normal / np.linalg.norm(normal)
@@ -225,6 +417,30 @@ class SurfaceConverter(BaseConverter[Room]):
                 mask[j] = False
         return pts[mask]
 
+    def _get_geometry_loops(self, geometry) -> list[np.ndarray]:
+        """Extract the outer loop and all inner loops from a geometry."""
+        stmt = (
+            select(LoopPoint)
+            .where(LoopPoint.of_geometry == geometry.geometry_id)
+            .order_by(LoopPoint.loop_id, LoopPoint.point_no)
+        )
+        rows = self.session.execute(stmt).scalars().all()
+        grouped: dict[int, list[list[float]]] = defaultdict(list)
+        for loop_point in rows:
+            point = loop_point.point_ref
+            if point is not None:
+                grouped[loop_point.loop_id].append([point.x, point.y, point.z])
+        boundary_loop_id = geometry.boundary_loop_id
+        loop_ids = [
+            boundary_loop_id,
+            *sorted(loop_id for loop_id in grouped if loop_id != boundary_loop_id),
+        ]
+        return [
+            np.asarray(grouped[loop_id], dtype=float)
+            for loop_id in loop_ids
+            if loop_id is not None and len(grouped[loop_id]) >= 3
+        ]
+
     def _get_surface_vertices(self, surface: Surface) -> np.ndarray:
         """Extract 3D vertices from a surface geometry."""
         assert surface.geometry_ref is not None
@@ -238,6 +454,16 @@ class SurfaceConverter(BaseConverter[Room]):
             raise ValueError(f'Surface {surface.surface_id} has no middle plane')
         assert middle_plane.geometry_ref is not None
         return self._extract_vertices_from_geometry(middle_plane.geometry_ref)
+
+    def _get_surface_plane_loops(self, surface: Surface) -> list[np.ndarray]:
+        enclosure, _ = self._surface_to_enclosure[surface.surface_id]
+        middle_plane = enclosure.middle_plane_ref
+        if middle_plane is None or middle_plane.geometry_ref is None:
+            raise ValueError(f'Surface {surface.surface_id} has no middle plane')
+        loops = self._get_geometry_loops(middle_plane.geometry_ref)
+        if not loops:
+            raise ValueError(f'Surface {surface.surface_id} has no geometry loops')
+        return loops
 
     def _get_outside_normals(self, surfaces: list[Surface]) -> np.ndarray:
         """Calculate outward-facing normals for surfaces."""
@@ -328,25 +554,56 @@ class SurfaceConverter(BaseConverter[Room]):
     def _order_points(self, surface: Surface, normal: np.ndarray) -> np.ndarray:
         """Order vertices per EnergyPlus GlobalGeometryRules: UpperLeftCorner + Counterclockwise."""
 
-        points = self._get_surface_plane_vertices(surface)
+        return self._order_points_array(
+            self._get_surface_plane_vertices(surface), normal
+        )
+
+    def _order_points_array(
+        self,
+        points: np.ndarray,
+        normal: np.ndarray,
+        *,
+        round_coordinates: bool = True,
+    ) -> np.ndarray:
+        """Order one polygon according to EnergyPlus GlobalGeometryRules."""
 
         if len(points) < 3:
-            raise ValueError(
-                f'Surface {surface.surface_id} has fewer than 3 unique vertices'
-            )
+            raise ValueError('Polygon has fewer than 3 unique vertices')
 
         signed_area = self._compute_signed_area(points, normal)
         if abs(signed_area) < EPSILON:
-            raise ValueError(
-                f'Surface {surface.surface_id} has zero area (degenerate polygon)'
-            )
+            raise ValueError('Polygon has zero area (degenerate polygon)')
         if signed_area < 0:
             points = points[::-1]
 
         top_left_index = self._get_top_left_corner_from_normal(points, normal)
         points = np.roll(points, -top_left_index, axis=0)
-        points = UnitConverter.round_coord_array(points)
+        if round_coordinates:
+            points = UnitConverter.round_coord_array(points)
         return points
+
+    def _find_matching_part_index(self, surface_id: int, points: np.ndarray) -> int:
+        """Find the corresponding split part on an adjacent surface."""
+        parts = self._surface_parts.get(surface_id)
+        if not parts:
+            return 0
+        target_centroid = points.mean(axis=0)
+        target_normal = self._find_polygon_normal(points)
+        if target_normal is None:
+            return 0
+        target_area = abs(self._compute_signed_area(points, target_normal))
+        scores = []
+        for index, part in enumerate(parts):
+            part_normal = self._find_polygon_normal(part)
+            if part_normal is None:
+                scores.append((float('inf'), index))
+                continue
+            part_area = abs(self._compute_signed_area(part, part_normal))
+            score = np.linalg.norm(part.mean(axis=0) - target_centroid) + abs(
+                part_area - target_area
+            )
+            scores.append((score, index))
+        return min(scores)[1]
 
     def _compute_signed_area(self, points: np.ndarray, normal: np.ndarray) -> float:
         """Compute signed area of polygon projected onto the plane perpendicular to normal.
@@ -543,9 +800,13 @@ class SurfaceConverter(BaseConverter[Room]):
                 return False
         return True
 
-    def get_surface_name(self, surface_id: int) -> str | None:
+    def get_surface_name(self, surface_id: int, part_index: int = 0) -> str | None:
+        names = self._surface_part_names.get(surface_id)
+        if names is not None and part_index < len(names):
+            return names[part_index]
         stmt = select(Surface).where(Surface.surface_id == surface_id)
         surface = self.session.execute(stmt).scalars().first()
         if surface is None:
             return None
-        return self.make_name('Surface', surface.surface_id, surface.name)
+        base_name = self.make_name('Surface', surface.surface_id, surface.name)
+        return self._make_surface_part_names(base_name, 1)[0]
