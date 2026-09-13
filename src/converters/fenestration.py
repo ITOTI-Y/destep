@@ -219,10 +219,6 @@ class FenestrationConverter(BaseConverter[Window | Door]):
                 f'Skipping window {window.id} because it is not an exterior wall'
             )
             return False
-        surface_name = self.lookup_table.SURFACE_TO_NAME.get(
-            enclosure.side1
-        ) or self.lookup_table.SURFACE_TO_NAME.get(enclosure.side2)
-        assert surface_name is not None
         assert enclosure.middle_plane_ref is not None
 
         surface = window.surface_side1 or window.surface_side2
@@ -235,6 +231,10 @@ class FenestrationConverter(BaseConverter[Window | Door]):
 
         points = self._project_to_surface(points, plane_vertices, normal)
         points = self._order_points(points, normal)
+        surface_name = self._find_host_surface_name(
+            enclosure.side1, enclosure.side2, points, normal
+        )
+        assert surface_name is not None
         window_name = self.make_name('Window', window.id, window.name)
         construction_name = self._create_window_construction(window)
         assert window_name is not None
@@ -266,6 +266,52 @@ class FenestrationConverter(BaseConverter[Window | Door]):
             self.stats.skipped += 1
             return False
         return True
+
+    def _find_host_surface_name(
+        self,
+        side1: int | None,
+        side2: int | None,
+        opening_points: np.ndarray,
+        normal: np.ndarray,
+    ) -> str | None:
+        surface_ids = [
+            surface_id for surface_id in (side1, side2) if surface_id is not None
+        ]
+        for surface_id in surface_ids:
+            names = self.lookup_table.SURFACE_PART_NAMES.get(surface_id)
+            parts = self.lookup_table.SURFACE_PART_VERTICES.get(surface_id)
+            if names is None or parts is None:
+                continue
+            for index, part in enumerate(parts):
+                if self._point_in_polygon(opening_points.mean(axis=0), part, normal):
+                    return names[index]
+            return names[0]
+        if side1 is not None:
+            name = self.lookup_table.SURFACE_TO_NAME.get(side1)
+            if name is not None:
+                return name
+        if side2 is not None:
+            return self.lookup_table.SURFACE_TO_NAME.get(side2)
+        return None
+
+    def _point_in_polygon(
+        self, point: np.ndarray, polygon: np.ndarray, normal: np.ndarray
+    ) -> bool:
+        projected = self._project_to_2d(np.vstack((polygon, point)), normal)
+        vertices = projected[:-1]
+        x, y = projected[-1]
+        inside = False
+        for index in range(len(vertices)):
+            start = vertices[index]
+            end = vertices[(index + 1) % len(vertices)]
+            if (start[1] > y) == (end[1] > y):
+                continue
+            intersection_x = (end[0] - start[0]) * (y - start[1]) / (
+                end[1] - start[1]
+            ) + start[0]
+            if x < intersection_x:
+                inside = not inside
+        return inside
 
     def _convert_door(self, door: Door) -> bool:  # TODO: IGNORE DOOR CONVERSION FOR NOW
         return False

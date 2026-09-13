@@ -61,6 +61,7 @@ class SurfaceConverter(BaseConverter[Room]):
         self._created_surfaces: dict[str, BuildingSurfaceDetailed] = {}
         self._surface_part_names: dict[int, list[str]] = {}
         self._surface_parts: dict[int, list[np.ndarray]] = {}
+        self._surface_normals: dict[int, np.ndarray] = {}
 
     def _build_enclosure_lookup(self) -> None:
         """Build lookup table from Surface ID to MainEnclosure."""
@@ -95,7 +96,7 @@ class SurfaceConverter(BaseConverter[Room]):
     def convert_all(self) -> None:
         stmt = select(Room).options(selectinload(Room.surfaces))
         rooms = self.session.execute(stmt).scalars().all()
-        self._prepare_surface_parts(rooms)
+        self._prepare_surface_parts(list(rooms))
         for room in rooms:
             if self.convert_one(room):
                 logger.info(f'Converted room {room.id}')
@@ -120,7 +121,7 @@ class SurfaceConverter(BaseConverter[Room]):
         surface_by_types = defaultdict(list)
         for surface in surfaces:
             surface_by_types[surface.type].append(surface)
-        normals = self._get_outside_normals(surfaces)
+        normals = self._get_cached_normals(surfaces)
         _step_surface_ordered_vertices = []
 
         for surface, normal in zip(surfaces, normals, strict=True):
@@ -143,10 +144,12 @@ class SurfaceConverter(BaseConverter[Room]):
                 sun_exposure = self._get_sun_exposure(boundary_condition)
                 wind_exposure = self._get_wind_exposure(boundary_condition)
 
-                names = self._surface_part_names.setdefault(
-                    surface.surface_id,
-                    self._make_surface_part_names(base_surface_name, len(parts)),
-                )
+                names = self._surface_part_names.get(surface.surface_id)
+                if names is None:
+                    names = self._make_surface_part_names(base_surface_name, len(parts))
+                    self._surface_part_names[surface.surface_id] = names
+                self.lookup_table.SURFACE_PART_NAMES[surface.surface_id] = names
+                self.lookup_table.SURFACE_PART_VERTICES[surface.surface_id] = parts
                 for part_index, ordered_points in enumerate(parts):
                     surface_name = names[part_index]
                     idf_surface = BuildingSurfaceDetailed(
@@ -201,21 +204,30 @@ class SurfaceConverter(BaseConverter[Room]):
                 for s in room.surfaces
                 if s.surface_id not in self._surface_to_fenestration
             ]
-            normals = self._get_outside_normals(surfaces)
+            normals = self._get_cached_normals(surfaces)
             for surface, normal in zip(surfaces, normals, strict=True):
-                try:
-                    parts = self._split_surface(surface, normal)
-                except Exception as error:
-                    logger.debug(
-                        f'Could not precompute parts for surface '
-                        f'{surface.surface_id}: {error}'
-                    )
-                    continue
+                parts = self._split_surface(surface, normal)
                 self._surface_parts[surface.surface_id] = parts
                 base_name = self.make_name('Surface', surface.surface_id, surface.name)
-                self._surface_part_names[surface.surface_id] = (
-                    self._make_surface_part_names(base_name, len(parts))
-                )
+                names = self._make_surface_part_names(base_name, len(parts))
+                self._surface_part_names[surface.surface_id] = names
+                self.lookup_table.SURFACE_PART_NAMES[surface.surface_id] = names
+                self.lookup_table.SURFACE_PART_VERTICES[surface.surface_id] = parts
+
+    def _get_cached_normals(self, surfaces: list[Surface]) -> np.ndarray:
+        missing = [
+            surface
+            for surface in surfaces
+            if surface.surface_id not in self._surface_normals
+        ]
+        if missing:
+            for surface, normal in zip(
+                missing, self._get_outside_normals(missing), strict=True
+            ):
+                self._surface_normals[surface.surface_id] = normal
+        return np.array(
+            [self._surface_normals[surface.surface_id] for surface in surfaces]
+        )
 
     def _make_surface_part_names(self, base_name: str, count: int) -> list[str]:
         if count == 1:
@@ -232,10 +244,18 @@ class SurfaceConverter(BaseConverter[Room]):
         if split_normal[np.argmax(np.abs(split_normal))] < 0:
             split_normal = -split_normal
         points, faces = self._triangulate_polygon_with_holes(loops, split_normal)
-        return [
-            self._order_points_array(part, normal, round_coordinates=False)
-            for part in self._merge_triangles(points, faces, split_normal)
-        ]
+        ordered_parts = []
+        for part in self._merge_triangles(points, faces, split_normal):
+            if abs(self._compute_signed_area(part, normal)) < EPSILON:
+                continue
+            ordered_parts.append(
+                self._order_points_array(part, normal, round_coordinates=False)
+            )
+        if not ordered_parts:
+            raise ValueError(
+                f'Surface {surface.surface_id} has no non-degenerate polygon parts'
+            )
+        return ordered_parts
 
     def _triangulate_polygon(self, pts: np.ndarray, normal: np.ndarray) -> np.ndarray:
         pts_2d = self._project_to_2d(pts, normal)
@@ -274,7 +294,8 @@ class SurfaceConverter(BaseConverter[Room]):
             edge_to_polygons: dict[tuple[int, int], list[int]] = defaultdict(list)
             for polygon_index, polygon in enumerate(polygons):
                 for start, end in zip(polygon, polygon[1:] + polygon[:1], strict=True):
-                    edge_to_polygons[tuple(sorted((start, end)))].append(polygon_index)
+                    edge = (min(start, end), max(start, end))
+                    edge_to_polygons[edge].append(polygon_index)
 
             merged = False
             for polygon_indices in edge_to_polygons.values():
@@ -369,7 +390,10 @@ class SurfaceConverter(BaseConverter[Room]):
                 a = points_2d[polygon[index - 1]]
                 b = points_2d[polygon[index]]
                 c = points_2d[polygon[(index + 1) % len(polygon)]]
-                if abs(np.cross(b - a, c - b)) <= EPSILON:
+                ab = b - a
+                bc = c - b
+                cross = ab[0] * bc[1] - ab[1] * bc[0]
+                if abs(cross) <= EPSILON:
                     polygon.pop(index)
                     changed = True
                     break
@@ -428,8 +452,12 @@ class SurfaceConverter(BaseConverter[Room]):
         grouped: dict[int, list[list[float]]] = defaultdict(list)
         for loop_point in rows:
             point = loop_point.point_ref
-            if point is not None:
-                grouped[loop_point.loop_id].append([point.x, point.y, point.z])
+            if point is None or point.x is None or point.y is None or point.z is None:
+                raise ValueError(
+                    f'Geometry {geometry.geometry_id} has a loop point '
+                    'with missing coordinates'
+                )
+            grouped[loop_point.loop_id].append([point.x, point.y, point.z])
         boundary_loop_id = geometry.boundary_loop_id
         loop_ids = [
             boundary_loop_id,
@@ -550,13 +578,6 @@ class SurfaceConverter(BaseConverter[Room]):
             return None
 
         return normal / norm_length
-
-    def _order_points(self, surface: Surface, normal: np.ndarray) -> np.ndarray:
-        """Order vertices per EnergyPlus GlobalGeometryRules: UpperLeftCorner + Counterclockwise."""
-
-        return self._order_points_array(
-            self._get_surface_plane_vertices(surface), normal
-        )
 
     def _order_points_array(
         self,

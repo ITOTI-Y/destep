@@ -60,6 +60,12 @@ class LookupTable:
     # SURFACE_TO_NAME: Surface ID -> Surface Name
     SURFACE_TO_NAME: dict[int, str] = field(default_factory=dict)
 
+    # SURFACE_PART_NAMES: Surface ID -> names of split surface parts
+    SURFACE_PART_NAMES: dict[int, list[str]] = field(default_factory=dict)
+
+    # SURFACE_PART_VERTICES: Surface ID -> vertices of split surface parts
+    SURFACE_PART_VERTICES: dict[int, list[np.ndarray]] = field(default_factory=dict)
+
     # PLANE_TO_NORMAL: Plane ID -> Normal
     PLANE_TO_NORMAL: dict[int, np.ndarray] = field(default_factory=dict)
 
