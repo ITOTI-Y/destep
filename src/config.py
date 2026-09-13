@@ -27,7 +27,7 @@ class PathConfig:
     )
     ddy_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'ddy')
     weather_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'weather')
-    idf_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'idf')
+    idf_dir: Path = field(default_factory=lambda: Path.cwd() / 'output' / 'idfs')
 
     def __post_init__(self):
         if env_root := self._get_env_path('DESTEP_PROJECT_ROOT'):

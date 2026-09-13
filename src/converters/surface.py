@@ -237,7 +237,7 @@ class SurfaceConverter(BaseConverter[Room]):
     def _split_surface(self, surface: Surface, normal: np.ndarray) -> list[np.ndarray]:
         """Split a surface with holes into simple polygons."""
         loops = self._get_surface_plane_loops(surface)
-        if len(loops) == 1:
+        if len(loops) == 1 or surface.type in [SurfaceType.INTERIOR_WALL,SurfaceType.EXTERIOR_WALL]:
             return [self._order_points_array(loops[0], normal, round_coordinates=False)]
 
         split_normal = normal.copy()
