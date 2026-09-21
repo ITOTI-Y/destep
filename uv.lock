@@ -181,6 +181,7 @@ wheels = [
 name = "greenlet"
 version = "3.5.1"
 source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/6e/802acd792aebb2256fbbee8cacf2727faaeb6f240ac11008f09eae4414bc/greenlet-3.5.1.tar.gz", hash = "sha256:5a56aeb7d5d9cc4b3a735efb5095bd4b4f6f0e4f93e5ca876d0e2315137b7829", size = 197356, upload-time = "2026-05-20T15:05:03.917Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c4/37/4549f149c9797c21b32c2683c33522af22522099de128b2406672526d005/greenlet-3.5.1-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:fa4f98af3a528f0c3fd592a26df7f376f93329c8f4d987f6bb979057af8bf5e2", size = 286220, upload-time = "2026-05-20T13:07:28.463Z" },
     { url = "https://files.pythonhosted.org/packages/38/ff/a4f436709716965eaab9f36ea7b906c8a927fbe32fb1372a2071d964f6b1/greenlet-3.5.1-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:ffea73584b216150eab159b6d12348fb253e68757974de1e2c40d8a318ac89ed", size = 601585, upload-time = "2026-05-20T14:00:06.141Z" },
@@ -299,7 +300,7 @@ wheels = [
 
 [[package]]
 name = "idfpy"
-version = "26.1.0.post5"
+version = "26.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -307,9 +308,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/08/30/73aaa7a521e41f5cbfda1cbee719da8347c5fd797a0d4cd001883befe176/idfpy-26.1.0.post5.tar.gz", hash = "sha256:e6c57d6f2dc7a52a0a6824c600f954e959f8067cbe5f990e8b33d1ee9e59311c", size = 619909, upload-time = "2026-05-11T10:05:11.341Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7c/b1/5212ce79bab7de40ea54b36849638a8d4758fb7ee83d7cda3b485883bf46/idfpy-26.1.2.tar.gz", hash = "sha256:297e98e67193f7a4c5a35f1b9cc0d57f85c5a8affde49d767676f3144e5ac250", size = 620868, upload-time = "2026-08-27T10:33:20.023Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/72/7f/927805118070eb05a5250cdd84ca6810c068aa6d2e694828610aed66ac42/idfpy-26.1.0.post5-py3-none-any.whl", hash = "sha256:d658c87f0567b75523e17c176760f6e321f7a75adafb747392140974866d2f47", size = 633881, upload-time = "2026-05-11T10:05:09.332Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/fc/cf1a36b3ba024b41ddc9ba49178c1f859b17d6a4777d9382876907d182d2/idfpy-26.1.2-py3-none-any.whl", hash = "sha256:e8934c161d485d21f8dd167129fe298967dba64935b7f042fa126d5d5951c0ab", size = 634392, upload-time = "2026-08-27T10:33:18.567Z" },
 ]
 
 [[package]]

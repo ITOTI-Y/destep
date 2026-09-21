@@ -8,10 +8,14 @@ from idfpy.models import (
     HVACTemplatePlantChiller,
     HVACTemplatePlantHotWaterLoop,
     HVACTemplatePlantTower,
+    HVACTemplateThermostat,
     HVACTemplateZoneFanCoil,
     HVACTemplateZoneIdealLoadsAirSystem,
     ScheduleConstant,
+    ScheduleTypeLimits,
     SizingZone,
+    ThermostatSetpointDualSetpoint,
+    ZoneControlThermostat,
     ZoneHVACEquipmentConnections,
     ZoneHVACEquipmentList,
     ZoneHVACEquipmentListEquipmentItem,
@@ -77,6 +81,8 @@ class IdealLoadsStrategy:
 
 class MeteredIdealLoadsStrategy:
     name: Final[str] = 'metered-ideal-loads'
+    CONTROL_TYPE_LIMITS_NAME: Final = 'Thermostat Control Type'
+    DUAL_SETPOINT_CONTROL_SCHEDULE_NAME: Final = 'Dual Setpoint Control Type'
 
     def __init__(self, config: MeteredIdealLoadsConfigSchema) -> None:
         self._config = config
@@ -100,6 +106,83 @@ class MeteredIdealLoadsStrategy:
                 hourly_value=self._config.heating_efficiency,
             )
         )
+        idf.add(
+            ScheduleTypeLimits(
+                name=self.CONTROL_TYPE_LIMITS_NAME,
+                lower_limit_value=0,
+                upper_limit_value=4,
+                numeric_type='Discrete',
+                unit_type='Control',
+            )
+        )
+        idf.add(
+            ScheduleConstant(
+                name=self.DUAL_SETPOINT_CONTROL_SCHEDULE_NAME,
+                schedule_type_limits_name=self.CONTROL_TYPE_LIMITS_NAME,
+                hourly_value=4,
+            )
+        )
+
+    @staticmethod
+    def _setpoint_schedule(
+        idf: IDF,
+        schedule_name: str | None,
+        constant_value: float | None,
+        constant_schedule_name: str,
+    ) -> str:
+        if schedule_name:
+            return schedule_name
+        if constant_value is None:
+            raise ValueError(
+                f'{constant_schedule_name}: template thermostat has neither '
+                'a setpoint schedule nor a constant setpoint'
+            )
+        idf.add(
+            ScheduleConstant(name=constant_schedule_name, hourly_value=constant_value)
+        )
+        return constant_schedule_name
+
+    def _add_zone_thermostat(
+        self,
+        idf: IDF,
+        zone_name: str,
+        thermostat_name: str,
+    ) -> None:
+        setpoint_name = f'{thermostat_name} Dual Setpoint'
+        if not idf.has(ThermostatSetpointDualSetpoint, setpoint_name):
+            template = idf.remove(HVACTemplateThermostat, thermostat_name)
+            if template is None:
+                raise KeyError(f'HVACTemplate:Thermostat not found: {thermostat_name}')
+            idf.add(
+                ThermostatSetpointDualSetpoint(
+                    name=setpoint_name,
+                    heating_setpoint_temperature_schedule_name=(
+                        self._setpoint_schedule(
+                            idf,
+                            template.heating_setpoint_schedule_name,
+                            template.constant_heating_setpoint,
+                            f'{thermostat_name} Heating Setpoint',
+                        )
+                    ),
+                    cooling_setpoint_temperature_schedule_name=(
+                        self._setpoint_schedule(
+                            idf,
+                            template.cooling_setpoint_schedule_name,
+                            template.constant_cooling_setpoint,
+                            f'{thermostat_name} Cooling Setpoint',
+                        )
+                    ),
+                )
+            )
+        idf.add(
+            ZoneControlThermostat(
+                name=f'{zone_name} Thermostat',
+                zone_or_zonelist_name=zone_name,
+                control_type_schedule_name=self.DUAL_SETPOINT_CONTROL_SCHEDULE_NAME,
+                control_1_object_type='ThermostatSetpoint:DualSetpoint',
+                control_1_name=setpoint_name,
+            )
+        )
 
     def add_zone_hvac(
         self,
@@ -108,6 +191,8 @@ class MeteredIdealLoadsStrategy:
         thermostat_name: str,
         fresh_air_flow: float | None,
     ) -> None:
+        self._add_zone_thermostat(idf, zone_name, thermostat_name)
+
         equipment_name = f'{zone_name} Ideal Loads Air System'
         equipment_list_name = f'{zone_name} Equipment'
         supply_node_name = f'{zone_name} Metered Ideal Loads Supply Inlet'
