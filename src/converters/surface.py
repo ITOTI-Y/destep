@@ -257,10 +257,7 @@ class SurfaceConverter(BaseConverter[Room]):
             kept.pop()
         return np.asarray(kept)
 
-    def _is_convex_polygon(self, points: np.ndarray, normal: np.ndarray) -> bool:
-        if len(points) < 4:
-            return True
-        pts_2d = self._project_to_2d(points, normal)
+    def _is_convex_2d(self, pts_2d: np.ndarray) -> bool:
         sign = 0.0
         for index in range(len(pts_2d)):
             a = pts_2d[index - 1]
@@ -274,6 +271,11 @@ class SurfaceConverter(BaseConverter[Room]):
             elif np.sign(cross) != sign:
                 return False
         return True
+
+    def _is_convex_polygon(self, points: np.ndarray, normal: np.ndarray) -> bool:
+        if len(points) < 4:
+            return True
+        return self._is_convex_2d(self._project_to_2d(points, normal))
 
     def _split_surface(self, surface: Surface, normal: np.ndarray) -> list[np.ndarray]:
         """Split a surface with holes into simple polygons."""
@@ -440,6 +442,8 @@ class SurfaceConverter(BaseConverter[Room]):
             return None
         if self._signed_area_indices(polygon, points_2d) < 0:
             polygon.reverse()
+        if not self._is_convex_2d(points_2d[polygon]):
+            return None
         return polygon
 
     def _remove_collinear_indices(
