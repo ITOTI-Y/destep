@@ -28,6 +28,9 @@ if TYPE_CHECKING:
     from .manager import LookupTable
 
 EPSILON = 1e-10
+VERTEX_MERGE_TOLERANCE = 0.01
+MIN_PART_AREA = 0.01
+HORIZONTAL_NORMAL_Z = 0.5
 
 
 class SurfaceType(IntEnum):
@@ -206,7 +209,13 @@ class SurfaceConverter(BaseConverter[Room]):
             ]
             normals = self._get_cached_normals(surfaces)
             for surface, normal in zip(surfaces, normals, strict=True):
-                parts = self._split_surface(surface, normal)
+                try:
+                    parts = self._split_surface(surface, normal)
+                except ValueError as e:
+                    logger.warning(
+                        f'Skipping surface {surface.surface_id} during split: {e}'
+                    )
+                    continue
                 self._surface_parts[surface.surface_id] = parts
                 base_name = self.make_name('Surface', surface.surface_id, surface.name)
                 names = self._make_surface_part_names(base_name, len(parts))
@@ -234,14 +243,61 @@ class SurfaceConverter(BaseConverter[Room]):
             return [base_name]
         return [f'{base_name}_Part_{index}' for index in range(1, count + 1)]
 
+    def _merge_close_vertices(self, points: np.ndarray) -> np.ndarray:
+        if len(points) == 0:
+            return points
+        kept = [points[0]]
+        for point in points[1:]:
+            if np.linalg.norm(point - kept[-1]) >= VERTEX_MERGE_TOLERANCE:
+                kept.append(point)
+        if (
+            len(kept) > 1
+            and np.linalg.norm(kept[0] - kept[-1]) < VERTEX_MERGE_TOLERANCE
+        ):
+            kept.pop()
+        return np.asarray(kept)
+
+    def _is_convex_polygon(self, points: np.ndarray, normal: np.ndarray) -> bool:
+        if len(points) < 4:
+            return True
+        pts_2d = self._project_to_2d(points, normal)
+        sign = 0.0
+        for index in range(len(pts_2d)):
+            a = pts_2d[index - 1]
+            b = pts_2d[index]
+            c = pts_2d[(index + 1) % len(pts_2d)]
+            cross = (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])
+            if abs(cross) <= EPSILON:
+                continue
+            if sign == 0.0:
+                sign = np.sign(cross)
+            elif np.sign(cross) != sign:
+                return False
+        return True
+
     def _split_surface(self, surface: Surface, normal: np.ndarray) -> list[np.ndarray]:
         """Split a surface with holes into simple polygons."""
-        loops = self._get_surface_plane_loops(surface)
-        if len(loops) == 1 or surface.type in [
-            SurfaceType.INTERIOR_WALL,
-            SurfaceType.EXTERIOR_WALL,
-        ]:
-            return [self._order_points_array(loops[0], normal, round_coordinates=False)]
+        loops = [
+            self._merge_close_vertices(loop)
+            for loop in self._get_surface_plane_loops(surface)
+        ]
+        loops = [loop for loop in loops if len(loop) >= 3]
+        if not loops:
+            raise ValueError(
+                f'Surface {surface.surface_id} collapses below '
+                f'{VERTEX_MERGE_TOLERANCE} m vertex tolerance'
+            )
+
+        is_wall = surface.type in [SurfaceType.INTERIOR_WALL, SurfaceType.EXTERIOR_WALL]
+        if is_wall or (len(loops) == 1 and self._is_convex_polygon(loops[0], normal)):
+            ordered = self._order_points_array(
+                loops[0], normal, round_coordinates=False
+            )
+            if abs(self._compute_signed_area(ordered, normal)) < MIN_PART_AREA:
+                raise ValueError(
+                    f'Surface {surface.surface_id} area is below {MIN_PART_AREA} m2'
+                )
+            return [ordered]
 
         split_normal = normal.copy()
         if split_normal[np.argmax(np.abs(split_normal))] < 0:
@@ -249,7 +305,10 @@ class SurfaceConverter(BaseConverter[Room]):
         points, faces = self._triangulate_polygon_with_holes(loops, split_normal)
         ordered_parts = []
         for part in self._merge_triangles(points, faces, split_normal):
-            if abs(self._compute_signed_area(part, normal)) < EPSILON:
+            part = self._merge_close_vertices(part)
+            if len(part) < 3:
+                continue
+            if abs(self._compute_signed_area(part, normal)) < MIN_PART_AREA:
                 continue
             ordered_parts.append(
                 self._order_points_array(part, normal, round_coordinates=False)
@@ -712,6 +771,9 @@ class SurfaceConverter(BaseConverter[Room]):
         if enclosure.kind == EnclosureKind.ROOF:
             return 'Roof'
         elif enclosure.kind in (EnclosureKind.GROUNDFLOOR, EnclosureKind.AIRFLOOR):
+            normal = self._get_cached_normals([surface])[0]
+            if abs(normal[2]) < HORIZONTAL_NORMAL_Z:
+                return 'Wall'
             return 'Floor'
         elif enclosure.kind in (EnclosureKind.INWALL, EnclosureKind.OUTWALL):
             return 'Wall'
