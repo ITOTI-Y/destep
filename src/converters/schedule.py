@@ -1,32 +1,65 @@
 """Schedule converter for DeST to EnergyPlus IDF conversion.
 
 Converts ScheduleYear data to:
-- Schedule:File (references external CSV files with hourly values)
+- Schedule:Constant for schedules whose 8760 values never change
+- Schedule:Compact for all other schedules, with explicit design-day profiles
 - ScheduleTypeLimits (auto-generated based on schedule type)
-- CSV files containing 8760 hourly values
+
+Schedule:File cannot distinguish design days from ordinary days, so sizing
+used whatever the hourly array held on the design-day date. In DeST data that
+date is often a weekend (e.g. occupancy 0 on 7/21), which undersized zone
+equipment. Schedule:Compact keeps ordinary days equal to the hourly array
+while giving SummerDesignDay/WinterDesignDay a typical working-day profile.
 
 Only schedules that are referenced by other objects are converted.
 """
 
 from __future__ import annotations
 
-import csv
+import datetime
+from collections import Counter, defaultdict
 from enum import IntEnum
-from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 from idfpy.models import (
-    ScheduleFile,
+    ScheduleCompact,
+    ScheduleConstant,
     ScheduleTypeLimits,
+    SizingPeriodDesignDay,
 )
+from idfpy.models.schedules import ScheduleCompactDataItem
 from loguru import logger
 from sqlalchemy import select
 
-from src.config import PathConfig
 from src.converters.base import BaseConverter
 from src.database.models.schedule import ScheduleYear
 
-path_config = PathConfig()
+HOURS_PER_YEAR: Final[int] = 8760
+DAYS_PER_YEAR: Final[int] = 365
+
+DEST_JAN1_WEEKDAY: Final[int] = 0
+WEEKDAY_NAMES: Final[tuple[str, ...]] = (
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+)
+SUNDAY: Final[int] = 6
+
+DAYS_OF_YEAR = [
+    datetime.date(2001, 1, 1) + datetime.timedelta(days=offset)
+    for offset in range(DAYS_PER_YEAR)
+]
+SUMMER_MONTHS = frozenset({6, 7, 8, 9})
+WINTER_MONTHS = frozenset({12, 1, 2})
+SUMMER_DESIGN_DAY = 'SummerDesignDay'
+WINTER_DESIGN_DAY = 'WinterDesignDay'
+
+type DayProfile = tuple[float, ...]
+type DesignDates = dict[tuple[int, int], str]
 
 
 class DestScheduleType(IntEnum):
@@ -132,17 +165,170 @@ def infer_schedule_type_from_values(values: list[float]) -> str:
     return 'Any Number'
 
 
+def hourly_values(data: list[int | float] | None) -> list[float]:
+    """Validate DeST schedule data as exactly 8760 hourly values."""
+    if data is None:
+        raise ValueError('Schedule data is None')
+    if len(data) != HOURS_PER_YEAR:
+        raise ValueError(f'Expected {HOURS_PER_YEAR} values, got {len(data)}')
+    return [float(item) for item in data]
+
+
+def _day_profiles(values: list[float]) -> list[DayProfile]:
+    # Rounding keeps float noise from splitting otherwise identical days.
+    return [
+        tuple(round(v, 6) for v in values[day * 24 : (day + 1) * 24])
+        for day in range(DAYS_PER_YEAR)
+    ]
+
+
+def _design_day_profile(
+    profiles: list[DayProfile],
+    months: frozenset[int],
+) -> DayProfile:
+    """Most frequent non-zero in-season daily profile, i.e. a typical working day."""
+    in_season = [
+        profile
+        for profile, day in zip(profiles, DAYS_OF_YEAR, strict=True)
+        if day.month in months
+    ]
+    non_zero = [profile for profile in in_season if any(v != 0 for v in profile)]
+    return Counter(non_zero or in_season).most_common(1)[0][0]
+
+
+def _until_fields(profile: DayProfile) -> list[str]:
+    fields: list[str] = []
+    for hour in range(24):
+        if hour == 23 or profile[hour + 1] != profile[hour]:
+            fields += [f'Until: {hour + 1:02d}:00', f'{profile[hour]:.10g}']
+    return fields
+
+
+def _through(day_index: int) -> str:
+    end = DAYS_OF_YEAR[day_index]
+    return f'Through: {end.month:02d}/{end.day:02d}'
+
+
+def _exact_fields(
+    profiles: list[DayProfile],
+    design_profiles: dict[str, DayProfile],
+    design_dates: DesignDates,
+) -> list[str]:
+    """Date-exact encoding: runs of identical days become one Through block.
+
+    Ordinary days keep their own hourly values regardless of the simulation
+    calendar. A design-day date whose profile differs from the typical one gets
+    a single-day block in which only the design day type uses the typical
+    profile.
+    """
+    day_index = {(day.month, day.day): i for i, day in enumerate(DAYS_OF_YEAR)}
+    overrides = {
+        day_index[month_day]: day_type
+        for month_day, day_type in design_dates.items()
+        if month_day in day_index
+        and profiles[day_index[month_day]] != design_profiles[day_type]
+    }
+    fields: list[str] = []
+    start = 0
+    for day in range(1, DAYS_PER_YEAR + 1):
+        is_boundary = (
+            day == DAYS_PER_YEAR
+            or profiles[day] != profiles[start]
+            or day in overrides
+            or day - 1 in overrides
+        )
+        if not is_boundary:
+            continue
+        fields.append(_through(day - 1))
+        if start in overrides:
+            day_type = overrides[start]
+            fields += [f'For: {day_type}', *_until_fields(design_profiles[day_type])]
+            fields += ['For: AllOtherDays', *_until_fields(profiles[start])]
+        else:
+            fields += ['For: AllDays', *_until_fields(profiles[start])]
+        start = day
+    return fields
+
+
+def _weekly_fields(
+    profiles: list[DayProfile], design_profiles: dict[str, DayProfile]
+) -> list[str]:
+    """Weekday-group encoding.
+
+    The year is split into maximal date ranges in which each weekday keeps one
+    profile. EnergyPlus evaluates weekday names on the simulation calendar, so
+    weekends follow the RunPeriod year rather than the DeST array's own
+    calendar; this shifts results slightly (about -0.2% EUI for CoA in 2040).
+    Sunday's profile also covers holidays and custom days.
+    """
+    summer = _until_fields(design_profiles[SUMMER_DESIGN_DAY])
+    winter = _until_fields(design_profiles[WINTER_DESIGN_DAY])
+
+    fields: list[str] = []
+    start = 0
+    while start < DAYS_PER_YEAR:
+        by_weekday: dict[int, DayProfile] = {}
+        end = start
+        while end < DAYS_PER_YEAR:
+            weekday = (DEST_JAN1_WEEKDAY + end) % 7
+            if by_weekday.setdefault(weekday, profiles[end]) != profiles[end]:
+                break
+            end += 1
+
+        groups: dict[DayProfile, list[int]] = defaultdict(list)
+        for weekday, profile in by_weekday.items():
+            groups[profile].append(weekday)
+        sunday_profile = by_weekday.get(SUNDAY, profiles[start])
+
+        fields += [
+            _through(end - 1),
+            f'For: {SUMMER_DESIGN_DAY}',
+            *summer,
+            f'For: {WINTER_DESIGN_DAY}',
+            *winter,
+        ]
+        for profile, weekdays in groups.items():
+            if profile == sunday_profile:
+                continue
+            names = ' '.join(WEEKDAY_NAMES[weekday] for weekday in sorted(weekdays))
+            fields += [f'For: {names}', *_until_fields(profile)]
+        fields += ['For: AllOtherDays', *_until_fields(sunday_profile)]
+        start = end
+    return fields
+
+
+def encode_schedule(
+    values: list[float], design_dates: DesignDates
+) -> float | list[str]:
+    """Return the constant value, or the shorter Schedule:Compact encoding."""
+    profiles = _day_profiles(values)
+    distinct = {value for profile in profiles for value in profile}
+    if len(distinct) == 1:
+        return distinct.pop()
+
+    design_profiles = {
+        SUMMER_DESIGN_DAY: _design_day_profile(profiles, SUMMER_MONTHS),
+        WINTER_DESIGN_DAY: _design_day_profile(profiles, WINTER_MONTHS),
+    }
+    return min(
+        _exact_fields(profiles, design_profiles, design_dates),
+        _weekly_fields(profiles, design_profiles),
+        key=len,
+    )
+
+
 class ScheduleConverter(BaseConverter[ScheduleYear]):
-    """Converts DeST ScheduleYear to IDF Schedule:File and ScheduleTypeLimits.
+    """Converts DeST ScheduleYear to IDF schedules and ScheduleTypeLimits.
 
     This converter handles:
     - ScheduleTypeLimits: Auto-generated based on DeST schedule type code
-    - Schedule:File: References external CSV files with 8760 hourly values
-    - CSV files: Generated in a 'schedules' subdirectory
+    - Schedule:Constant: Schedules whose hourly values never change
+    - Schedule:Compact: All other schedules, with design-day profiles
 
     Only schedules registered in lookup_table.REQUIRED_SCHEDULE_IDS are converted.
     Other converters should add schedule IDs to lookup_table.REQUIRED_SCHEDULE_IDS
-    when they reference schedules.
+    when they reference schedules. Design-day dates are read from the
+    SizingPeriod:DesignDay objects that SizingConverter has already added.
 
     DeST Schedule Types:
     - 1: ratio (0-1 fraction) -> Fraction
@@ -158,17 +344,17 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         """Initialize ScheduleConverter."""
         super().__init__(*args, **kwargs)
         self._created_type_limits: set[str] = set()
-        self._output_dir: Path | None = None
-        self._schedules_dir: Path | None = None
+        self._design_dates: DesignDates = {}
 
-    def set_output_dir(self, output_dir: Path) -> None:
-        """Set the output directory for CSV files.
-
-        Args:
-            output_dir: Base output directory for IDF and related files.
-        """
-        self._output_dir = output_dir
-        self._schedules_dir = output_dir / 'schedules'
+    def _read_design_dates(self) -> DesignDates:
+        """Collect (month, day) -> design day type from SizingPeriod:DesignDay."""
+        design_dates: DesignDates = {}
+        for design_day in self.idf.all_of_type(SizingPeriodDesignDay).values():
+            if design_day.day_type in (SUMMER_DESIGN_DAY, WINTER_DESIGN_DAY):
+                design_dates[(design_day.month, design_day.day_of_month)] = (
+                    design_day.day_type
+                )
+        return design_dates
 
     def convert_all(self) -> None:
         """Convert required ScheduleYear objects to IDF schedules.
@@ -178,23 +364,27 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
 
         Steps:
         1. Read required schedule IDs from lookup_table
-        2. Create schedules output directory
+        2. Read design-day dates from the IDF
         3. Query only the required schedules
         4. Create ScheduleTypeLimits objects
-        5. Convert each schedule to Schedule:File + CSV
+        5. Convert each schedule to Schedule:Constant or Schedule:Compact
+
+        Raises:
+            ValueError: If any schedule fails to convert. A missing schedule
+                would otherwise only surface as an EnergyPlus fatal error about
+                an undefined schedule reference.
         """
         required_ids = self.lookup_table.REQUIRED_SCHEDULE_IDS
         if not required_ids:
             logger.info('No schedules marked as required, skipping schedule conversion')
             return
 
-        if self._output_dir is None:
-            logger.warning('Output directory not set, using current directory')
-            self._output_dir = path_config.idf_dir
-
-        self._schedules_dir = self._output_dir / 'schedules'
-
-        self._schedules_dir.mkdir(parents=True, exist_ok=True)
+        self._design_dates = self._read_design_dates()
+        if not self._design_dates:
+            logger.warning(
+                'No SizingPeriod:DesignDay found; design days will use the '
+                'typical profile only where the weekday encoding is chosen'
+            )
 
         stmt = select(ScheduleYear).where(ScheduleYear.schedule_id.in_(required_ids))
         schedules = self.session.execute(stmt).scalars().all()
@@ -217,19 +407,22 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
 
         self._create_schedule_type_limits(type_limits_needed)
 
+        failed_ids: list[int] = []
         for schedule in schedules:
             if self.convert_one(schedule):
                 self.stats.converted += 1
             else:
                 self.stats.errors += 1
+                failed_ids.append(schedule.schedule_id)
 
         self.log_stats()
+        if failed_ids:
+            raise ValueError(
+                f'{len(failed_ids)} schedules failed to convert: {sorted(failed_ids)}'
+            )
 
     def convert_one(self, instance: ScheduleYear) -> bool:
-        """Convert a single DeST ScheduleYear to IDF Schedule:File.
-
-        Creates a CSV file with hourly values and adds Schedule:File
-        reference to the IDF.
+        """Convert a single DeST ScheduleYear to Schedule:Constant or Compact.
 
         Args:
             instance: DeST ScheduleYear model instance.
@@ -241,36 +434,32 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
             name = self.make_name('Schedule', instance.schedule_id, instance.name)
             limits_name = self._determine_type_limits(instance)
 
-            if self._schedules_dir is None:
-                raise RuntimeError('Schedules directory not initialized')
-
-            csv_filename = f'{name}.csv'
-            csv_path = self._schedules_dir / csv_filename
-
-            self._write_schedule_csv(csv_path, instance.data)
-
-            relative_csv_path = f'schedules/{csv_filename}'
-
-            schedule_file = ScheduleFile(
-                name=name,
-                schedule_type_limits_name=limits_name,
-                file_name=relative_csv_path,
-                column_number=1,  # First column contains values
-                rows_to_skip_at_top=0,  # No header row
-                number_of_hours_of_data=8760.0,
-                column_separator='Comma',
-                interpolate_to_timestep='No',
-                minutes_per_item=60,  # Hourly values
-                adjust_schedule_for_daylight_savings='No',
-            )
-
-            self.idf.add(schedule_file)
+            encoded = encode_schedule(hourly_values(instance.data), self._design_dates)
+            if isinstance(encoded, list):
+                self.idf.add(
+                    ScheduleCompact(
+                        name=name,
+                        schedule_type_limits_name=limits_name,
+                        data=[
+                            ScheduleCompactDataItem(field=field) for field in encoded
+                        ],
+                    )
+                )
+                kind = f'Schedule:Compact ({len(encoded)} fields)'
+            else:
+                self.idf.add(
+                    ScheduleConstant(
+                        name=name,
+                        schedule_type_limits_name=limits_name,
+                        hourly_value=encoded,
+                    )
+                )
+                kind = 'Schedule:Constant'
 
             self.lookup_table.SCHEDULE_TO_NAME[instance.schedule_id] = name
 
             logger.debug(
-                f'Converted Schedule: {name} -> {relative_csv_path} '
-                f'(type_limits={limits_name})'
+                f'Converted Schedule: {name} -> {kind} (type_limits={limits_name})'
             )
             return True
 
@@ -316,36 +505,6 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
             if isinstance(item, (int, float)):
                 values.append(float(item))
         return values
-
-    def _write_schedule_csv(self, csv_path: Path, data: list[Any] | None) -> None:
-        """Write schedule data to CSV file.
-
-        Creates a CSV file with one value per row, 8760 rows total.
-        Missing or insufficient data is padded with zeros.
-
-        Args:
-            csv_path: Path to the output CSV file.
-            data: Schedule data (8760 hourly values).
-        """
-        values: list[float] = []
-        if data:
-            for item in data:
-                if isinstance(item, (int, float)):
-                    values.append(float(item))
-                else:
-                    values.append(0.0)
-
-        while len(values) < 8760:
-            values.append(0.0)
-
-        values = values[:8760]
-
-        with open(csv_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            for value in values:
-                writer.writerow([value])
-
-        logger.debug(f'Wrote schedule CSV: {csv_path} ({len(values)} values)')
 
     def _create_schedule_type_limits(self, type_names: set[str]) -> None:
         """Create ScheduleTypeLimits objects for the required types.

@@ -143,10 +143,6 @@ class ConverterManager:
                 ddy_path = kwargs.get('ddy_path')
                 if ddy_path is not None:
                     converter.set_ddy_path(Path(ddy_path))
-            if isinstance(converter, ScheduleConverter):
-                converter.set_output_dir(
-                    output_path.parent if output_path else Path('.')
-                )
             if isinstance(converter, HVACConverter):
                 converter.set_strategy(self._resolve_hvac_strategy())
             converter.convert_all()
