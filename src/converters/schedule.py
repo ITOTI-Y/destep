@@ -370,9 +370,10 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         5. Convert each schedule to Schedule:Constant or Schedule:Compact
 
         Raises:
-            ValueError: If any schedule fails to convert. A missing schedule
-                would otherwise only surface as an EnergyPlus fatal error about
-                an undefined schedule reference.
+            ValueError: If a required schedule is absent from the database or
+                fails to convert. A missing schedule would otherwise only
+                surface as an EnergyPlus fatal error about an undefined
+                schedule reference.
         """
         required_ids = self.lookup_table.REQUIRED_SCHEDULE_IDS
         if not required_ids:
@@ -398,7 +399,10 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         found_ids = {s.schedule_id for s in schedules}
         missing_ids = required_ids - found_ids
         if missing_ids:
-            logger.warning(f'Missing schedule IDs in database: {missing_ids}')
+            raise ValueError(
+                f'{len(missing_ids)} required schedule IDs are missing from the '
+                f'database: {sorted(missing_ids)}'
+            )
 
         type_limits_needed: set[str] = set()
         for schedule in schedules:
