@@ -526,7 +526,7 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         Args:
             type_names: Set of ScheduleTypeLimits names to create.
         """
-        for name in type_names:
+        for name in sorted(type_names):
             if name in self._created_type_limits:
                 continue
 

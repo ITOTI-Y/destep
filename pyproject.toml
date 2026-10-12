@@ -50,8 +50,11 @@ docstring-code-format = true
 
 [dependency-groups]
 dev = [
+    "prek>=0.5.5",
     "pyright>=1.1.408",
     "pytest>=9.1.1",
+    "ruff>=0.17.0",
+    "ty>=0.0.86",
 ]
 
 [build-system]
