@@ -1,9 +1,8 @@
-from unittest.mock import MagicMock
-
 import pytest
 from idfpy import IDF
 from idfpy.models import ElectricEquipment, IDFBaseModel, Lights, People
 
+from src.converters.base import ConversionStats
 from src.converters.internal_gains import InternalGainsConverter, occupant_activity
 from src.converters.manager import LookupTable
 from src.database.models.building import Room
@@ -46,7 +45,7 @@ def converter() -> InternalGainsConverter:
     converter = object.__new__(InternalGainsConverter)
     converter.idf = IDF()
     converter.lookup_table = LookupTable(ROOM_TO_ZONE={7: 'Zone_7'})
-    converter.stats = MagicMock(converted=0, skipped=0)
+    converter.stats = ConversionStats()
     converter.pinyin = PinyinConverter()
     converter._created_activity_type_limits = False
     converter._lighting_corrections = {}
