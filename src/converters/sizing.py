@@ -30,6 +30,14 @@ if TYPE_CHECKING:
 class MappingItem:
     winter: str = 'Htg 99.6% Condns DB'
     summer: str = 'Clg .4% Condns DB=>MWB'
+    monthly_summer: str = '.4% Condns DB=>MCWB'
+
+
+DESIGN_DAY_NAME_PATTERNS: tuple[str, ...] = (
+    MappingItem.winter,
+    MappingItem.summer,
+    MappingItem.monthly_summer,
+)
 
 
 class SizingConverter(BaseConverter[Environment]):
@@ -89,10 +97,7 @@ class SizingConverter(BaseConverter[Environment]):
             return False
         for ddy_item in ddy_data.values():
             assert isinstance(ddy_item, SizingPeriodDesignDay)
-            if (
-                MappingItem.winter in ddy_item.name
-                or MappingItem.summer in ddy_item.name
-            ):
+            if any(pattern in ddy_item.name for pattern in DESIGN_DAY_NAME_PATTERNS):
                 self.idf.add(ddy_item)
                 self.stats.converted += 1
             else:

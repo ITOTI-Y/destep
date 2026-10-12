@@ -59,7 +59,7 @@ SUMMER_DESIGN_DAY = 'SummerDesignDay'
 WINTER_DESIGN_DAY = 'WinterDesignDay'
 
 type DayProfile = tuple[float, ...]
-type DesignDates = dict[tuple[int, int], str]
+type DesignDates = dict[tuple[int, int], frozenset[str]]
 
 
 class DestScheduleType(IntEnum):
@@ -218,16 +218,23 @@ def _exact_fields(
 
     Ordinary days keep their own hourly values regardless of the simulation
     calendar. A design-day date whose profile differs from the typical one gets
-    a single-day block in which only the design day type uses the typical
-    profile.
+    a single-day block in which only the design day types use the typical
+    profiles.
     """
     day_index = {(day.month, day.day): i for i, day in enumerate(DAYS_OF_YEAR)}
-    overrides = {
-        day_index[month_day]: day_type
-        for month_day, day_type in design_dates.items()
-        if month_day in day_index
-        and profiles[day_index[month_day]] != design_profiles[day_type]
-    }
+    overrides: dict[int, list[str]] = {}
+    for month_day, day_types in design_dates.items():
+        if month_day not in day_index:
+            continue
+        index = day_index[month_day]
+        differing = sorted(
+            day_type
+            for day_type in day_types
+            if profiles[index] != design_profiles[day_type]
+        )
+        if differing:
+            overrides[index] = differing
+
     fields: list[str] = []
     start = 0
     for day in range(1, DAYS_PER_YEAR + 1):
@@ -241,8 +248,11 @@ def _exact_fields(
             continue
         fields.append(_through(day - 1))
         if start in overrides:
-            day_type = overrides[start]
-            fields += [f'For: {day_type}', *_until_fields(design_profiles[day_type])]
+            for day_type in overrides[start]:
+                fields += [
+                    f'For: {day_type}',
+                    *_until_fields(design_profiles[day_type]),
+                ]
             fields += ['For: AllOtherDays', *_until_fields(profiles[start])]
         else:
             fields += ['For: AllDays', *_until_fields(profiles[start])]
@@ -347,14 +357,14 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
         self._design_dates: DesignDates = {}
 
     def _read_design_dates(self) -> DesignDates:
-        """Collect (month, day) -> design day type from SizingPeriod:DesignDay."""
-        design_dates: DesignDates = {}
+        """Collect (month, day) -> design day types from SizingPeriod:DesignDay."""
+        collected: dict[tuple[int, int], set[str]] = defaultdict(set)
         for design_day in self.idf.all_of_type(SizingPeriodDesignDay).values():
             if design_day.day_type in (SUMMER_DESIGN_DAY, WINTER_DESIGN_DAY):
-                design_dates[(design_day.month, design_day.day_of_month)] = (
+                collected[(design_day.month, design_day.day_of_month)].add(
                     design_day.day_type
                 )
-        return design_dates
+        return {month_day: frozenset(types) for month_day, types in collected.items()}
 
     def convert_all(self) -> None:
         """Convert required ScheduleYear objects to IDF schedules.

@@ -145,6 +145,9 @@ class ConverterManager:
                     converter.set_ddy_path(Path(ddy_path))
             if isinstance(converter, HVACConverter):
                 converter.set_strategy(self._resolve_hvac_strategy())
+                converter.set_building_type(self.building_type)
+            if isinstance(converter, InternalGainsConverter):
+                converter.set_building_type(self.building_type)
             converter.convert_all()
         if save:
             self.idf.save(output_path if output_path else Path('.'))

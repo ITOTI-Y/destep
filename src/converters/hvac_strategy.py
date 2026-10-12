@@ -41,6 +41,7 @@ class HVACStrategy(Protocol):
         zone_name: str,
         thermostat_name: str,
         fresh_air_flow: float | None,
+        availability_schedule_name: str,
     ) -> None:
         raise NotImplementedError
 
@@ -54,6 +55,7 @@ class IdealLoadsStrategy:
         zone_name: str,
         thermostat_name: str,
         fresh_air_flow: float | None,
+        availability_schedule_name: str,
     ) -> None:
         if fresh_air_flow is not None and fresh_air_flow > 0:
             outdoor_air_method = 'Flow/Zone'
@@ -66,6 +68,7 @@ class IdealLoadsStrategy:
             HVACTemplateZoneIdealLoadsAirSystem(
                 zone_name=zone_name,
                 template_thermostat_name=thermostat_name,
+                system_availability_schedule_name=availability_schedule_name,
                 maximum_heating_supply_air_temperature=50.0,
                 minimum_cooling_supply_air_temperature=13.0,
                 heating_limit='NoLimit',
@@ -190,6 +193,7 @@ class MeteredIdealLoadsStrategy:
         zone_name: str,
         thermostat_name: str,
         fresh_air_flow: float | None,
+        availability_schedule_name: str,
     ) -> None:
         self._add_zone_thermostat(idf, zone_name, thermostat_name)
 
@@ -236,6 +240,7 @@ class MeteredIdealLoadsStrategy:
         idf.add(
             ZoneHVACIdealLoadsAirSystem(
                 name=equipment_name,
+                availability_schedule_name=availability_schedule_name,
                 zone_supply_air_node_name=supply_node_name,
                 maximum_heating_supply_air_temperature=50.0,
                 minimum_cooling_supply_air_temperature=13.0,
@@ -289,10 +294,12 @@ class MeteredIdealLoadsStrategy:
         )
 
         logger.debug(
-            'Created metered Ideal Loads for {} with profile {} and thermostat {}',
+            'Created metered Ideal Loads for {} with profile {}, thermostat {} '
+            'and availability {}',
             zone_name,
             self._config.profile_name,
             thermostat_name,
+            availability_schedule_name,
         )
 
 
@@ -389,6 +396,7 @@ class FanCoilCentralPlantStrategy:
         zone_name: str,
         thermostat_name: str,
         fresh_air_flow: float | None,
+        availability_schedule_name: str,
     ) -> None:
         if fresh_air_flow is not None and fresh_air_flow > 0:
             outdoor_air_method = 'Flow/Zone'
@@ -401,6 +409,7 @@ class FanCoilCentralPlantStrategy:
             HVACTemplateZoneFanCoil(
                 zone_name=zone_name,
                 template_thermostat_name=thermostat_name,
+                system_availability_schedule_name=availability_schedule_name,
                 outdoor_air_method=outdoor_air_method,
                 outdoor_air_flow_rate_per_zone=outdoor_air_flow_rate_per_zone,
             )

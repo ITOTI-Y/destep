@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final
 
-from idfpy.models import HVACTemplateThermostat
+from idfpy.models import HVACTemplateThermostat, ScheduleConstant
 from loguru import logger
 from sqlalchemy import select
 
@@ -27,6 +27,9 @@ if TYPE_CHECKING:
     from .manager import LookupTable
 
 M3_PER_HOUR_TO_M3_PER_SECOND: Final = 1.0 / 3600.0
+
+ALWAYS_ON_BUILDING_TYPES: Final[frozenset[str]] = frozenset({'lh', 'sh', 'outp', 'inp'})
+ALWAYS_ON_SCHEDULE_NAME: Final = 'HVAC_Availability_Always_On'
 
 
 class HVACConverter(BaseConverter[Room]):
@@ -50,6 +53,15 @@ class HVACConverter(BaseConverter[Room]):
         super().__init__(session, idf, lookup_table, pinyin)
         self._thermostat_cache: dict[int, str] = {}
         self._strategy: HVACStrategy | None = None
+        self._always_on = False
+
+    def set_building_type(self, building_type: str) -> None:
+        self._always_on = building_type.lower() in ALWAYS_ON_BUILDING_TYPES
+        if self._always_on:
+            logger.info(
+                f'Building type {building_type}: HVAC available 24 h, '
+                'DeST AC on/off schedule not used'
+            )
 
     def set_strategy(self, strategy: HVACStrategy) -> None:
         self._strategy = strategy
@@ -102,24 +114,45 @@ class HVACConverter(BaseConverter[Room]):
             raise ValueError('HVAC strategy not set. Call set_strategy() first.')
 
         thermostat_name = self._create_thermostat(room_group, room)
+        availability_schedule_name = self._availability_schedule_name(room_group, room)
         fresh_air_flow = self._calculate_fresh_air_flow(room)
         self._strategy.add_zone_hvac(
             self.idf,
             zone_name,
             thermostat_name,
             fresh_air_flow,
+            availability_schedule_name,
         )
 
         if fresh_air_flow is not None and fresh_air_flow > 0:
             logger.debug(
                 f'Converted Room {room.id} ({zone_name}) HVAC -> '
                 f'Thermostat: {thermostat_name}, '
+                f'Availability: {availability_schedule_name}, '
                 f'Fresh air: {fresh_air_flow:.6f} m³/s'
             )
         else:
             logger.info(f'Room {room.id} ({zone_name}): No fresh air configured')
         self.stats.converted += 1
         return True
+
+    def _availability_schedule_name(self, room_group: RoomGroup, room: Room) -> str:
+        if self._always_on:
+            if not self.idf.has(ScheduleConstant, ALWAYS_ON_SCHEDULE_NAME):
+                self.idf.add(
+                    ScheduleConstant(name=ALWAYS_ON_SCHEDULE_NAME, hourly_value=1.0)
+                )
+            return ALWAYS_ON_SCHEDULE_NAME
+
+        schedule = room_group.ac_schedule
+        if schedule is None:
+            raise ValueError(
+                f'RoomGroup {room_group.room_group_id} ({room_group.name}) '
+                f'missing required AC schedule (ac_schedule_id). '
+                f'Room {room.id} ({room.name}) cannot be configured.'
+            )
+        self.lookup_table.REQUIRED_SCHEDULE_IDS.add(schedule.schedule_id)
+        return self.make_name('Schedule', schedule.schedule_id, schedule.name)
 
     def _create_thermostat(self, room_group: RoomGroup, room: Room) -> str:
         """Create HVACTemplateThermostat for a RoomGroup.
