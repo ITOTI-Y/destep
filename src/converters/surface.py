@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Literal
 
 import mapbox_earcut as earcut
 import numpy as np
-import trimesh
 from idfpy import IDF
 from idfpy.models import (
     BuildingSurfaceDetailed,
@@ -31,6 +30,36 @@ EPSILON = 1e-10
 VERTEX_MERGE_TOLERANCE = 0.01
 MIN_PART_AREA = 0.01
 HORIZONTAL_NORMAL_Z = 0.5
+
+CLOSURE_RESIDUAL_TOLERANCE = 0.05
+CLOSURE_RELATIVE_TOLERANCE = 1e-3
+
+
+def polygon_area_vector(points: np.ndarray) -> np.ndarray:
+    """Area vector of a planar polygon (Newell's method), along its winding normal."""
+    relative = points - points[0]
+    return np.cross(relative, np.roll(relative, -1, axis=0)).sum(axis=0) / 2.0
+
+
+def zone_closure_residual(polygons: list[np.ndarray]) -> tuple[float, float]:
+    """Return (|sum of area vectors|, sum of areas) for outward-wound polygons.
+
+    The area vectors of a closed polyhedron sum to zero, so the residual
+    measures the opening of a zone independently of T-junctions where one
+    surface edge meets several edges of adjacent surfaces.
+    """
+    vectors = [polygon_area_vector(points) for points in polygons]
+    residual = float(np.linalg.norm(np.sum(vectors, axis=0))) if vectors else 0.0
+    total_area = float(sum(np.linalg.norm(vector) for vector in vectors))
+    return residual, total_area
+
+
+def is_zone_open(residual: float, total_area: float) -> bool:
+    return (
+        total_area == 0.0
+        or residual > CLOSURE_RESIDUAL_TOLERANCE
+        and residual > CLOSURE_RELATIVE_TOLERANCE * total_area
+    )
 
 
 class SurfaceType(IntEnum):
@@ -104,10 +133,6 @@ class SurfaceConverter(BaseConverter[Room]):
             if self.convert_one(room):
                 logger.info(f'Converted room {room.id}')
                 self.stats.converted += 1
-            else:
-                logger.warning(
-                    f'Failed to convert room {room.id} or zone is not watertight'
-                )
 
         if not self._surface_reference_check():
             raise ValueError('Surface reference check failed')
@@ -125,7 +150,7 @@ class SurfaceConverter(BaseConverter[Room]):
         for surface in surfaces:
             surface_by_types[surface.type].append(surface)
         normals = self._get_cached_normals(surfaces)
-        _step_surface_ordered_vertices = []
+        zone_polygons: list[np.ndarray] = []
 
         for surface, normal in zip(surfaces, normals, strict=True):
             try:
@@ -182,9 +207,7 @@ class SurfaceConverter(BaseConverter[Room]):
                             for v in ordered_points
                         ],
                     )
-                    _step_surface_ordered_vertices.append(
-                        (idf_surface, ordered_points, normal)
-                    )
+                    zone_polygons.append(ordered_points)
                     self.idf.add(idf_surface)
                     self._created_surfaces[surface_name] = idf_surface
                 self.lookup_table.SURFACE_TO_NAME[surface.surface_id] = names[0]
@@ -195,9 +218,15 @@ class SurfaceConverter(BaseConverter[Room]):
                 )
                 self.stats.skipped += 1
                 continue
-        return bool(
-            self._validate_zone_geometry_closure(_step_surface_ordered_vertices)
-        )
+
+        residual, total_area = zone_closure_residual(zone_polygons)
+        if is_zone_open(residual, total_area):
+            self.stats.add_warning(
+                f'Room {room.id} ({room.name}) is not enclosed: area vector '
+                f'residual {residual:.3f} m2 of {total_area:.1f} m2 total'
+            )
+            return False
+        return True
 
     def _prepare_surface_parts(self, rooms: list[Room]) -> None:
         """Precompute split surfaces so interzone references are deterministic."""
@@ -320,14 +349,6 @@ class SurfaceConverter(BaseConverter[Room]):
                 f'Surface {surface.surface_id} has no non-degenerate polygon parts'
             )
         return ordered_parts
-
-    def _triangulate_polygon(self, pts: np.ndarray, normal: np.ndarray) -> np.ndarray:
-        pts_2d = self._project_to_2d(pts, normal)
-        pts_2d = pts_2d.astype(np.float64)
-        rings = np.array([len(pts_2d)], dtype=np.uint32)
-        result = earcut.triangulate_float64(pts_2d, rings)
-        faces = np.array(result).reshape(-1, 3)
-        return faces
 
     def _triangulate_polygon_with_holes(
         self, loops: list[np.ndarray], normal: np.ndarray
@@ -827,59 +848,6 @@ class SurfaceConverter(BaseConverter[Room]):
         if boundary_condition == 'Outdoors':
             return 'WindExposed'
         return 'NoWind'
-
-    def _validate_zone_geometry_closure(
-        self,
-        surfaces_ordered_vertices: list[
-            tuple[BuildingSurfaceDetailed, np.ndarray, np.ndarray]
-        ],
-        output_path: str | None = None,
-    ) -> bool:
-        """Validate that zone surfaces form a closed (watertight) geometry."""
-        scene = self._surfaces_to_mesh(surfaces_ordered_vertices)
-        if scene is None:
-            logger.debug('Validation failed: scene is None')
-            return False
-
-        meshes = list(scene.geometry.values())
-        if not meshes:
-            logger.debug('Validation failed: no meshes')
-            return False
-
-        mesh = trimesh.util.concatenate(meshes)
-        if mesh is None or len(mesh.faces) < 4:
-            logger.debug(f'Validation failed: faces={len(mesh.faces) if mesh else 0}')
-            return False
-
-        mesh.merge_vertices()
-        mesh.fix_normals()
-
-        if mesh.is_watertight:
-            return True
-
-        if output_path is not None:
-            scene.export(output_path)
-        return False
-
-    def _surfaces_to_mesh(
-        self, surfaces: list[tuple[BuildingSurfaceDetailed, np.ndarray, np.ndarray]]
-    ):
-        scene = trimesh.Scene()
-
-        for i, (surface_obj, pts, normal) in enumerate(surfaces):
-            surface_name = surface_obj.name or f'surface_{i}'
-            try:
-                faces = self._triangulate_polygon(pts, normal)
-            except Exception as e:
-                self.stats.add_warning(
-                    f'Failed to triangulate surface {surface_name}: {e}'
-                )
-                self.stats.skipped += 1
-                continue
-            mesh = trimesh.Trimesh(vertices=pts, faces=faces)
-            scene.add_geometry(mesh, node_name=surface_name)
-
-        return scene
 
     def _surface_reference_check(self) -> bool:
         for _, surface in self._created_surfaces.items():

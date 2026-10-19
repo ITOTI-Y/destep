@@ -1,7 +1,11 @@
 import numpy as np
 import pytest
 
-from src.converters.surface import SurfaceConverter
+from src.converters.surface import (
+    SurfaceConverter,
+    is_zone_open,
+    zone_closure_residual,
+)
 from src.database.models.geometry import Surface
 
 # Total area of the reduced surface; assertAlmostEqual(places=8) equivalent.
@@ -82,3 +86,42 @@ def test_all_degenerate_parts_raise_with_surface_id(
 
     with pytest.raises(ValueError, match='Surface 742376.*non-degenerate'):
         converter._split_surface(surface, np.array([0.0, 0.0, 1.0]))
+
+
+def _box_faces(width: float, depth: float, height: float) -> list[np.ndarray]:
+    """Outward-wound faces of an axis-aligned box with its corner at the origin."""
+    w, d, h = width, depth, height
+    return [
+        np.array([[0, 0, 0], [0, d, 0], [w, d, 0], [w, 0, 0]], dtype=float),
+        np.array([[0, 0, h], [w, 0, h], [w, d, h], [0, d, h]], dtype=float),
+        np.array([[0, 0, 0], [w, 0, 0], [w, 0, h], [0, 0, h]], dtype=float),
+        np.array([[w, 0, 0], [w, d, 0], [w, d, h], [w, 0, h]], dtype=float),
+        np.array([[w, d, 0], [0, d, 0], [0, d, h], [w, d, h]], dtype=float),
+        np.array([[0, d, 0], [0, 0, 0], [0, 0, h], [0, d, h]], dtype=float),
+    ]
+
+
+def test_zone_with_t_junction_is_closed() -> None:
+    faces = _box_faces(4.0, 3.0, 2.8)
+    # Split the south wall where two adjacent rooms meet it; the floor and
+    # ceiling edges along y=0 now meet two wall edges (a T-junction).
+    faces.pop(2)
+    faces += [
+        np.array([[0, 0, 0], [1.5, 0, 0], [1.5, 0, 2.8], [0, 0, 2.8]]),
+        np.array([[1.5, 0, 0], [4, 0, 0], [4, 0, 2.8], [1.5, 0, 2.8]]),
+    ]
+
+    residual, total_area = zone_closure_residual(faces)
+
+    assert not is_zone_open(residual, total_area)
+
+
+def test_zone_with_floor_larger_than_ceiling_is_open() -> None:
+    faces = _box_faces(11.0, 10.4, 5.7)
+    # Floor reaches 0.2 m further south than the ceiling, leaving a 2.2 m2 gap.
+    faces[0] = np.array([[0, -0.2, 0], [0, 10.4, 0], [11, 10.4, 0], [11, -0.2, 0]])
+
+    residual, total_area = zone_closure_residual(faces)
+
+    assert residual == pytest.approx(2.2)
+    assert is_zone_open(residual, total_area)
