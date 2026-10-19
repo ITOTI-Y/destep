@@ -1,11 +1,16 @@
 import numpy as np
 import pytest
 
+from src.converters.base import ConversionStats
+from src.converters.construction import EnclosureKind
 from src.converters.surface import (
     SurfaceConverter,
+    SurfaceType,
     is_zone_open,
     zone_closure_residual,
 )
+from src.database.models import MainEnclosure
+from src.database.models.building import Room
 from src.database.models.geometry import Surface
 
 # Total area of the reduced surface; assertAlmostEqual(places=8) equivalent.
@@ -125,3 +130,139 @@ def test_zone_with_floor_larger_than_ceiling_is_open() -> None:
 
     assert residual == pytest.approx(2.2)
     assert is_zone_open(residual, total_area)
+
+
+def _rectangle(x0: float, x1: float, y0: float, y1: float, z: float) -> np.ndarray:
+    return np.array([[x0, y0, z], [x1, y0, z], [x1, y1, z], [x0, y1, z]], dtype=float)
+
+
+@pytest.fixture
+def slab_loops() -> dict[int, list[np.ndarray]]:
+    return {}
+
+
+@pytest.fixture
+def slab_converter(
+    slab_loops: dict[int, list[np.ndarray]], monkeypatch: pytest.MonkeyPatch
+) -> SurfaceConverter:
+    converter = object.__new__(SurfaceConverter)
+    converter._surface_to_fenestration = {}
+    converter._surface_to_enclosure = {}
+    converter.stats = ConversionStats()
+    monkeypatch.setattr(
+        converter, '_get_surface_plane_loops', lambda s: slab_loops[s.surface_id]
+    )
+    return converter
+
+
+def _add_slab_surface(
+    converter: SurfaceConverter,
+    slab_loops: dict[int, list[np.ndarray]],
+    surface_id: int,
+    surface_type: SurfaceType,
+    loop: np.ndarray,
+) -> Surface:
+    slab_loops[surface_id] = [loop]
+    converter._surface_to_enclosure[surface_id] = (
+        MainEnclosure(kind=EnclosureKind.FLOOR_CEILING),
+        surface_type == SurfaceType.CEILING,
+    )
+    return Surface(surface_id=surface_id, type=surface_type)
+
+
+def test_ceiling_strip_outside_floor_moves_to_room_below(
+    slab_converter: SurfaceConverter,
+    slab_loops: dict[int, list[np.ndarray]],
+) -> None:
+    # The storey above sets its wall 0.2 m north of the wall at y=-0.2, and
+    # the slab strip between them is attributed to the southern room.
+    north_floor = _add_slab_surface(
+        slab_converter,
+        slab_loops,
+        1,
+        SurfaceType.MIDDLE_FLOOR,
+        _rectangle(0, 11, -0.2, 10.4, 0),
+    )
+    north_ceiling = _add_slab_surface(
+        slab_converter,
+        slab_loops,
+        2,
+        SurfaceType.CEILING,
+        _rectangle(0, 11, 0, 10.4, 5.9),
+    )
+    south_floor = _add_slab_surface(
+        slab_converter,
+        slab_loops,
+        3,
+        SurfaceType.MIDDLE_FLOOR,
+        _rectangle(0, 11, -5, -0.2, 0),
+    )
+    south_ceiling = _add_slab_surface(
+        slab_converter,
+        slab_loops,
+        4,
+        SurfaceType.CEILING,
+        _rectangle(0, 11, -5, -0.2, 5.9),
+    )
+    strip = _add_slab_surface(
+        slab_converter,
+        slab_loops,
+        5,
+        SurfaceType.CEILING,
+        _rectangle(0, 11, -0.2, 0, 5.9),
+    )
+    north = Room(id=10, name='north', of_storey=1)
+    north.surfaces = [north_floor, north_ceiling]
+    south = Room(id=20, name='south', of_storey=1)
+    south.surfaces = [south_floor, south_ceiling, strip]
+
+    room_surfaces = slab_converter._assign_room_surfaces([north, south])
+
+    assert room_surfaces[10] == [north_floor, north_ceiling, strip]
+    assert room_surfaces[20] == [south_floor, south_ceiling]
+
+
+def test_ceiling_outside_floor_without_owner_stays(
+    slab_converter: SurfaceConverter,
+    slab_loops: dict[int, list[np.ndarray]],
+) -> None:
+    floor = _add_slab_surface(
+        slab_converter,
+        slab_loops,
+        1,
+        SurfaceType.MIDDLE_FLOOR,
+        _rectangle(0, 5, 0, 5, 0),
+    )
+    ceiling = _add_slab_surface(
+        slab_converter, slab_loops, 2, SurfaceType.CEILING, _rectangle(5, 6, 0, 5, 3)
+    )
+    room = Room(id=10, name='room', of_storey=1)
+    room.surfaces = [floor, ceiling]
+
+    room_surfaces = slab_converter._assign_room_surfaces([room])
+
+    assert room_surfaces[10] == [floor, ceiling]
+    assert 'keeping it in the original room' in slab_converter.stats.warnings[0]
+
+
+@pytest.mark.parametrize(
+    ('surface_type', 'normal', 'expected'),
+    [
+        (SurfaceType.CEILING, [0.0, 0.0, 1.0], 'Roof'),
+        (SurfaceType.GROUND_FLOOR, [0.0, 0.0, -1.0], 'Floor'),
+        (SurfaceType.EXTERIOR_WALL, [1.0, 0.0, 0.0], 'Wall'),
+    ],
+)
+def test_ground_floor_enclosure_type_follows_outward_normal(
+    converter: SurfaceConverter,
+    surface_type: SurfaceType,
+    normal: list[float],
+    expected: str,
+) -> None:
+    surface = Surface(surface_id=1, type=surface_type)
+    converter._surface_to_enclosure = {
+        1: (MainEnclosure(kind=EnclosureKind.GROUNDFLOOR), True)
+    }
+    converter._surface_normals = {1: np.array(normal)}
+
+    assert converter._determine_surface_type(surface) == expected

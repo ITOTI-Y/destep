@@ -62,6 +62,41 @@ def is_zone_open(residual: float, total_area: float) -> bool:
     )
 
 
+def interior_point_xy(loops: list[np.ndarray]) -> np.ndarray:
+    """Centroid of the largest triangle of a horizontal polygon, in plan view.
+
+    Unlike the polygon centroid, this point lies inside non-convex polygons
+    and polygons with holes.
+    """
+    points = np.concatenate(loops, axis=0)[:, :2].astype(np.float64)
+    ring_ends = np.cumsum([len(loop) for loop in loops], dtype=np.uint32)
+    faces = np.asarray(
+        earcut.triangulate_float64(points, ring_ends), dtype=np.uint32
+    ).reshape(-1, 3)
+    if len(faces) == 0:
+        raise ValueError('Polygon could not be triangulated')
+    triangles = points[faces]
+    edges_1 = triangles[:, 1] - triangles[:, 0]
+    edges_2 = triangles[:, 2] - triangles[:, 0]
+    areas = np.abs(edges_1[:, 0] * edges_2[:, 1] - edges_1[:, 1] * edges_2[:, 0])
+    return triangles[np.argmax(areas)].mean(axis=0)
+
+
+def point_in_loops_xy(point: np.ndarray, loops: list[np.ndarray]) -> bool:
+    """Even-odd test of a plan-view point against an outer loop and its holes."""
+    inside = False
+    for loop in loops:
+        xy = loop[:, :2]
+        for start, end in zip(xy, np.roll(xy, -1, axis=0), strict=True):
+            if (start[1] > point[1]) != (end[1] > point[1]):
+                crossing_x = start[0] + (point[1] - start[1]) * (end[0] - start[0]) / (
+                    end[1] - start[1]
+                )
+                if point[0] < crossing_x:
+                    inside = not inside
+    return inside
+
+
 class SurfaceType(IntEnum):
     """DeST surface type enumeration."""
 
@@ -94,6 +129,7 @@ class SurfaceConverter(BaseConverter[Room]):
         self._surface_part_names: dict[int, list[str]] = {}
         self._surface_parts: dict[int, list[np.ndarray]] = {}
         self._surface_normals: dict[int, np.ndarray] = {}
+        self._room_surfaces: dict[int, list[Surface]] = {}
 
     def _build_enclosure_lookup(self) -> None:
         """Build lookup table from Surface ID to MainEnclosure."""
@@ -127,8 +163,9 @@ class SurfaceConverter(BaseConverter[Room]):
 
     def convert_all(self) -> None:
         stmt = select(Room).options(selectinload(Room.surfaces))
-        rooms = self.session.execute(stmt).scalars().all()
-        self._prepare_surface_parts(list(rooms))
+        rooms = list(self.session.execute(stmt).scalars().all())
+        self._room_surfaces = self._assign_room_surfaces(rooms)
+        self._prepare_surface_parts(rooms)
         for room in rooms:
             if self.convert_one(room):
                 logger.info(f'Converted room {room.id}')
@@ -141,14 +178,7 @@ class SurfaceConverter(BaseConverter[Room]):
 
     def convert_one(self, instance: Room) -> bool:
         room = instance
-        surfaces = [
-            s
-            for s in room.surfaces
-            if s.surface_id not in self._surface_to_fenestration
-        ]
-        surface_by_types = defaultdict(list)
-        for surface in surfaces:
-            surface_by_types[surface.type].append(surface)
+        surfaces = self._room_surfaces[room.id]
         normals = self._get_cached_normals(surfaces)
         zone_polygons: list[np.ndarray] = []
 
@@ -168,7 +198,7 @@ class SurfaceConverter(BaseConverter[Room]):
                 )
                 surface_type = self._determine_surface_type(surface)
                 construction_name = self._get_construction_name(surface)
-                zone_name = self._get_zone_name(surface.of_room)
+                zone_name = self._get_zone_name(room.id)
                 sun_exposure = self._get_sun_exposure(boundary_condition)
                 wind_exposure = self._get_wind_exposure(boundary_condition)
 
@@ -228,14 +258,95 @@ class SurfaceConverter(BaseConverter[Room]):
             return False
         return True
 
-    def _prepare_surface_parts(self, rooms: list[Room]) -> None:
-        """Precompute split surfaces so interzone references are deterministic."""
-        for room in rooms:
-            surfaces = [
+    def _assign_room_surfaces(self, rooms: list[Room]) -> dict[int, list[Surface]]:
+        """Map each room to its opaque surfaces, fixing misassigned ceilings.
+
+        DeST splits a floor slab along the walls of the storey above, and may
+        attribute a ceiling strip lying above one room to a neighbouring room
+        of the storey below. A ceiling whose plan-view interior point falls
+        outside its room's floor is moved to the single room of the same
+        storey whose floor contains it.
+        """
+        room_surfaces = {
+            room.id: [
                 s
                 for s in room.surfaces
                 if s.surface_id not in self._surface_to_fenestration
             ]
+            for room in rooms
+        }
+        footprints = {
+            room.id: self._floor_footprint(room_surfaces[room.id]) for room in rooms
+        }
+
+        for room in rooms:
+            if not footprints[room.id]:
+                continue
+            for surface in list(room_surfaces[room.id]):
+                if not self._is_slab_ceiling(surface):
+                    continue
+                try:
+                    point = interior_point_xy(self._get_surface_plane_loops(surface))
+                except ValueError:
+                    continue
+                if any(point_in_loops_xy(point, f) for f in footprints[room.id]):
+                    continue
+
+                owners = [
+                    other
+                    for other in rooms
+                    if other.id != room.id
+                    and other.of_storey == room.of_storey
+                    and any(point_in_loops_xy(point, f) for f in footprints[other.id])
+                ]
+                if len(owners) != 1:
+                    self.stats.add_warning(
+                        f'Ceiling surface {surface.surface_id} lies outside the '
+                        f'floor of room {room.id}, and {len(owners)} rooms of '
+                        'its storey contain it; keeping it in the original room'
+                    )
+                    continue
+                owner = owners[0]
+                room_surfaces[room.id].remove(surface)
+                room_surfaces[owner.id].append(surface)
+                self.stats.add_warning(
+                    f'Ceiling surface {surface.surface_id} lies outside the floor '
+                    f'of room {room.id} ({room.name}); reassigned to room '
+                    f'{owner.id} ({owner.name})'
+                )
+        return room_surfaces
+
+    def _is_slab_ceiling(self, surface: Surface) -> bool:
+        enclosure_info = self._surface_to_enclosure.get(surface.surface_id)
+        return (
+            surface.type == SurfaceType.CEILING
+            and enclosure_info is not None
+            and enclosure_info[0].kind == EnclosureKind.FLOOR_CEILING
+        )
+
+    def _floor_footprint(self, surfaces: list[Surface]) -> list[list[np.ndarray]]:
+        """Middle-plane loops of the horizontal floors among a room's surfaces."""
+        footprint = []
+        for surface in surfaces:
+            if surface.type not in (
+                SurfaceType.GROUND_FLOOR,
+                SurfaceType.AIR_FLOOR,
+                SurfaceType.MIDDLE_FLOOR,
+            ):
+                continue
+            try:
+                loops = self._get_surface_plane_loops(surface)
+            except ValueError:
+                continue
+            normal = self._find_polygon_normal(loops[0])
+            if normal is not None and abs(normal[2]) >= HORIZONTAL_NORMAL_Z:
+                footprint.append(loops)
+        return footprint
+
+    def _prepare_surface_parts(self, rooms: list[Room]) -> None:
+        """Precompute split surfaces so interzone references are deterministic."""
+        for room in rooms:
+            surfaces = self._room_surfaces[room.id]
             normals = self._get_cached_normals(surfaces)
             for surface, normal in zip(surfaces, normals, strict=True):
                 try:
@@ -799,7 +910,7 @@ class SurfaceConverter(BaseConverter[Room]):
             normal = self._get_cached_normals([surface])[0]
             if abs(normal[2]) < HORIZONTAL_NORMAL_Z:
                 return 'Wall'
-            return 'Floor'
+            return 'Roof' if normal[2] > 0 else 'Floor'
         elif enclosure.kind in (EnclosureKind.INWALL, EnclosureKind.OUTWALL):
             return 'Wall'
         elif enclosure.kind == EnclosureKind.FLOOR_CEILING:
