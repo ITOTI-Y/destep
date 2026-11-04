@@ -24,6 +24,7 @@ from ._share import BUILDING_HVAC_MAP, HVACStrategyType
 from .base import BaseConverter
 from .building import BuildingConverter
 from .construction import ConstructionConverter
+from .daylighting import DaylightingConverter
 from .fenestration import FenestrationConverter
 from .hvac import HVACConverter
 from .hvac_data import (
@@ -79,6 +80,7 @@ class ConverterManager:
         'surface': SurfaceConverter,
         'fenestration': FenestrationConverter,
         'internal_gains': InternalGainsConverter,
+        'daylighting': DaylightingConverter,
         'hvac': HVACConverter,
         'schedule': ScheduleConverter,
     }

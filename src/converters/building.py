@@ -172,7 +172,7 @@ class BuildingConverter(BaseConverter[DestBuilding]):
                 starting_vertex_position='UpperLeftCorner',
                 vertex_entry_direction='Counterclockwise',
                 coordinate_system='World',
-                daylighting_reference_point_coordinate_system='Relative',
+                daylighting_reference_point_coordinate_system='World',
                 rectangular_surface_coordinate_system='World',
             )
             self.idf.add(rules)
