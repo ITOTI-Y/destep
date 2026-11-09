@@ -58,6 +58,9 @@ class LookupTable:
     # REQUIRED_SCHEDULE_IDS: Set of required schedule IDs
     REQUIRED_SCHEDULE_IDS: set[int] = field(default_factory=set)
 
+    # PERCENT_SCHEDULE_IDS: Fraction schedules written as percent copies
+    PERCENT_SCHEDULE_IDS: set[int] = field(default_factory=set)
+
     # SURFACE_TO_NAME: Surface ID -> Surface Name
     SURFACE_TO_NAME: dict[int, str] = field(default_factory=dict)
 
@@ -147,7 +150,6 @@ class ConverterManager:
                     converter.set_ddy_path(Path(ddy_path))
             if isinstance(converter, HVACConverter):
                 converter.set_strategy(self._resolve_hvac_strategy())
-                converter.set_building_type(self.building_type)
             if isinstance(converter, InternalGainsConverter):
                 converter.set_building_type(self.building_type)
             converter.convert_all()

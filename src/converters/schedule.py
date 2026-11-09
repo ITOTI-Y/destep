@@ -31,6 +31,7 @@ from idfpy.models.schedules import ScheduleCompactDataItem
 from loguru import logger
 from sqlalchemy import select
 
+from src.converters._share import PERCENT_SCHEDULE_PREFIX
 from src.converters.base import BaseConverter
 from src.database.models.schedule import ScheduleYear
 
@@ -386,7 +387,8 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
                 schedule reference.
         """
         required_ids = self.lookup_table.REQUIRED_SCHEDULE_IDS
-        if not required_ids:
+        percent_ids = self.lookup_table.PERCENT_SCHEDULE_IDS
+        if not required_ids and not percent_ids:
             logger.info('No schedules marked as required, skipping schedule conversion')
             return
 
@@ -397,17 +399,18 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
                 'typical profile only where the weekday encoding is chosen'
             )
 
-        stmt = select(ScheduleYear).where(ScheduleYear.schedule_id.in_(required_ids))
+        requested_ids = required_ids | percent_ids
+        stmt = select(ScheduleYear).where(ScheduleYear.schedule_id.in_(requested_ids))
         schedules = self.session.execute(stmt).scalars().all()
         self.stats.total = len(schedules)
 
         logger.info(
             f'Converting {len(schedules)} required schedules '
-            f'out of {len(required_ids)} requested'
+            f'out of {len(requested_ids)} requested'
         )
 
         found_ids = {s.schedule_id for s in schedules}
-        missing_ids = required_ids - found_ids
+        missing_ids = requested_ids - found_ids
         if missing_ids:
             raise ValueError(
                 f'{len(missing_ids)} required schedule IDs are missing from the '
@@ -416,18 +419,27 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
 
         type_limits_needed: set[str] = set()
         for schedule in schedules:
-            limits_name = self._determine_type_limits(schedule)
-            type_limits_needed.add(limits_name)
+            if schedule.schedule_id in required_ids:
+                type_limits_needed.add(self._determine_type_limits(schedule))
+
+        if percent_ids:
+            type_limits_needed.add('Any Number')
 
         self._create_schedule_type_limits(type_limits_needed)
 
         failed_ids: list[int] = []
         for schedule in schedules:
+            if schedule.schedule_id not in required_ids:
+                continue
             if self.convert_one(schedule):
                 self.stats.converted += 1
             else:
                 self.stats.errors += 1
                 failed_ids.append(schedule.schedule_id)
+
+        for schedule in schedules:
+            if schedule.schedule_id in percent_ids:
+                self._add_percent_schedule(schedule)
 
         self.log_stats()
         if failed_ids:
@@ -483,6 +495,30 @@ class ScheduleConverter(BaseConverter[ScheduleYear]):
                 f'Schedule {instance.schedule_id} conversion failed: {e}'
             )
             return False
+
+    def _add_percent_schedule(self, schedule: ScheduleYear) -> None:
+        """Write a fraction schedule as a percent copy, e.g. for humidistats."""
+        name = self.make_name(
+            PERCENT_SCHEDULE_PREFIX, schedule.schedule_id, schedule.name
+        )
+        values = [value * 100.0 for value in hourly_values(schedule.data)]
+        encoded = encode_schedule(values, self._design_dates)
+        if isinstance(encoded, list):
+            self.idf.add(
+                ScheduleCompact(
+                    name=name,
+                    schedule_type_limits_name='Any Number',
+                    data=[ScheduleCompactDataItem(field=field) for field in encoded],
+                )
+            )
+        else:
+            self.idf.add(
+                ScheduleConstant(
+                    name=name,
+                    schedule_type_limits_name='Any Number',
+                    hourly_value=encoded,
+                )
+            )
 
     def _determine_type_limits(self, schedule: ScheduleYear) -> str:
         """Determine the appropriate ScheduleTypeLimits for a schedule.

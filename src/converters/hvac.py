@@ -1,42 +1,45 @@
 """HVAC converter for DeST to EnergyPlus IDF conversion.
 
-Converts DeST Room/RoomGroup data to EnergyPlus HVACTemplate objects
-for simplified HVAC system configuration.
+Converts DeST Room data to EnergyPlus HVACTemplate objects for simplified
+HVAC system configuration. Whether a room is conditioned comes from its
+RoomGroup; the AC on/off and setpoint schedules come from its room type.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final
 
-from idfpy.models import HVACTemplateThermostat, ScheduleConstant
+from idfpy.models import (
+    HVACTemplateThermostat,
+    ScheduleConstant,
+    ZoneControlHumidistat,
+)
 from loguru import logger
 from sqlalchemy import select
 
+from src.converters._share import PERCENT_SCHEDULE_PREFIX
 from src.converters.base import BaseConverter
 from src.database.models.building import Room
-from src.database.models.gains import OccupantGains
 
 if TYPE_CHECKING:
     from idfpy import IDF
     from sqlalchemy.orm import Session
 
-    from src.database.models.building import RoomGroup
+    from src.database.models.misc import RoomTypeData
     from src.utils.pinyin import PinyinConverter
 
     from .hvac_strategy import HVACStrategy
     from .manager import LookupTable
 
 M3_PER_HOUR_TO_M3_PER_SECOND: Final = 1.0 / 3600.0
-
-ALWAYS_ON_BUILDING_TYPES: Final[frozenset[str]] = frozenset({'lh', 'sh', 'outp', 'inp'})
-ALWAYS_ON_SCHEDULE_NAME: Final = 'HVAC_Availability_Always_On'
+NO_HUMIDIFICATION_SCHEDULE_NAME: Final = 'Humidistat_No_Humidification'
 
 
 class HVACConverter(BaseConverter[Room]):
     """Converter for DeST HVAC configuration to EnergyPlus HVACTemplate objects.
 
     Creates:
-    - HVACTemplate:Thermostat (one per RoomGroup, shared by rooms in same group)
+    - HVACTemplate:Thermostat (one per room type, shared by rooms of that type)
     - HVACTemplate:Zone:IdealLoadsAirSystem (one per Zone)
 
     Uses HVACTemplate approach which EnergyPlus expands to underlying objects
@@ -53,15 +56,6 @@ class HVACConverter(BaseConverter[Room]):
         super().__init__(session, idf, lookup_table, pinyin)
         self._thermostat_cache: dict[int, str] = {}
         self._strategy: HVACStrategy | None = None
-        self._always_on = False
-
-    def set_building_type(self, building_type: str) -> None:
-        self._always_on = building_type.lower() in ALWAYS_ON_BUILDING_TYPES
-        if self._always_on:
-            logger.info(
-                f'Building type {building_type}: HVAC available 24 h, '
-                'DeST AC on/off schedule not used'
-            )
 
     def set_strategy(self, strategy: HVACStrategy) -> None:
         self._strategy = strategy
@@ -91,6 +85,9 @@ class HVACConverter(BaseConverter[Room]):
 
         Returns:
             True if conversion succeeded, False otherwise.
+
+        Raises:
+            ValueError: If a conditioned room has no room type.
         """
         room = instance
         zone_name = self.lookup_table.ROOM_TO_ZONE.get(room.id)
@@ -113,8 +110,15 @@ class HVACConverter(BaseConverter[Room]):
         if self._strategy is None:
             raise ValueError('HVAC strategy not set. Call set_strategy() first.')
 
-        thermostat_name = self._create_thermostat(room_group, room)
-        availability_schedule_name = self._availability_schedule_name(room_group, room)
+        room_type = room.room_type
+        if room_type is None:
+            raise ValueError(
+                f'Room {room.id} ({room.name}) has no room type, '
+                'so its AC and setpoint schedules are undefined.'
+            )
+
+        thermostat_name = self._create_thermostat(room_type, room)
+        availability_schedule_name = self._availability_schedule_name(room_type, room)
         fresh_air_flow = self._calculate_fresh_air_flow(room)
         self._strategy.add_zone_hvac(
             self.idf,
@@ -124,7 +128,10 @@ class HVACConverter(BaseConverter[Room]):
             availability_schedule_name,
         )
 
-        if fresh_air_flow is not None and fresh_air_flow > 0:
+        if self._strategy.controls_humidity:
+            self._add_dehumidistat(zone_name, room_type, room)
+
+        if fresh_air_flow is not None:
             logger.debug(
                 f'Converted Room {room.id} ({zone_name}) HVAC -> '
                 f'Thermostat: {thermostat_name}, '
@@ -136,32 +143,25 @@ class HVACConverter(BaseConverter[Room]):
         self.stats.converted += 1
         return True
 
-    def _availability_schedule_name(self, room_group: RoomGroup, room: Room) -> str:
-        if self._always_on:
-            if not self.idf.has(ScheduleConstant, ALWAYS_ON_SCHEDULE_NAME):
-                self.idf.add(
-                    ScheduleConstant(name=ALWAYS_ON_SCHEDULE_NAME, hourly_value=1.0)
-                )
-            return ALWAYS_ON_SCHEDULE_NAME
-
-        schedule = room_group.ac_schedule
+    def _availability_schedule_name(self, room_type: RoomTypeData, room: Room) -> str:
+        schedule = room_type.ac_schedule
         if schedule is None:
             raise ValueError(
-                f'RoomGroup {room_group.room_group_id} ({room_group.name}) '
+                f'Room type {room_type.id} ({room_type.name}) '
                 f'missing required AC schedule (ac_schedule_id). '
                 f'Room {room.id} ({room.name}) cannot be configured.'
             )
         self.lookup_table.REQUIRED_SCHEDULE_IDS.add(schedule.schedule_id)
         return self.make_name('Schedule', schedule.schedule_id, schedule.name)
 
-    def _create_thermostat(self, room_group: RoomGroup, room: Room) -> str:
-        """Create HVACTemplateThermostat for a RoomGroup.
+    def _create_thermostat(self, room_type: RoomTypeData, room: Room) -> str:
+        """Create HVACTemplateThermostat for a room type.
 
-        Thermostats are cached by RoomGroup ID to avoid duplicates since
-        multiple rooms in the same RoomGroup share the same thermostat.
+        Thermostats are cached by room type ID since all rooms of one type
+        share the same setpoint schedules.
 
         Args:
-            room_group: RoomGroup instance with setpoint schedules.
+            room_type: RoomTypeData instance with setpoint schedules.
             room: Room instance for error context.
 
         Returns:
@@ -170,22 +170,22 @@ class HVACConverter(BaseConverter[Room]):
         Raises:
             ValueError: If required setpoint schedules are missing.
         """
-        if room_group.room_group_id in self._thermostat_cache:
-            return self._thermostat_cache[room_group.room_group_id]
+        if room_type.id in self._thermostat_cache:
+            return self._thermostat_cache[room_type.id]
 
-        heating_schedule = room_group.set_t_min_schedule_ref
-        cooling_schedule = room_group.set_t_max_schedule_ref
+        heating_schedule = room_type.set_t_min_schedule_ref
+        cooling_schedule = room_type.set_t_max_schedule_ref
 
         if heating_schedule is None:
             raise ValueError(
-                f'RoomGroup {room_group.room_group_id} ({room_group.name}) '
+                f'Room type {room_type.id} ({room_type.name}) '
                 f'missing required heating setpoint schedule (set_t_min_schedule). '
                 f'Room {room.id} ({room.name}) cannot be configured.'
             )
 
         if cooling_schedule is None:
             raise ValueError(
-                f'RoomGroup {room_group.room_group_id} ({room_group.name}) '
+                f'Room type {room_type.id} ({room_type.name}) '
                 f'missing required cooling setpoint schedule (set_t_max_schedule). '
                 f'Room {room.id} ({room.name}) cannot be configured.'
             )
@@ -200,9 +200,7 @@ class HVACConverter(BaseConverter[Room]):
             'Schedule', cooling_schedule.schedule_id, cooling_schedule.name
         )
 
-        thermostat_name = self.make_name(
-            'Thermostat', room_group.room_group_id, room_group.name
-        )
+        thermostat_name = self.make_name('Thermostat', room_type.id, room_type.name)
 
         thermostat = HVACTemplateThermostat(
             name=thermostat_name,
@@ -211,7 +209,7 @@ class HVACConverter(BaseConverter[Room]):
         )
         self.idf.add(thermostat)
 
-        self._thermostat_cache[room_group.room_group_id] = thermostat_name
+        self._thermostat_cache[room_type.id] = thermostat_name
 
         logger.debug(
             f'Created HVACTemplateThermostat: {thermostat_name} '
@@ -219,48 +217,57 @@ class HVACConverter(BaseConverter[Room]):
         )
         return thermostat_name
 
-    def _calculate_fresh_air_flow(self, room: Room) -> float | None:
-        """Calculate fresh air flow rate for a room.
-
-        Priority 1: Use Room.min_fresh_flow_num directly (m³/h)
-        Priority 2: Calculate from OccupantGains.min_require_fresh_air × maxnumber × area
+    def _add_dehumidistat(
+        self, zone_name: str, room_type: RoomTypeData, room: Room
+    ) -> None:
+        """Add a dehumidify-only humidistat from the room type's RH upper limit.
 
         Args:
-            room: Room instance to calculate fresh air for.
+            zone_name: Zone to control.
+            room_type: RoomTypeData instance with the RH upper limit schedule.
+            room: Room instance for error context.
+
+        Raises:
+            ValueError: If the RH upper limit schedule is missing.
+        """
+        schedule = room_type.set_rh_max_schedule_ref
+        if schedule is None:
+            raise ValueError(
+                f'Room type {room_type.id} ({room_type.name}) '
+                f'missing required humidity setpoint schedule (set_rh_max_schedule). '
+                f'Room {room.id} ({room.name}) cannot be configured.'
+            )
+        self.lookup_table.PERCENT_SCHEDULE_IDS.add(schedule.schedule_id)
+        if not self.idf.has(ScheduleConstant, NO_HUMIDIFICATION_SCHEDULE_NAME):
+            self.idf.add(
+                ScheduleConstant(
+                    name=NO_HUMIDIFICATION_SCHEDULE_NAME,
+                    schedule_type_limits_name='Any Number',
+                    hourly_value=0.0,
+                )
+            )
+        self.idf.add(
+            ZoneControlHumidistat(
+                name=f'{zone_name} Humidistat',
+                zone_name=zone_name,
+                humidifying_relative_humidity_setpoint_schedule_name=(
+                    NO_HUMIDIFICATION_SCHEDULE_NAME
+                ),
+                dehumidifying_relative_humidity_setpoint_schedule_name=self.make_name(
+                    PERCENT_SCHEDULE_PREFIX, schedule.schedule_id, schedule.name
+                ),
+            )
+        )
+
+    def _calculate_fresh_air_flow(self, room: Room) -> float | None:
+        """Return the room's minimum fresh air flow.
+
+        Args:
+            room: Room instance with ``min_fresh_flow_num`` in m³/h.
 
         Returns:
-            Fresh air flow rate in m³/s, or None if no fresh air configured.
+            Fresh air flow rate in m³/s, or None if the room has no fresh air.
         """
-        if room.min_fresh_flow_num is not None and room.min_fresh_flow_num > 0:
-            flow_m3_per_s = room.min_fresh_flow_num * M3_PER_HOUR_TO_M3_PER_SECOND
-            logger.debug(
-                f'Room {room.id}: Using min_fresh_flow_num = '
-                f'{room.min_fresh_flow_num} m³/h = {flow_m3_per_s:.6f} m³/s'
-            )
-            return flow_m3_per_s
-
-        stmt = select(OccupantGains).where(OccupantGains.of_room == room.id)
-        occupant_gains_list = list(self.session.execute(stmt).scalars().all())
-
-        for gains in occupant_gains_list:
-            if (
-                gains.min_require_fresh_air is not None
-                and gains.min_require_fresh_air > 0
-                and gains.maxnumber is not None
-                and gains.maxnumber > 0
-                and room.area is not None
-                and room.area > 0
-            ):
-                flow_m3_per_h = (
-                    gains.min_require_fresh_air * gains.maxnumber * room.area
-                )
-                flow_m3_per_s = flow_m3_per_h * M3_PER_HOUR_TO_M3_PER_SECOND
-                logger.debug(
-                    f'Room {room.id}: Calculated fresh air from OccupantGains = '
-                    f'{flow_m3_per_h:.2f} m³/h = {flow_m3_per_s:.6f} m³/s '
-                    f'(min_require={gains.min_require_fresh_air}, '
-                    f'maxnumber={gains.maxnumber}, area={room.area})'
-                )
-                return flow_m3_per_s
-
-        return None
+        if room.min_fresh_flow_num is None or room.min_fresh_flow_num <= 0:
+            return None
+        return room.min_fresh_flow_num * M3_PER_HOUR_TO_M3_PER_SECOND

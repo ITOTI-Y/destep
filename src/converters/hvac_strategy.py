@@ -31,6 +31,7 @@ from src.converters.hvac_data import (
 
 class HVACStrategy(Protocol):
     name: Final[str]
+    controls_humidity: Final[bool]
 
     def create_system_objects(self, idf: IDF) -> None:
         raise NotImplementedError
@@ -48,6 +49,7 @@ class HVACStrategy(Protocol):
 
 class IdealLoadsStrategy:
     name: Final[str] = 'ideal-loads'
+    controls_humidity: Final[bool] = False
 
     def add_zone_hvac(
         self,
@@ -84,6 +86,7 @@ class IdealLoadsStrategy:
 
 class MeteredIdealLoadsStrategy:
     name: Final[str] = 'metered-ideal-loads'
+    controls_humidity: Final[bool] = True
     CONTROL_TYPE_LIMITS_NAME: Final = 'Thermostat Control Type'
     DUAL_SETPOINT_CONTROL_SCHEDULE_NAME: Final = 'Dual Setpoint Control Type'
 
@@ -248,8 +251,7 @@ class MeteredIdealLoadsStrategy:
                 minimum_cooling_supply_air_humidity_ratio=0.0077,
                 heating_limit='NoLimit',
                 cooling_limit='NoLimit',
-                dehumidification_control_type='ConstantSensibleHeatRatio',
-                cooling_sensible_heat_ratio=0.7,
+                dehumidification_control_type='Humidistat',
                 humidification_control_type='None',
                 design_specification_outdoor_air_object_name=(
                     outdoor_air_specification_name
@@ -305,6 +307,7 @@ class MeteredIdealLoadsStrategy:
 
 class FanCoilCentralPlantStrategy:
     name: Final[str] = 'fan-coil'
+    controls_humidity: Final[bool] = False
 
     CHILLED_WATER_LOOP_NAME: Final = 'Chilled_Water_Loop'
     HOT_WATER_LOOP_NAME: Final = 'Hot_Water_Loop'

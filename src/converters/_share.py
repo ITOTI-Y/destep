@@ -26,3 +26,5 @@ BUILDING_HVAC_MAP: Final[dict[str, HVACStrategyType]] = {
     'th': HVACStrategyType.METERED_IDEAL_LOADS,  # Terraced House
     'uni': HVACStrategyType.FAN_COIL,  # University
 }
+
+PERCENT_SCHEDULE_PREFIX: Final = 'SchedulePercent'

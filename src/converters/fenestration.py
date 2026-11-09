@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 import numpy as np
 from idfpy import IDF
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 
 
 EPSILON = 1e-10
+SHGC_PER_SHADING_COEFFICIENT: Final = 0.87
 
 
 class FenestrationConverter(BaseConverter[Window | Door]):
@@ -40,7 +41,7 @@ class FenestrationConverter(BaseConverter[Window | Door]):
         self._plane_to_vertices: dict[int, Plane] = {}
         self._build_plane_lookup()
 
-        self._window_id_to_glass_data: dict[int, WindowTypeData] = {}
+        self._glass_data_by_type: dict[int, WindowTypeData] = {}
         self._build_glass_data_lookup()
 
         self._created_windows_constructions: dict[int, str] = {}
@@ -49,7 +50,7 @@ class FenestrationConverter(BaseConverter[Window | Door]):
         stmt = select(WindowTypeData)
         type_data = list(self.session.execute(stmt).scalars().all())
         for data in type_data:
-            self._window_id_to_glass_data[data.id] = data
+            self._glass_data_by_type[data.id] = data
 
     def _build_plane_lookup(self) -> None:
         stmt = select(Plane)
@@ -173,41 +174,60 @@ class FenestrationConverter(BaseConverter[Window | Door]):
         return points
 
     def _create_window_construction(self, window: Window) -> str:
-        construction = window.window_construction_ref
-        assert construction is not None
-        if construction.window_id in self._created_windows_constructions:
-            return self._created_windows_constructions[construction.window_id]
+        """Create the glazing construction of a window from its DeST window type.
 
-        name = construction.name or construction.cname
+        The window type holds the whole-window U-value and the shading
+        coefficient; the shading coefficient is converted to SHGC with the
+        3 mm clear glass reference of 0.87.
 
-        material_name = self.make_name('WindowMaterial', construction.window_id, name)
-        assert construction.heat_resistence is not None
-        u_factor = 1 / construction.heat_resistence
+        Args:
+            window: Window instance whose ``type`` refers to window_type_data.
 
-        glass_data = self._window_id_to_glass_data[construction.window_id]
-        sc = glass_data.sc
-        light_trans_ratio = glass_data.light_trans_ratio
+        Returns:
+            Name of the construction (existing or newly created).
 
-        assert sc is not None
-        material_object = WindowMaterialSimpleGlazingSystem(
-            name=material_name,
-            u_factor=u_factor,
-            solar_heat_gain_coefficient=sc,
-            visible_transmittance=light_trans_ratio,
+        Raises:
+            ValueError: If the window type or its K, SC or light transmittance
+                is missing.
+        """
+        window_type = window.type
+        if window_type is None:
+            raise ValueError(f'Window {window.id} has no window type')
+        if window_type in self._created_windows_constructions:
+            return self._created_windows_constructions[window_type]
+
+        glass_data = self._glass_data_by_type.get(window_type)
+        if glass_data is None:
+            raise ValueError(
+                f'Window {window.id} refers to unknown window type {window_type}'
+            )
+        if (
+            glass_data.k is None
+            or glass_data.sc is None
+            or glass_data.light_trans_ratio is None
+        ):
+            raise ValueError(
+                f'Window type {glass_data.id} ({glass_data.name}) '
+                'is missing K, SC or light transmittance'
+            )
+
+        material_name = self.make_name('WindowMaterial', glass_data.id, glass_data.name)
+        self.idf.add(
+            WindowMaterialSimpleGlazingSystem(
+                name=material_name,
+                u_factor=glass_data.k,
+                solar_heat_gain_coefficient=glass_data.sc
+                * SHGC_PER_SHADING_COEFFICIENT,
+                visible_transmittance=glass_data.light_trans_ratio,
+            )
         )
-        self.idf.add(material_object)
 
         construction_name = self.make_name(
-            'WindowConstruction', construction.window_id, name
+            'WindowConstruction', glass_data.id, glass_data.name
         )
-        construction_object = Construction(
-            name=construction_name,
-            outside_layer=material_name,
-        )
-        self.idf.add(construction_object)
+        self.idf.add(Construction(name=construction_name, outside_layer=material_name))
 
-        self._created_windows_constructions[construction.window_id] = construction_name
-
+        self._created_windows_constructions[window_type] = construction_name
         return construction_name
 
     def _convert_window(self, window: Window) -> bool:

@@ -1,5 +1,9 @@
 import pytest
+from idfpy import IDF
+from idfpy.models import ScheduleConstant
 
+from src.converters._share import PERCENT_SCHEDULE_PREFIX
+from src.converters.manager import LookupTable
 from src.converters.schedule import (
     DAYS_PER_YEAR,
     SUMMER_DESIGN_DAY,
@@ -7,10 +11,13 @@ from src.converters.schedule import (
     WINTER_DESIGN_DAY,
     WINTER_MONTHS,
     DayProfile,
+    ScheduleConverter,
     _day_profiles,
     _design_day_profile,
     _exact_fields,
 )
+from src.database.models.schedule import ScheduleYear
+from src.utils.pinyin import PinyinConverter
 
 WORKDAY = [0.0] * 8 + [1.0] * 10 + [0.0] * 6
 WEEKEND = [0.0] * 24
@@ -65,3 +72,18 @@ def test_design_date_on_workday_needs_no_override(
 
     assert f'For: {SUMMER_DESIGN_DAY}' not in fields
     assert f'For: {WINTER_DESIGN_DAY}' not in fields
+
+
+def test_percent_copy_scales_fraction_schedule() -> None:
+    converter = object.__new__(ScheduleConverter)
+    converter.idf = IDF()
+    converter.lookup_table = LookupTable()
+    converter.pinyin = PinyinConverter()
+    converter._design_dates = {}
+    schedule = ScheduleYear(schedule_id=14, name='rh', type=4, data=[0.6] * 8760)
+
+    converter._add_percent_schedule(schedule)
+
+    name = converter.make_name(PERCENT_SCHEDULE_PREFIX, 14, 'rh')
+    copy = converter.idf.all_of_type(ScheduleConstant)[name]
+    assert copy.hourly_value == pytest.approx(60.0)
